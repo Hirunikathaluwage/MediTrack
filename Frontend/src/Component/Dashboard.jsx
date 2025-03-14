@@ -1,9 +1,80 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Home, List, Clock, CheckCircle, Users, FileText } from "lucide-react";
+import { Chart, registerables } from "chart.js";
+import axios from "axios";
 import "./Dashboard.css";
 
+Chart.register(...registerables);
+
 const Dashboard = () => {
+  const [inquiries, setInquiries] = useState([]);
+  const [stats, setStats] = useState({ totalInquiries: 0, pendingInquiries: 0, resolvedInquiries: 0 });
+  const chartRef = React.useRef(null);
+
+  useEffect(() => {
+    // Fetch inquiries from the backend
+    axios.get("/api/inquiries")
+      .then(response => {
+        if (Array.isArray(response.data.inquiries)) {
+          setInquiries(response.data.inquiries);
+          console.log("Inquiries fetched successfully:", response.data.inquiries);
+        } else {
+          console.error("Unexpected response format for inquiries:", response.data);
+        }
+      })
+      .catch(error => {
+        console.error("There was an error fetching the inquiries!", error);
+      });
+
+    // Fetch inquiry statistics from the backend
+    axios.get("/api/inquiries/stats")
+      .then(response => {
+        setStats(response.data);
+        console.log("Inquiry statistics fetched successfully:", response.data);
+      })
+      .catch(error => {
+        console.error("There was an error fetching the inquiry statistics!", error);
+      });
+
+    // Initialize the chart
+    const ctx = document.getElementById("inquiryTrendsChart").getContext("2d");
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+    const newChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["January", "February", "March", "April", "May", "June"],
+        datasets: [
+          {
+            label: "Inquiries",
+            data: [65, 59, 80, 81, 56, 55],
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 1,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+    chartRef.current = newChart;
+
+    // Cleanup function to destroy the chart
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+    };
+  }, []);
+
   return (
     <div className="dashboard">
       <aside className="sidebar">
@@ -11,7 +82,7 @@ const Dashboard = () => {
         <nav>
           <ul>
             <li><Link to="/"> <Home size={18} /> Dashboard</Link></li>
-            <li><Link to="/inquiries"> <List size={18} /> All Inquiries</Link></li>
+            <li><Link to="/all-inquiries"> <List size={18} /> All Inquiries</Link></li>
             <li><Link to="/pending"> <Clock size={18} /> Pending</Link></li>
             <li><Link to="/resolved"> <CheckCircle size={18} /> Resolved</Link></li>
             <li><Link to="/users"> <Users size={18} /> Users</Link></li>
@@ -27,14 +98,16 @@ const Dashboard = () => {
         </header>
         
         <section className="overview">
-          <div className="card"><Home /> Total Inquiries <span>150</span></div>
-          <div className="card"><Clock /> Pending <span>25</span></div>
-          <div className="card"><CheckCircle /> Resolved <span>125</span></div>
+          <div className="card"><Home /> Total Inquiries <span>{stats.totalInquiries}</span></div>
+          <div className="card"><Clock /> Pending <span>{stats.pendingInquiries}</span></div>
+          <div className="card"><CheckCircle /> Resolved <span>{stats.resolvedInquiries}</span></div>
           <div className="card"><Clock /> Average Response <span>3h</span></div>
         </section>
 
         <section className="charts">
-          <div className="chart">Inquiry Trends (Chart will be implemented here)</div>
+          <div className="chart">
+            <canvas id="inquiryTrendsChart"></canvas>
+          </div>
           <div className="chart">Status Distribution (Pie chart will be implemented here)</div>
         </section>
 
@@ -60,33 +133,17 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>INQ001</td>
-                <td>Payment Processing Issue</td>
-                <td><span className="status pending">Pending</span></td>
-                <td><span className="priority high">High</span></td>
-                <td>2023-10-25</td>
-                <td>John Doe</td>
-                <td>...</td>
-              </tr>
-              <tr>
-                <td>INQ002</td>
-                <td>Account Access Problem</td>
-                <td><span className="status in-progress">In Progress</span></td>
-                <td><span className="priority medium">Medium</span></td>
-                <td>2023-10-24</td>
-                <td>Jane Smith</td>
-                <td>...</td>
-              </tr>
-              <tr>
-                <td>INQ003</td>
-                <td>Feature Request</td>
-                <td><span className="status resolved">Resolved</span></td>
-                <td><span className="priority low">Low</span></td>
-                <td>2023-10-23</td>
-                <td>Mike Johnson</td>
-                <td>...</td>
-              </tr>
+              {Array.isArray(inquiries) && inquiries.map(inquiry => (
+                <tr key={inquiry._id}>
+                  <td>{inquiry._id}</td>
+                  <td>{inquiry.subject}</td>
+                  <td><span className={`status ${inquiry.status.toLowerCase()}`}>{inquiry.status}</span></td>
+                  <td><span className={`priority ${inquiry.priority.toLowerCase()}`}>{inquiry.priority}</span></td>
+                  <td>{new Date(inquiry.date).toLocaleDateString()}</td>
+                  <td>{inquiry.assignee}</td>
+                  <td>...</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </section>

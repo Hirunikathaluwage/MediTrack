@@ -1,18 +1,19 @@
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Home from './Component/Home';
+import Dashboard from './Component/Dashboard';
 import InquiryForm from './Component/InquiryForm';
+import Home from './Component/Home';
 import Success from './Component/Success';
 import './App.css';
 
 function App() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/inquiry-form" element={<InquiryForm />} />
-        <Route path="/success" element={<Success />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/inquiries" element={<Home />} />
+      <Route path="/create-inquiry" element={<InquiryForm />} />
+      <Route path="/success" element={<Success />} />
+    </Routes>
   );
 }
 
