@@ -1,19 +1,22 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from "cors";
+import orderRoutes from './routes/orderRoutes.js'
+import mongoose from 'mongoose';
 
 dotenv.config();
 
 const app = express();
+app.use(express.json());
+app.use(cors());
 
-app.get("/products", (req, res) => {
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log("Connected to MongoDB Altas"))
+    .catch((error) => console.error("MongoDB Connection Error:", error));
 
-    
-    res.send("server is ready");
-});
+app.use("/api/orders", orderRoutes);
 
-console.log(process.env.MONGO_URI);
+const PORT = process.env.PORT || 5080;
 
-app.listen(5080, () => {
-    console.log("Server started at http://localhost:5080 Hello");
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
