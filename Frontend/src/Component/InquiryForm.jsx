@@ -32,7 +32,7 @@ const InquiryForm = () => {
       data.append(key, formData[key]);
     }
 
-    axios.post('http://localhost:5000/Inquiries', data)
+    axios.post('http://localhost:5000/api/inquiries', data)
       .then(response => {
         console.log('Inquiry submitted successfully:', response.data);
         navigate('/success');

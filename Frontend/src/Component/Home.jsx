@@ -6,9 +6,9 @@ const Home = () => {
   const [inquiries, setInquiries] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/Inquiries')
+    axios.get('http://localhost:5000/api/inquiries') // Ensure the correct port and endpoint
       .then(response => {
-        setInquiries(response.data.Inquiries);
+        setInquiries(response.data.inquiries);
       })
       .catch(error => {
         console.error('There was an error fetching the inquiries!', error);
@@ -34,3 +34,5 @@ const Home = () => {
 };
 
 export default Home;
+
+

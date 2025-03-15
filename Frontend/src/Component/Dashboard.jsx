@@ -14,13 +14,18 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Fetch inquiries from the backend
-    axios.get("/api/inquiries")
+    axios.get("http://localhost:5000/api/inquiries")
       .then(response => {
-        if (Array.isArray(response.data.inquiries)) {
-          setInquiries(response.data.inquiries);
-          console.log("Inquiries fetched successfully:", response.data.inquiries);
+        if (response.headers['content-type'] && response.headers['content-type'].includes('application/json')) {
+          const data = response.data;
+          if (Array.isArray(data.Inquiries)) {
+            setInquiries(data.Inquiries);
+            console.log("Inquiries fetched successfully:", data.Inquiries);
+          } else {
+            console.error("Unexpected response format for inquiries:", data);
+          }
         } else {
-          console.error("Unexpected response format for inquiries:", response.data);
+          console.error("Response is not valid JSON:", response.data);
         }
       })
       .catch(error => {
@@ -28,10 +33,14 @@ const Dashboard = () => {
       });
 
     // Fetch inquiry statistics from the backend
-    axios.get("/api/inquiries/stats")
+    axios.get("http://localhost:5000/api/inquiries/stats")
       .then(response => {
-        setStats(response.data);
-        console.log("Inquiry statistics fetched successfully:", response.data);
+        if (response.headers['content-type'] && response.headers['content-type'].includes('application/json')) {
+          setStats(response.data);
+          console.log("Inquiry statistics fetched successfully:", response.data);
+        } else {
+          console.error("Response is not valid JSON:", response.data);
+        }
       })
       .catch(error => {
         console.error("There was an error fetching the inquiry statistics!", error);
@@ -91,6 +100,7 @@ const Dashboard = () => {
         </nav>
       </aside>
       
+      
       <main className="main-content">
         <header className="header">
           <input type="text" placeholder="Search inquiries..." />
@@ -137,8 +147,8 @@ const Dashboard = () => {
                 <tr key={inquiry._id}>
                   <td>{inquiry._id}</td>
                   <td>{inquiry.subject}</td>
-                  <td><span className={`status ${inquiry.status.toLowerCase()}`}>{inquiry.status}</span></td>
-                  <td><span className={`priority ${inquiry.priority.toLowerCase()}`}>{inquiry.priority}</span></td>
+                  <td><span className={`status ${inquiry.status?.toLowerCase()}`}>{inquiry.status}</span></td>
+                  <td><span className={`priority ${inquiry.priority?.toLowerCase()}`}>{inquiry.priority}</span></td>
                   <td>{new Date(inquiry.date).toLocaleDateString()}</td>
                   <td>{inquiry.assignee}</td>
                   <td>...</td>

@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import axios from 'axios';
 import Dashboard from './Component/Dashboard';
 import InquiryForm from './Component/InquiryForm';
 import Home from './Component/Home';
 import Success from './Component/Success';
-import AllInquiries from './Component/AllInquiries';
+import InquiryDetails from './Component/InquiryDetails'; // Fix import
+// import DisplayInquiry from './Component/DisplayInquiry'; // Remove this import
+import PendingInquiries from './Component/PendingInquiries'; // Import the new component
+import Display from './Component/Display';
 import './App.css';
 
 class ErrorBoundary extends React.Component {
@@ -41,13 +45,29 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
+  const [inquiries, setInquiries] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/inquiries')
+      .then(response => {
+        if (Array.isArray(response.data.Inquiries)) {
+          setInquiries(response.data.Inquiries);
+        } else {
+          console.error('API response is not an array:', response.data);
+        }
+      })
+      .catch(error => console.error('Error fetching inquiries:', error));
+  }, []);
+
   return (
     <ErrorBoundary>
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/all-inquiries" element={<AllInquiries />} />
+        <Route path="/all-inquiries" element={<Display inquiries={inquiries} />} /> {/* Pass inquiries as props */}
         <Route path="/create-inquiry" element={<InquiryForm />} />
         <Route path="/success" element={<Success />} />
+        <Route path="/inquiries/view/:id" element={<InquiryDetails />} /> {/* Fix route */}
+        <Route path="/pending" element={<PendingInquiries />} /> {/* Add the new route */}
       </Routes>
     </ErrorBoundary>
   );
