@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './dbconnect.js';
 
 import medicineroute from './routes/MedicineRoute.js';
+import branchroute from './routes/BranchRoute.js';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app = express();
 app.use(express.json());
 
 app.use("/api/medicines", medicineroute);
+app.use("/api/branch", branchroute);
 
 app.get("/", (req, res) => {
     res.send("API is running...");
