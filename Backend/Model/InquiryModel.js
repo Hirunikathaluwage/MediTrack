@@ -31,7 +31,7 @@ const inquirySchema = new Schema({
         default: 'Medium'
     },
     attachment: {
-        type: String,
+        type: String, // Store file path or URL if uploaded
         required: false
     },
     createdAt: {
@@ -40,4 +40,6 @@ const inquirySchema = new Schema({
     }
 });
 
-export default mongoose.model('Inquiry', inquirySchema);
+const Inquiry = mongoose.model('Inquiry', inquirySchema);
+
+export default Inquiry;

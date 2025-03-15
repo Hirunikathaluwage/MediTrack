@@ -1,21 +1,30 @@
 import express from 'express';
-import { getAllInquiries, getInquiryById, addInquiry, updateInquiry, deleteInquiry } from '../Controlers/InquiryControllers.js';
+import multer from 'multer';
+import * as InquiryControllers from '../Controlers/InquiryControllers.js';
 
 const router = express.Router();
 
-// Fetch all inquiries
-router.get('/', getAllInquiries);
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
 
-// Fetch inquiry by ID
-router.get('/:id', getInquiryById);
+router.get('/stats', InquiryControllers.getInquiryStats); // Place this route before the dynamic route
 
-// Add a new inquiry
-router.post('/', addInquiry);
+router.get('/', InquiryControllers.getAllInquiries);
 
-// Update an inquiry
-router.put('/:id', updateInquiry);
+router.post('/', upload.single('attachment'), InquiryControllers.addInquiry);
 
-// Delete an inquiry
-router.delete('/:id', deleteInquiry);
+router.get('/:id', InquiryControllers.getInquiryById);
+
+router.put('/:id', upload.single('attachment'), InquiryControllers.updateInquiry);
+
+router.delete('/:id', InquiryControllers.deleteInquiry);
 
 export default router;
