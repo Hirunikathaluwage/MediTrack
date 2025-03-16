@@ -17,6 +17,8 @@ const storage = multer.diskStorage({
  
 const upload = multer({ storage: storage });
  
+//Inserting my prescription
+
 router.post("/", upload.single("image"), async (req, res) => {
     try {
         console.log("Received Body:", req.body);
@@ -46,8 +48,41 @@ router.post("/", upload.single("image"), async (req, res) => {
     }
 });
 
- 
-//express.application.get
+ // Reading part 
+router.get("/:id", async (req, res) =>{
+    try{
+        const {id} = req.params;
+        const prescription = await Prescription.findById(id);
+
+        if(!prescription){
+            return(res.status(404).json({success:false,message:"prescription not found"}))
+        }
+        res.status(200).json({success:true,prescription});
+    }catch(error){
+        console.error("Reading prescription error",error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+
+});
+
+//delete part 
+router.delete("/:id", async (req, res) =>{
+    try{
+        const {id} = req.params;
+        const deleteprescription = await Prescription.findByIdAndDelete(id);
+
+        if(!deleteprescription){
+            return(res.status(404).json({success:false,message:"prescription not found"}))
+        }
+        res.status(200).json({success:true,message:"prescription deleted successfully"});
+
+    }catch(error){
+        console.error("Delete prescription error",error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+
+});
+
 
 module.exports = router;
  
