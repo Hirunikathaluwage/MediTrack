@@ -58,21 +58,3 @@ export const updateBranch = async (req, res) => {
         res.status(500).json({success:false, message: error.message});
     }
 };
-
-
-// const medicine = req.body;
-
-//     if(!medicine.medicineId || !medicine.name || !medicine.genericName || !medicine.price || !medicine.unit || !medicine.description || !medicine.expireDate || !medicine.manufactureDate){
-//         return res.status(400).json({ success:false, message: "Please provide all Fields !" });
-//     }
-
-//     const newMedicine = new Medicine(medicine);
-//     console.log("Server is running");
-
-//     try{
-//         await newMedicine.save();
-//         res.status(201).json({ success:true, data: newMedicine});
-//     }catch(error){
-//         console.error("Error in creating product :", error.message);
-//         res.status(500).json({ success: false, message: "Server Error"});
-//     }
