@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "meditrack-453611",
+  "private_key_id": "be545a54fd18055b1a79bc2c0300bbd70e9d2997",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDPurtK+PBliMqq\nwwuJUKVB15MWExh0gBg9RFxnl9AwU6Ke9Ay4xUE/AGvmCuvcoeFiGUsjqZaN0UJy\nsB9jEHlgaLSx59KoYqb8YcRKWGPLjrfvKa2hh/tFf4KQNblFiOwpl/nSu0W9Y+fR\nCJoRlMdo9bNAz1U77ZU+ctM+6YnDWkNcjCoKMVXJdzb8PKJfk9QTXg8H8RWJBnO+\njeYNKJ2NFyRZmC6JwqP3gwH3CK7Bq86rGK4iroZ9X5E1Ee33HL47ZKPh7r/wU2Q2\n/g8RoJoJmwM/f7cFqoqMKTc5FMd3wJtPGPuJqt91ycUJjLD1qVCDgCCVbczInyy1\nrFTq562XAgMBAAECggEAMdnGm6ndCwjGVi+Dg7sCRahFyIzhmAeriXxvzn58vDQ9\n+PZpXSgdTdC8lBK34pVIoMGgKhlHI5Z940cH6T6pWi0WfAE9qSIvn66YrBzFKjMA\nShlO7U5USyvb+d6irSC8SAkML3m4tUgV+DCfxKtXJYWdNGbtNfoAkGF+94CVCnee\nsS54pqpP7GtAW0NTqqC9ciV8Po8/0fQZCitkETreusn7yRXHx54x3mFOvbJz2twn\nFPhV30b2cOGXp7r7EFDU5vk0ORyCocAQwBD3A0K/j6tm95rra9gX/T2A/7zx+Weq\nmwPhqgbJh9q9f6k9Pj9Cc6jWV8R2fPd0HPG/VDAx1QKBgQDrWlUegNUgx26mNje7\nxKJ4m9N8iR3k5H5pYWDXPphaL0iHIVcMfJksgEzIrpORESI4++G534jR9jHd0Zb/\n09+IpDKKG2gOOHvHO9U47Ith6ETdmoG7JvH8MYHv8Hlj1mnNVNFkwvaFRJUv7su6\nXOWhNiMHM7ffgliwJrzy6g/VswKBgQDh9ATEd85I1oWHhx74TKBgfYY4SUwjzggR\nrzKzwh7gbk8INXQjz55Dmu/8TvkuLF/Z0aJalD47PalyncRHWz4Z3ZOhbtAC0K2V\n3aU5ylMymv45MX2lS5lY4tpq5wJ6PeIKLyPfsxuGSO7k1w+h9JWLM10+3+L+i7kZ\n77KCfEwejQKBgQCUgwURYYSb0Z0N/0p+Dx/i8ZmrjS6zAEiQoOUmDha/WfTvaGdw\ntrNFdJR/UkJGGUS6Jp+S1e6VZ0CiU55wQrdclxhZM+AekR/yYdwztnhhyNqj59qT\nSYkLdgYjbWB8UpGjAzG63pgHEnb9rzcZm4M/jlTeN5GA1dS3G0rCElb5pwKBgHJz\nU+bgeJDUeJaJjtpele3KJy5jkjmgpt2uTJRZA6LSvR1/VfC9vYCo/l5i8jy9JWAD\nm6Ud6dfACBCScVVjljUr0xe2NY73fLWoq4R2Q2YitBrsQqRzgp1PayszEEIzDkfy\nUM2Cv7JpRviLJtP2O7lirxyl8yjURVIp49XMeBIRAoGACqD8lVkVpXwVaPdlSq0Y\nkN6OuP5xoWXagI3HhhdN76kJo7JOtFl5KXOYYZ6tvDlLX6S8Y6Dr2Bwa8sjjeO6M\nlsLlwNwmC42HacaOdOlOgSCDThyyJNA2z79lI9D7e1sA3jZZHcDQGGd10ay1Xh1z\nJPvLmP6uhXCJevlNi/2BH7w=\n-----END PRIVATE KEY-----\n",
+  "client_email": "meditrack@meditrack-453611.iam.gserviceaccount.com",
+  "client_id": "100388940561007959574",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/meditrack%40meditrack-453611.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
