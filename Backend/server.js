@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from "cors";
 import orderRoutes from './routes/orderRoutes.js'
+import paymentRoutes from './routes/paymentRoutes.js'
 import mongoose from 'mongoose';
 
 dotenv.config();
@@ -15,6 +16,7 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((error) => console.error("MongoDB Connection Error:", error));
 
 app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentRoutes);
 
 const PORT = process.env.PORT || 5080;
 
