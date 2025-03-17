@@ -1,19 +1,32 @@
+ 
 import express from 'express';
 import dotenv from 'dotenv';
-
-dotenv.config();
-
+import mongoose from 'mongoose';
+import deliveryRoutes from './routes/deliveryRoutes.js'
+dotenv.config(); // Load .env file
+ 
 const app = express();
+app.use(express.json());
 
-app.get("/products", (req, res) => {
+ 
+ 
+ 
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log("Connected to MongoDB Atlas"))
+    .catch((error) => console.error("MongoDB Connection Error:", error));
+ 
 
-    
-    res.send("server is ready!!");
+app.use('/api/delivery', deliveryRoutes);
+ 
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+ 
+ 
+mongoose.connection.once("open", async () => {
+    console.log(`Connected to MongoDB Database: ${mongoose.connection.db.databaseName}`);
+ 
+    // Log all collections in the database
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    console.log("Collections in Database:", collections.map(col => col.name));
 });
-
-console.log(process.env.MONGO_URI);
-
-app.listen(5080, () => {
-    console.log("Server started at http://localhost:5080 Hello");
-});
-
+ 
