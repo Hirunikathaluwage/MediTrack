@@ -15,6 +15,9 @@ const app = express();
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+
+
+
 // Enable CORS
 app.use(cors());
 
@@ -32,6 +35,11 @@ app.use("/api/inquiries", router);
 
 // Serve static files from the React frontend app
 app.use(express.static(path.join(__dirname, '../Frontend/dist')));
+
+
+
+app.use("/api/auth",authRoutes);
+
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../Frontend/dist/index.html'));
