@@ -10,17 +10,6 @@ export const mailtrapClient = new MailtrapClient({
 
 export const sender = {
 	email: "mailtrap@demomailtrap.com",
-	name: "MediTrak",
+	name: "MediiTrack",
 };
 
-
-
-
-//var transport = nodemailer.createTransport({
-//	host: "live.smtp.mailtrap.io",
-//	port: 587,
-//	auth: {
-//	  user: "api",
-//	  pass: "1dc661ed07671c075af831640a47c1c3"
-//	}
-  //});
