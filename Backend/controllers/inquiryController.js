@@ -1,22 +1,21 @@
-const mongoose = require('mongoose');
-const Inquiry = require('../models/Inquiry');
+import Inquiry from '../Model/InquiryModel.js';
 
-// ...existing code...
-
-const getInquiryById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid inquiry ID' });
+export const getInquiries = async (req, res) => {
+    try {
+        const inquiries = await Inquiry.find();
+        res.status(200).json(inquiries);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching inquiries' });
     }
-    const inquiry = await Inquiry.findById(id);
-    if (!inquiry) {
-      return res.status(404).json({ message: 'Inquiry not found' });
-    }
-    res.status(200).json(inquiry);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
-// ...existing code...
+export const getInquiryStats = async (req, res) => {
+    try {
+        const stats = await Inquiry.aggregate([
+            // Define your aggregation pipeline here
+        ]);
+        res.status(200).json(stats);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching inquiry statistics' });
+    }
+};

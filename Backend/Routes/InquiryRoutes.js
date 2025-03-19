@@ -21,6 +21,8 @@ router.get('/', InquiryControllers.getAllInquiries);
 
 router.post('/', upload.single('attachment'), InquiryControllers.addInquiry);
 
+router.get('/search', InquiryControllers.searchInquiries); // Add this line
+
 router.get('/:id', InquiryControllers.getInquiryById);
 
 router.put('/:id', upload.single('attachment'), InquiryControllers.updateInquiry);

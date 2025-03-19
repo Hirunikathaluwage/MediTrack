@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Home, List, Clock, CheckCircle, Users, FileText } from "lucide-react";
+import { Home, List, Clock, CheckCircle, Users, FileText, Search } from "lucide-react";
 import { Chart, registerables } from "chart.js";
 import axios from "axios";
 import "./Dashboard.css";
@@ -13,7 +13,6 @@ const Dashboard = () => {
   const chartRef = React.useRef(null);
 
   useEffect(() => {
-    // Fetch inquiries from the backend
     axios.get("http://localhost:5000/api/inquiries")
       .then(response => {
         if (response.headers['content-type'] && response.headers['content-type'].includes('application/json')) {
@@ -32,7 +31,6 @@ const Dashboard = () => {
         console.error("There was an error fetching the inquiries!", error);
       });
 
-    // Fetch inquiry statistics from the backend
     axios.get("http://localhost:5000/api/inquiries/stats")
       .then(response => {
         if (response.headers['content-type'] && response.headers['content-type'].includes('application/json')) {
@@ -46,7 +44,6 @@ const Dashboard = () => {
         console.error("There was an error fetching the inquiry statistics!", error);
       });
 
-    // Initialize the chart
     const ctx = document.getElementById("inquiryTrendsChart").getContext("2d");
     if (chartRef.current) {
       chartRef.current.destroy();
@@ -76,7 +73,6 @@ const Dashboard = () => {
     });
     chartRef.current = newChart;
 
-    // Cleanup function to destroy the chart
     return () => {
       if (chartRef.current) {
         chartRef.current.destroy();
@@ -100,10 +96,12 @@ const Dashboard = () => {
         </nav>
       </aside>
       
-      
       <main className="main-content">
         <header className="header">
-          <input type="text" placeholder="Search inquiries..." />
+          <div className="search-container">
+            <input type="text" placeholder="Search inquiries..." className="search-input"/>
+            <button className="search-button"><Search size={18} /></button>
+          </div>
           <div className="user-info">👤 Admin <span className="notification-dot"></span></div>
         </header>
         

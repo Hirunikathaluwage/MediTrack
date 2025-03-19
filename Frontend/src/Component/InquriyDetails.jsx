@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Display from "./Display";
 
+//my update
+
 const URL = "http://localhost:5000/api/inquiries";
 
 const fetchHandler = async () => {
