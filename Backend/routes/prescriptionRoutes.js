@@ -93,6 +93,28 @@ async function extractMedicinesFromImage(imagePath) {
   }
 }
 
+router.get("/:id", async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.params.id); // Convert string ID to ObjectId
+
+    // Access the users collection directly
+    const user = await mongoose.connection.db
+      .collection("users") // Directly access the "users" collection
+      .findOne({ _id: userId }, { projection: { name: 1, _id: 0 } }); // Return only 'name'
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // **Insert Prescription**
 router.post("/", upload.single("image"), async (req, res) => {
   try {
