@@ -1,97 +1,175 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import './InquiryForm.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import "./InquiryForm.css";
+import { useNavigate } from "react-router-dom";
 
 const InquiryForm = () => {
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    description: '',
-    category: 'General',
-    priority: 'Medium',
+    name: "",
+    email: "",
+    subject: "",
+    description: "",
+    category: "General",
+    priority: "Medium",
     attachment: null,
   });
 
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, attachment: e.target.files[0] });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const data = new FormData();
-    for (const key in formData) {
-      data.append(key, formData[key]);
+  // Validation rules
+  const rules = {
+    name: (val) => val.trim().length >= 2 || "Name must be at least 2 characters",
+    email: (val) => /\S+@\S+\.\S+/.test(val) || "Valid email required",
+    subject: (val) => val.trim().length >= 5 || "Subject too short",
+    description: (val) => val.trim().length >= 20 || "Please provide more details",
+    attachment: (file) => {
+      if (!file) return true;
+      const valid = ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type);
+      const size = file.size / 1024 / 1024 <= 5;
+      return (valid && size) || "Invalid file (JPG/PNG/PDF, max 5MB)";
     }
-
-    axios.post('http://localhost:5000/api/inquiries', data)
-      .then(response => {
-        console.log('Inquiry submitted successfully:', response.data);
-        navigate('/success');
-      })
-      .catch(error => {
-        console.error('There was an error submitting the inquiry!', error);
-      });
   };
 
-  const handleCancel = () => {
-    navigate('/');
+  // Validate single field
+  const validate = (name, value) => {
+    if (!rules[name]) return true;
+    const result = rules[name](value);
+    return result === true ? true : result;
+  };
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    const inputValue = files ? files[0] : value;
+    setFormData({ ...formData, [name]: inputValue });
+    
+    // Live validation
+    const result = validate(name, inputValue);
+    if (result !== true) {
+      setErrors({ ...errors, [name]: result });
+    } else {
+      const newErrors = { ...errors };
+      delete newErrors[name];
+      setErrors(newErrors);
+    }
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate all fields
+    const newErrors = {};
+    Object.entries(formData).forEach(([key, value]) => {
+      if (rules[key]) {
+        const result = validate(key, value);
+        if (result !== true) newErrors[key] = result;
+      }
+    });
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    // Submit form
+    setIsSubmitting(true);
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      data.append(key, value);
+    });
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/inquiries", data);
+      navigate("/success", { 
+        state: { referenceId: response.data.referenceId } 
+      });
+    } catch (error) {
+      setErrors({ form: error.response?.data?.message || "Submission failed" });
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <form className="inquiry-form" onSubmit={handleSubmit}>
       <h1>Submit Inquiry</h1>
-      <p>Please provide the details of your issue so we can assist you quickly.</p>
+      
+      {errors.form && <div className="form-error">{errors.form}</div>}
+      
+      {/* Input fields with inline error handling */}
+      {[
+        { name: "name", label: "Your Name *", type: "text", placeholder: "John Doe" },
+        { name: "email", label: "Email Address *", type: "email", placeholder: "example@example.com" },
+        { name: "subject", label: "Subject *", type: "text", placeholder: "Brief subject" }
+      ].map(field => (
+        <div key={field.name} className="form-group">
+          <label>{field.label}</label>
+          <input
+            type={field.type}
+            name={field.name}
+            value={formData[field.name]}
+            onChange={handleChange}
+            placeholder={field.placeholder}
+            className={errors[field.name] ? "error" : ""}
+            disabled={isSubmitting}
+          />
+          {errors[field.name] && <small className="error-text">{errors[field.name]}</small>}
+        </div>
+      ))}
+      
+      {/* Description field */}
       <div className="form-group">
-        <label>Your Name *</label>
-        <input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="John Doe" />
+        <label>Description *</label>
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          placeholder="Describe your issue..."
+          className={errors.description ? "error" : ""}
+          disabled={isSubmitting}
+          maxLength="1000"
+        />
+        <div className="char-count">
+          <small>{formData.description.length}/1000</small>
+          {errors.description && <small className="error-text">{errors.description}</small>}
+        </div>
       </div>
+      
+      {/* Dropdowns */}
+      <div className="form-row">
+        <div className="form-group half">
+          <label>Category</label>
+          <select name="category" value={formData.category} onChange={handleChange} disabled={isSubmitting}>
+            {["General", "Technical Support", "Payment Issue", "Delivery Issue", "Product Issue", "Other"]
+              .map(option => <option key={option} value={option}>{option}</option>)}
+          </select>
+        </div>
+        <div className="form-group half">
+          <label>Priority</label>
+          <select name="priority" value={formData.priority} onChange={handleChange} disabled={isSubmitting}>
+            {["Low", "Medium", "High"].map(option => 
+              <option key={option} value={option}>{option}</option>)}
+          </select>
+        </div>
+      </div>
+      
+      {/* File upload */}
       <div className="form-group">
-        <label>Email Address *</label>
-        <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="example@example.com" />
+        <label>Attachment (Optional)</label>
+        <input type="file" name="attachment" onChange={handleChange} disabled={isSubmitting} />
+        <small>JPG, PNG, PDF (max 5MB)</small>
+        {errors.attachment && <small className="error-text">{errors.attachment}</small>}
       </div>
-      <div className="form-group">
-        <label>Subject of Inquiry *</label>
-        <input type="text" name="subject" value={formData.subject} onChange={handleChange} required placeholder="Select a subject" />
-      </div>
-      <div className="form-group">
-        <label>Description of the Issue *</label>
-        <textarea name="description" value={formData.description} onChange={handleChange} required placeholder="Describe the issue in detail..." maxLength="1000" />
-        <small>Maximum 1000 characters</small>
-      </div>
-      <div className="form-group">
-        <label>Category</label>
-        <select name="category" value={formData.category} onChange={handleChange}>
-          <option value="General">General</option>
-          <option value="Technical Support">Technical Support</option>
-          <option value="Billing">Billing</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div className="form-group">
-        <label>Priority</label>
-        <select name="priority" value={formData.priority} onChange={handleChange}>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-      </div>
-      <div className="form-group">
-        <label>Attach a File (Optional)</label>
-        <input type="file" name="attachment" onChange={handleFileChange} />
-        <small>Supported formats: JPG, PNG, PDF (max 5MB)</small>
-      </div>
+      
+      {/* Buttons */}
       <div className="form-buttons">
-        <button type="button" className="cancel-button" onClick={handleCancel}>Cancel</button>
-        <button type="submit" className="submit-button">Submit Inquiry</button>
+        <button type="button" onClick={() => navigate("/")} disabled={isSubmitting}>
+          Cancel
+        </button>
+        <button type="submit" className="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit Inquiry"}
+        </button>
       </div>
     </form>
   );
