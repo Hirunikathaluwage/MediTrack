@@ -12,6 +12,9 @@ import ManageDeliveries from './ManageDeliveries';
 import ManageDrivers from './ManageDrivers';
 import Feedbacks from './Feedbacks';
 import Profile from './Profile';
+import DriverHome from './DriverHome';
+import DriverNext from './DriverNext';
+import AssignDriver from './AssignDriver';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'; // Import Router components
 
 function HomePage() {
@@ -21,7 +24,8 @@ function HomePage() {
     <div>
       <h1>Welcome to MediTrack</h1>
       <button onClick={() => navigate('/delivery')}>Go to Delivery Form</button><br></br>
-      <button onClick={() => navigate('/delivery-admin')}>Go to Delivery Admin Page</button>
+      <button onClick={() => navigate('/delivery-admin')}>Go to Delivery Admin Page</button><br></br>
+      <button onClick={() => navigate('/driver-home')}>Go to Driver Page</button>
     </div>
   );
 }
@@ -42,6 +46,9 @@ function App() {
         <Route path="/manage-drivers" element={<ManageDrivers />} />
         <Route path="/feedbacks" element={<Feedbacks />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/driver-home" element={<DriverHome />} />
+        <Route path="/driver-next" element={<DriverNext />} />
+        <Route path="/assign-driver" element={<AssignDriver />} />
       </Routes>
     </Router>
   );
