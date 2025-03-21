@@ -1,7 +1,7 @@
 import express from "express";
 import {
+    upload,
     createPayment,
-    verifyPayment,
     getAllPayments,
     getPaymentByOrderId,
     deletePayment
@@ -9,8 +9,10 @@ import {
 
 const router = express.Router();
 
-router.post("/", createPayment);
-router.put("/verify/:orderId", verifyPayment);
+
+// Apply Multer Middleware to handle file uploads
+router.post("/", upload.single("slip"), createPayment);
+
 router.get("/", getAllPayments);
 router.get("/:orderId", getPaymentByOrderId);
 router.delete("/:paymentId", deletePayment);

@@ -1,42 +1,68 @@
-import mongoose from "mongoose";
 import Payment from "../models/Payment.js";
 import Order from "../models/Order.js";
+import multer from "multer";
 
-// Create Payment
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "uploads/slips/");
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname);
+    }
+});
+
+// Only accept a single file named "slip"
+const upload = multer({ storage });
+
+export { upload };
+
+//  Create Payment 
 export const createPayment = async (req, res) => {
     try {
-        const { orderId, userId, paymentMethod } = req.body;
+        const { orderId, paymentMethod } = req.body;
 
-        if (!orderId || !userId || !paymentMethod) {
+        if (!orderId || !paymentMethod) {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
+        //  find order exists
         const order = await Order.findById(orderId);
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
+        //  Get totalAmount from Order
         const amount = order.totalAmount;
 
+        let slipUrl = null;
+        if (paymentMethod === "Upload Slip") {
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: "Upload Slip is required for this method" });
+            }
+            slipUrl = `/uploads/slips/${req.file.filename}`;
+        }
+
+        // Determine payment status based on method
+        const paymentStatus = paymentMethod === "Cash on Delivery" ? "Pending" : "Pending Verification";
+
+
+        //  Create Payment
         const newPayment = new Payment({
             orderId,
-            userId,
+            userId: order.userId,
             paymentMethod,
-            amount
+            amount,
+            slipUrl,
+            status: paymentStatus
         });
 
         await newPayment.save();
 
-        let updatedStatus = order.paymentStatus;
-        if (paymentMethod === "COD") {
-            updatedStatus = "Pending";  // COD is paid at delivery
-        } else if (paymentMethod === "Upload Slip") {
-            updatedStatus = "Verification Pending";  // Wait for pharmacist approval
-        }
+        //  Update Order Payment Status
+        await Order.findByIdAndUpdate(orderId, { paymentStatus });
 
-        await Order.findByIdAndUpdate(orderId, { paymentStatus: updatedStatus });
-
-        res.status(201).json({ success: true, message: "Payment recorded successfully", payment: newPayment });
+        res.status(201).json({ success: true, message: "Payment successful!", payment: newPayment });
 
     } catch (error) {
         console.error("Payment Error:", error);
@@ -44,32 +70,7 @@ export const createPayment = async (req, res) => {
     }
 };
 
-// Pharmacist Approves Payment (for Upload Slip)
-export const verifyPayment = async (req, res) => {
-    try {
-        const { orderId } = req.params;
-
-        const order = await Order.findById(orderId);
-        if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found" });
-        }
-
-        const payment = await Payment.findOne({ orderId });
-        if (!payment) {
-            return res.status(404).json({ success: false, message: "Payment not found" });
-        }
-
-        await Order.findByIdAndUpdate(orderId, { paymentStatus: "Paid", status: "Processing" });
-
-        res.status(200).json({ success: true, message: "Payment verified and marked as Paid" });
-
-    } catch (error) {
-        console.error("Payment Verification Error:", error);
-        res.status(500).json({ success: false, error: error.message });
-    }
-};
-
-// Get All Payments
+//  Get All Payments
 export const getAllPayments = async (req, res) => {
     try {
         const payments = await Payment.find().populate("orderId userId");
@@ -79,7 +80,7 @@ export const getAllPayments = async (req, res) => {
     }
 };
 
-// Get Payment by Order ID
+//  Get Payment by Order ID
 export const getPaymentByOrderId = async (req, res) => {
     try {
         const payment = await Payment.findOne({ orderId: req.params.orderId }).populate("orderId userId");
@@ -91,7 +92,7 @@ export const getPaymentByOrderId = async (req, res) => {
     }
 };
 
-// Delete Payment
+//  Delete Payment
 export const deletePayment = async (req, res) => {
     try {
         const deletedPayment = await Payment.findByIdAndDelete(req.params.paymentId);
@@ -102,3 +103,15 @@ export const deletePayment = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
