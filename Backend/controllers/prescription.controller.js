@@ -18,3 +18,36 @@ export const getPrescription = async (req, res) => {
       res.status(500).json({ success: false, error: error.message });
     }
   };
+
+  export const updatePrescriptionStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    const validStatuses = ["Pending", "Verified", "Rejected"];
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid status provided." });
+    }
+
+    const prescription = await Prescription.findById(id);
+
+    if (!prescription) {
+      return res.status(404).json({ success: false, message: "Prescription not found." });
+    }
+
+    prescription.status = status;
+    
+    await prescription.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Prescription status updated successfully.",
+      prescription,
+    });
+  } catch (error) {
+    console.error("Error updating prescription status:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+
