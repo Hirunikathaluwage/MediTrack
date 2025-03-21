@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const BranchSchema = new mongoose.Schema({
-    branchId: {type: Number,required : true,},
     location: {type : String,required : true,},
     branchName: {type : String,required : true,},
     phoneNumber: {type : String,required : true,},

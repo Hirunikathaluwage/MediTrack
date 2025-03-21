@@ -5,8 +5,8 @@ import { createBranchStock, deleteBranchStock, getBranchStock, updateBranchStock
 
 const router = express.Router();
 
-router.get("/:medicineId", getMedicineStock);
-router.get("/:branchId", getBranchStock);
+router.get("/m/:medicineId", getMedicineStock);
+router.get("/b/:branchId", getBranchStock);
 
 router.post("/", createBranchStock);
 router.delete("/delete", deleteBranchStock);

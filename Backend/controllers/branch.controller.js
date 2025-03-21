@@ -16,7 +16,7 @@ export const createBranch = async (req,res) => {
     const newBranch = new Branch(branch);
     
     //Checking all the feilds dynamically using a loop /array
-    const requiredFields = ['branchId', 'location', 'branchName', 'phoneNumber'];
+    const requiredFields = ['location', 'branchName', 'phoneNumber'];
  
     for (let field of requiredFields) {
         if (!branch[field]) {

@@ -4,8 +4,8 @@ import  BranchStock  from "../models/BranchStock.js";
 // searching Medicine by branch name
 export const getBranchStock =  async (req,res) => {
         try{
-            const {BranchId} = req.params;
-            const mediList = await BranchStock.find({ BranchId });
+            const {branchId} = req.params;
+            const mediList = await BranchStock.find({ branchId });
 
             if (mediList.length === 0) {
                 return res.status(404).json({ message: "No locations found for this medicine" });
@@ -21,8 +21,8 @@ export const getBranchStock =  async (req,res) => {
 // searching Location by medicine name
 export const getMedicineStock =  async (req,res) => {
     try{
-        const {Medicineid} = req.params;
-        const locations = await BranchStock.find({ Medicineid });
+        const {medicineId} = req.params;
+        const locations = await BranchStock.find({ medicineId });
 
         if (locations.length === 0) {
             return res.status(404).json({ message: "No locations found for this medicine" });

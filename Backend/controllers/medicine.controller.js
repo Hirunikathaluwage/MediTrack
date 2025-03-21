@@ -14,7 +14,7 @@ export const getMedicine = async (req, res) => {
 export const createMedicine = async (req, res) => {
     const medicine = req.body;
 
-    if(!medicine.medicineId || !medicine.name || !medicine.genericName || !medicine.price || !medicine.unit || !medicine.description || !medicine.expireDate || !medicine.manufactureDate){
+    if(!medicine.name || !medicine.genericName || !medicine.price || !medicine.unit || !medicine.description || !medicine.expireDate || !medicine.manufactureDate){
         return res.status(400).json({ success:false, message: "Please provide all Fields !" });
     }
 
@@ -26,7 +26,7 @@ export const createMedicine = async (req, res) => {
         res.status(201).json({ success:true, data: newMedicine});
     }catch(error){
         console.error("Error in creating product :", error.message);
-        res.status(500).json({ success: false, message: "Server Error"});
+        res.status(500).json({ success: false, message: error.message});
     }
 };
 
