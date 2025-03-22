@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Route, Routes, NavLink } from "react-router-dom";
 import { Layout, Menu, Typography } from "antd";
-import { useState, useEffect } from "react";
 import "./App.css";
 import SearchMedicineInBranch from "./SearchMedicineInBranch";
 import SearchMedicineWithBranch from "./SearchMedicineWithBranch";
@@ -25,16 +24,19 @@ function App() {
           </div>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
             <Menu.Item key="1">
-              <NavLink to="/add-medicine-stock">ADD STOCK</NavLink>
+              <NavLink to="/add-stock">Add Stock</NavLink>
             </Menu.Item>
             <Menu.Item key="2">
-              <NavLink to="/search-perscription-branch">PENDING REQUESTS</NavLink>
+              <NavLink to="/pending-prescriptions">Pending Prescriptions</NavLink>
             </Menu.Item>
             <Menu.Item key="3">
-              <NavLink to="/manage-medicine">ADD NEW MEDICINE</NavLink>
+              <NavLink to="/create-medicine">Create New Medicine</NavLink>
             </Menu.Item>
             <Menu.Item key="4">
-              <NavLink to="/search-in-branch">MANAGE STOCK</NavLink>
+              <NavLink to="/manage-stock">Manage Stock</NavLink>
+            </Menu.Item>
+            <Menu.Item key="5">
+              <NavLink to="/manage-medicines">Manage Medicine</NavLink>
             </Menu.Item>
           </Menu>
         </Sider>
@@ -48,23 +50,23 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route
-                path="/search-perscription-branch"
+                path="/pending-prescriptions"
                 element={<SearchPrescriptionInBranch />}
               />
               <Route
-                path="/search-in-branch"
+                path="/manage-stock"
                 element={<SearchMedicineInBranch />}
               />
               <Route
-                path="/search-with-branch"
+                path="/search-medicine-branches"
                 element={<SearchMedicineWithBranch />}
               />
               <Route
-                path="/add-medicine-stock"
+                path="/add-stock"
                 element={<AddMedicineToInventory />}
               />
-              <Route path="/add-medicine" element={<CreateMedicine />} />
-              <Route path="/manage-medicine" element={<ManageMedicines />} />
+              <Route path="/create-medicine" element={<CreateMedicine />} />
+              <Route path="/manage-medicines" element={<ManageMedicines />} />
             </Routes>
           </Content>
         </Layout>

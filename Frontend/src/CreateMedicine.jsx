@@ -39,12 +39,12 @@ function CreateMedicine() {
       const data = await response.json();
       if (data.success) {
         alert("Medicine added successfully!");
-        navigate("/manage-medicine"); // Redirect to Manage Medicines page
+        navigate("/manage-medicines"); // Redirect to Manage Medicines page
       } else {
         setError(data.message || "Failed to add medicine.");
       }
     } catch (err) {
-      setError("Server error! Please try again.");
+      setError("Server error! Please try again."+err);
     }
   };
 
@@ -56,9 +56,18 @@ function CreateMedicine() {
         <input type="text" name="name" placeholder="Medicine Name" value={formData.name} onChange={handleChange} required />
         <input type="text" name="genericName" placeholder="Generic Name" value={formData.genericName} onChange={handleChange} required />
         <input type="number" name="price" placeholder="Price" value={formData.price} onChange={handleChange} required />
-        <input type="text" name="unit" placeholder="Unit (e.g., mg, ml)" value={formData.unit} onChange={handleChange} required />
-        <input type="date" name="manufactureDate" value={formData.manufactureDate} onChange={handleChange} required />
-        <input type="date" name="expireDate" value={formData.expireDate} onChange={handleChange} required />
+        <input type="text" name="unit" placeholder="Unit (e.g., Tablet,Syrup)" value={formData.unit} onChange={handleChange} required />
+        
+        <label>
+          Expire Date:
+          <input type="date" name="expireDate" value={formData.expireDate} onChange={handleChange} required />
+        </label>
+        
+        <label>
+          Manufacture Date:
+          <input type="date" name="manufactureDate" value={formData.manufactureDate} onChange={handleChange} required />
+        </label>
+        
         <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} />
         <button type="submit">Add Medicine</button>
       </form>

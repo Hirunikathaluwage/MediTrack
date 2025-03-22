@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Input, Button, Typography, Space, Collapse } from "antd";
-import { CheckOutlined, CloseOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
+import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import "./SearchPrescriptionInBranch.css";
 
 const { Title } = Typography;
@@ -10,9 +10,9 @@ function SearchMedicineInBranch() {
   const [prescriptions, setPrescriptions] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [medicines, setMedicines] = useState([]);
-  const [expandedPrescription, setExpandedPrescription] = useState(null);
+ 
 
-  const branchId = "67da725848033b625d6b0f8e";
+  const branchId = "67da723648033b625d6b0f8c";
 
   useEffect(() => {
     fetch(`http://localhost:5080/api/prescription/${branchId}`)
@@ -105,19 +105,6 @@ function SearchMedicineInBranch() {
           >
             Reject
           </Button>
-          <Button
-            type="default"
-            icon={
-              expandedPrescription === record._id ? <UpOutlined /> : <DownOutlined />
-            }
-            onClick={() =>
-              setExpandedPrescription(
-                expandedPrescription === record._id ? null : record._id
-              )
-            }
-          >
-            {expandedPrescription === record._id ? "Hide Medicines" : "Show Medicines"}
-          </Button>
         </Space>
       ),
     },
@@ -140,7 +127,7 @@ function SearchMedicineInBranch() {
         rowKey="_id"
         expandable={{
           expandedRowRender: (record) => (
-            <Collapse activeKey={expandedPrescription === record._id ? "1" : null}>
+            <Collapse activeKey="1">
               <Panel header="Medicines" key="1">
                 <Table
                   dataSource={record.medicines.map((med) => {

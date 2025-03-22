@@ -34,7 +34,7 @@ function AddMedicineToInventory() {
       message.error("Please select a medicine.");
       return;
     }
-
+  
     const newStockEntry = {
       branchId,
       medicineId: selectedMedicineId,
@@ -43,20 +43,24 @@ function AddMedicineToInventory() {
       location,
       expiryDate,
     };
-
+  
     try {
       const result = await addMedicine(newStockEntry);
-      if (result.success) {
+      console.log("API Response:", result); // Debugging log
+  
+      if (result && result.success) {
         message.success("Stock added successfully!");
+        alert("Stock has been successfully added!"); 
         setSelectedMedicineId("");
         setStock("");
         setPrice("");
         setLocation("");
         setExpiryDate("");
       } else {
-        message.error(result.message || "Failed to add stock.");
+        message.error(result?.message || "Failed to add stock. Please try again.");
       }
     } catch (error) {
+      console.error("Error:", error); // Debugging log
       message.error("Error adding stock. Please check your network or server.");
     }
   };
