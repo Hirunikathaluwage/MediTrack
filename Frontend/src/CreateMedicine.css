@@ -1,0 +1,58 @@
+.create-medicine-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+  }
+  
+  .create-medicine-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .create-medicine-container .error-message {
+    color: #f44336;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .create-medicine-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .create-medicine-container input[type="text"],
+  .create-medicine-container input[type="number"],
+  .create-medicine-container input[type="date"],
+  .create-medicine-container textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .create-medicine-container textarea {
+    resize: none;
+    height: 80px;
+  }
+  
+  .create-medicine-container button {
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .create-medicine-container button:hover {
+    background-color: #45a049;
+  }

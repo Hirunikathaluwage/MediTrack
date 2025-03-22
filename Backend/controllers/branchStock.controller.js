@@ -81,23 +81,24 @@ export const deleteBranchStock = async (req, res) => {
 };
 
 
-export const updateBranchStock = async (req,res) => {
+export const updateBranchStock = async (req, res) => {
     try {
-        const { branchId, medicineId,  ...updateFields } = req.body;
-    
-        const updatedStock = await BranchStock.findOneAndUpdate(
-          { branchId, medicineId },
-          { $set: updateFields  },
-          { new: true }
-        );
-    
-        if (!updatedStock) {
-          return res.status(404).json({ message: "Stock entry not found" });
-        }
-    
-        res.json({ message: "Stock updated successfully", updatedStock });
-      } catch (error) {
-        res.status(500).json({ error: error.message });
+      const { branchId, medicineId, ...updateFields } = req.body;
+  
+      const updatedStock = await BranchStock.findOneAndUpdate(
+        { branchId, medicineId },
+        { $set: updateFields },
+        { new: true }
+      );
+  
+      if (!updatedStock) {
+        return res.status(404).json({ success: false, message: "Stock entry not found" });
       }
-};
+  
+      res.json({ success: true, message: "Stock updated successfully", updatedStock });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  };
+  
 
