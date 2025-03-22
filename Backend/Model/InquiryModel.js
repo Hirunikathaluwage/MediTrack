@@ -5,24 +5,28 @@ const Schema = mongoose.Schema;
 const inquirySchema = new Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        minlength: 2
     },
     email: {
-        type: String, 
-        required: true
+        type: String,
+        required: true,
+        match: /\S+@\S+\.\S+/
     },
     subject: {
         type: String,
-        required: true
+        required: true,
+        minlength: 5
     },
     description: {
         type: String,
         required: true,
-        maxlength: 1000
+        maxlength: 1000,
+        minlength: 20
     },
     category: {
         type: String,
-        enum: ['General', 'Technical Support', 'Billing', 'Other'],
+        enum: ['General', 'Technical Support', 'Payment Issue', 'Delivery Issue', 'Billing', 'Product Issue', 'Other'], // Add 'Product Issue'
         default: 'General'
     },
     priority: {
@@ -38,7 +42,7 @@ const inquirySchema = new Schema({
         type: Date,
         default: Date.now
     }
-});
+}, { timestamps: true });
 
 const Inquiry = mongoose.model('Inquiry', inquirySchema);
 

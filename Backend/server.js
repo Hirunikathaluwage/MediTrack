@@ -33,8 +33,32 @@ if (!fs.existsSync(uploadsDir)) {
 
 app.use("/api/inquiries", router);
 
+<<<<<<< Updated upstream
 // Serve static files from the React frontend app
 app.use(express.static(path.join(__dirname, '../Frontend/dist')));
+=======
+// MongoDB Connection
+const mongoURI = process.env.MONGO_URI;
+function connectWithRetry() {
+    if (!mongoURI) {
+        console.error('MongoDB connection string is not defined.');
+        return;
+    }
+    mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(() => {
+            const PORT = process.env.PORT || 5001; 
+            app.listen(PORT, () => {
+                console.log(`Server is running on port ${PORT}`);
+            });
+        })
+        .catch((err) => {
+            console.error('MongoDB connection error:', err.stack); 
+            setTimeout(connectWithRetry, 5000);
+        });
+}
+
+connectWithRetry();
+>>>>>>> Stashed changes
 
 
 

@@ -5,9 +5,9 @@ import Dashboard from './Component/Dashboard';
 import InquiryForm from './Component/InquiryForm';
 import Home from './Component/Home';
 import Success from './Component/Success';
-import InquiryDetails from './Component/InquiryDetails'; // Fix import
-// import DisplayInquiry from './Component/DisplayInquiry'; // Remove this import
-import PendingInquiries from './Component/PendingInquiries'; // Import the new component
+import InquiryDetails from './Component/InquiryDetails'; 
+// import DisplayInquiry from './Component/DisplayInquiry'; 
+import PendingInquiries from './Component/PendingInquiries'; 
 import Display from './Component/Display';
 import './App.css';
 
