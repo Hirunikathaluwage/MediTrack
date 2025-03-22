@@ -116,3 +116,7 @@ export const getInquiryStats = async (req, res, next) => {
         res.status(500).json({ message: 'Error fetching inquiry statistics' });
     }
 };
+
+
+
+// meka hri

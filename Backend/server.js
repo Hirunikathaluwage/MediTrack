@@ -7,19 +7,16 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import fs from 'fs';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
 const app = express();
 
-// Middleware to parse JSON bodies
+// Middleware
 app.use(express.json());
-
-
-
-
-// Enable CORS
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cookieParser());
 
 // Ensure uploads directory exists
 const __filename = fileURLToPath(import.meta.url);
@@ -29,14 +26,15 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 
-// Other middleware
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(uploadsDir, {
+  setHeaders: (res, path) => {
+    res.setHeader('Content-Disposition', 'inline');
+  }
+}));
 
 app.use("/api/inquiries", router);
 
-<<<<<<< Updated upstream
-// Serve static files from the React frontend app
-app.use(express.static(path.join(__dirname, '../Frontend/dist')));
-=======
 // MongoDB Connection
 const mongoURI = process.env.MONGO_URI;
 function connectWithRetry() {
@@ -58,28 +56,5 @@ function connectWithRetry() {
 }
 
 connectWithRetry();
->>>>>>> Stashed changes
 
 
-
-app.use("/api/auth",authRoutes);
-
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../Frontend/dist/index.html'));
-});
-
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log("Connected to database"))
-.then(() => {
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
-})
-.catch(err => {
-    console.log(err);
-});

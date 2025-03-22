@@ -26,7 +26,7 @@ const inquirySchema = new Schema({
     },
     category: {
         type: String,
-        enum: ['General', 'Technical Support', 'Payment Issue', 'Delivery Issue', 'Billing', 'Product Issue', 'Other'], // Add 'Product Issue'
+        enum: ['General', 'Technical Support', 'Payment Issue', 'Delivery Issue', 'Billing', 'Product Issue', 'Other'], 
         default: 'General'
     },
     priority: {
@@ -47,3 +47,6 @@ const inquirySchema = new Schema({
 const Inquiry = mongoose.model('Inquiry', inquirySchema);
 
 export default Inquiry;
+
+
+// meka hri
