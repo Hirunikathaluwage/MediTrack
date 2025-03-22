@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import OrderItem from "../models/OrderItem.js";
 
-//  Create Order 
+
+
+//  Create Order (User Requests Order)
 export const createOrder = async (req, res) => {
     try {
         const { userId, prescriptionId, deliveryOption } = req.body;
@@ -15,6 +17,7 @@ export const createOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid delivery option" });
         }
 
+        // Check if there's already a pending order request for the user
         const existingOrder = await Order.findOne({
             userId: new mongoose.Types.ObjectId(userId),
             status: "Requested"
@@ -24,6 +27,7 @@ export const createOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: "You already have a pending order request." });
         }
 
+        // Fetch the prescription details from the provided prescriptionId
         const prescription = await mongoose.connection.collection("prescriptions").findOne(
             { _id: new mongoose.Types.ObjectId(prescriptionId) }
         );
@@ -33,6 +37,7 @@ export const createOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: "Prescription not found" });
         }
 
+        // Fetch medicines from the database
         const medicineIds = prescription.medicines.map(item => new mongoose.Types.ObjectId(item.medicineId));
         const medicineCollection = mongoose.connection.collection("medicines");
         const medicinesData = await medicineCollection.find({ _id: { $in: medicineIds } }).toArray();
@@ -72,6 +77,7 @@ export const createOrder = async (req, res) => {
 
         await newOrder.save();
 
+        // Add Order Items
         orderItems.forEach(item => item.orderId = newOrder._id);
         await OrderItem.insertMany(orderItems);
 
@@ -117,8 +123,8 @@ export const createOrder = async (req, res) => {
 export const getAllOrders = async (req, res) => {
     try {
         const orders = await Order.find().lean();
-        const userCollection = mongoose.connection.collection("User");
-        const branchCollection = mongoose.connection.collection("branch");
+        const userCollection = mongoose.connection.collection("users");
+        const branchCollection = mongoose.connection.collection("branches");
 
         const ordersWithDetails = await Promise.all(orders.map(async (order) => {
             const user = await userCollection.findOne({ _id: order.userId });
@@ -140,8 +146,8 @@ export const getOrderById = async (req, res) => {
         const order = await Order.findById(req.params.orderId).lean();
         if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-        const userCollection = mongoose.connection.collection("User");
-        const branchCollection = mongoose.connection.collection("branch");
+        const userCollection = mongoose.connection.collection("users");
+        const branchCollection = mongoose.connection.collection("branches");
 
         const user = await userCollection.findOne({ _id: order.userId });
         const branch = await branchCollection.findOne({ _id: order.branchId });
@@ -192,3 +198,12 @@ export const deleteOrder = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
+
+
+
+
+
+
+
+

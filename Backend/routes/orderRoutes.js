@@ -3,6 +3,7 @@ import {
     createOrder,
     getAllOrders,
     getOrderById,
+    // updateOrderStatus,
     deleteOrder,
     getOrdersByUserId
 } from "../controllers/orderController.js";
@@ -10,9 +11,10 @@ import {
 const router = express.Router();
 
 
-router.post("/", createOrder);
+router.post("/create", createOrder);
 router.get("/", getAllOrders);
 router.get("/:orderId", getOrderById);
+// router.put("/:orderId", updateOrderStatus);
 router.delete("/:orderId", deleteOrder);
 router.get("/user/:userId", getOrdersByUserId);
 export default router;

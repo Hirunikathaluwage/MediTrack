@@ -2,7 +2,7 @@ import Payment from "../models/Payment.js";
 import Order from "../models/Order.js";
 import multer from "multer";
 
-
+// Setup Multer for file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "uploads/slips/");
@@ -12,7 +12,6 @@ const storage = multer.diskStorage({
     }
 });
 
-// Only accept a single file named "slip"
 const upload = multer({ storage });
 
 export { upload };
@@ -26,7 +25,7 @@ export const createPayment = async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
-        //  find order exists
+        //  find order exists 
         const order = await Order.findById(orderId);
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found" });
@@ -43,7 +42,6 @@ export const createPayment = async (req, res) => {
             slipUrl = `/uploads/slips/${req.file.filename}`;
         }
 
-        // Determine payment status based on method
         const paymentStatus = paymentMethod === "Cash on Delivery" ? "Pending" : "Pending Verification";
 
 
@@ -112,6 +110,41 @@ export const deletePayment = async (req, res) => {
 
 
 
+/*
 
 
 
+
+// Pharmacist Approves Payment 
+export const verifyPayment = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+
+        // Check if order exists
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        // Check if payment exists
+        const payment = await Payment.findOne({ orderId });
+        if (!payment) {
+            return res.status(404).json({ success: false, message: "Payment not found" });
+        }
+
+        if (payment.paymentMethod !== "Upload Slip") {
+            return res.status(400).json({ success: false, message: "Only Upload Slip payments need verification" });
+        }
+
+        await Payment.findByIdAndUpdate(payment._id, { status: "Paid" });
+        await Order.findByIdAndUpdate(orderId, { paymentStatus: "Paid", status: "Processing" });
+
+        res.status(200).json({ success: true, message: "Payment verified and  marked as Paid" });
+
+    } catch (error) {
+        console.error("Payment Verification Error:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+*/
