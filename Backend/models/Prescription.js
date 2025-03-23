@@ -7,7 +7,7 @@ const PrescriptionSchema = new mongoose.Schema({
   status: { type: String, enum: ["Pending", "Verified", "Rejected"], default: "Pending" },
   medicines: [
     {
-      medicineId: { type: mongoose.Schema.Types.ObjectId, ref: "medicine", required: true },
+      medicineId: { type: mongoose.Schema.Types.ObjectId, ref: "Medicine", required: true },
       quantity: { type: Number, required: true },
     },
   ],
