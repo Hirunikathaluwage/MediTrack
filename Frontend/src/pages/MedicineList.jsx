@@ -1,17 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Button } from "antd";
-import Approval from '../component/Approval';
+import Approval from "../component/Approval";
+import axios from "axios"; // Make sure axios is installed
 
 function MedicineList() {
-  const medicines = [
-    { _id: "1", name: "Paracetamol", quantity: 20 },
-    { _id: "2", name: "Ibuprofen", quantity: 15 },
-    { _id: "3", name: "Amoxicillin", quantity: 10 },
-  ];
+  const [medicines, setMedicines] = useState([]);
+
+  useEffect(() => {
+    // Replace with your API endpoint to fetch the medicines
+    const fetchMedicines = async () => {
+      try {
+        const response = await axios.get("/api/prescription/123"); // Fetch prescription with ID 123 (for example)
+        if (response.data.success) {
+          setMedicines(response.data.prescription.medicines); // Assume medicines are part of the response
+        }
+      } catch (error) {
+        console.error("Error fetching medicines:", error);
+      }
+    };
+
+    fetchMedicines();
+  }, []);
 
   const columns = [
     { title: "Medicine Name", dataIndex: "name", key: "name" },
-    { title: "Quantity Available", dataIndex: "quantity", key: "quantity" },
+    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
   ];
 
   return (
