@@ -30,7 +30,7 @@ const Prescription = () => {
 
     // Prepare form data with the image
     const formData = new FormData();
-    formData.append("userId", values.userId);
+    formData.append("userId","67ddfc9755c1bec1fb5cf57f");
     formData.append("name", values.name);
     formData.append("age", values.age);
     formData.append("mobile", values.mobile);
@@ -60,13 +60,14 @@ const Prescription = () => {
           layout="vertical"
           onFinish={onFinish}
           className="custom-form"
+          initialValues={{userId:"67ddfc9755c1bec1fb5cf57f"}}
         >
           <Form.Item
             name="userId"
             label="User ID"
             rules={[{ required: true, message: "Please enter your User ID!" }]}
           >
-            <Input placeholder="Enter User ID" className="input-box" />
+            <Input className="input-box" disabled />
           </Form.Item>
 
           <Form.Item
