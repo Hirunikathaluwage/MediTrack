@@ -5,27 +5,27 @@ import { Button, Form, Input, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-const URL = "http://localhost:5080/prescription"; // API endpoint
+
+const URL = "http://localhost:5080/prescription"; 
 
 const Prescription = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [fileList, setFileList] = useState([]);
   const navigate = useNavigate();
 
-  // Validate file type and size
   const beforeUpload = (file) => {
     const isValidType = file.type === "image/jpeg" || file.type === "image/png" || file.type === "application/pdf";
     if (!isValidType) {
       message.error("You can only upload JPG, PNG, or PDF files!");
       return Upload.LIST_IGNORE;
     }
-    return false; // Prevent auto upload
+    return false; 
   };
 
-  // Handle file selection
+  /
   const handleImageChange = (info) => {
     let fileList = [...info.fileList];
-    fileList = fileList.slice(-1); // Ensure only one file is kept
+    fileList = fileList.slice(-1); 
     setFileList(fileList);
 
     if (fileList.length > 0 && fileList[0].originFileObj) {
@@ -37,7 +37,6 @@ const Prescription = () => {
     }
   };
 
-  // Handle form submission
   const onFinish = async (values) => {
     if (fileList.length === 0) {
       message.error("Please upload a prescription file.");
@@ -66,6 +65,7 @@ const Prescription = () => {
     <div>
       <div>
         <img src={Orderprocess} alt="order" />
+       
       </div>
       <div className="form-container">
         <Form name="prescription_form" layout="vertical" onFinish={onFinish} className="custom-form"
@@ -101,7 +101,7 @@ const Prescription = () => {
           <Form.Item
             name="image"  label="Upload Prescription"  rules={[{ required: true, message: "Please upload a file!" }]}
           >
-            <Upload name="image" listType="picture" beforeUpload={beforeUpload}  fileList={fileList}   onChange={handleImageChange}  maxCount={1}  > //1 file 
+            <Upload name="image" listType="picture" beforeUpload={beforeUpload}  fileList={fileList}   onChange={handleImageChange}  maxCount={1}  > 
               <Button icon={<UploadOutlined />}>Click to Upload</Button>
             </Upload>
           </Form.Item>
