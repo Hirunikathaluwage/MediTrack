@@ -22,7 +22,7 @@ const Prescription = () => {
     return false; 
   };
 
-  /
+  
   const handleImageChange = (info) => {
     let fileList = [...info.fileList];
     fileList = fileList.slice(-1); 

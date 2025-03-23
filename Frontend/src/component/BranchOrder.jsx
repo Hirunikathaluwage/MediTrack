@@ -7,7 +7,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale);
 
 const BranchOrder = ({ chartData }) => {
 
-    // Function to generate and download a CSV report
+   
     const downloadReport = () => {
         const csvData = [
             ['Branch', 'Orders'],
@@ -36,7 +36,7 @@ const BranchOrder = ({ chartData }) => {
                 <Pie data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
             </div>
 
-            {/* Download Report Button */}
+            
             <div className="flex justify-center">
                 <Button 
                     type="primary" 

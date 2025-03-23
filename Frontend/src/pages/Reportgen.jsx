@@ -37,24 +37,24 @@ const Reportgen = () => {
                 <h1 className="text-4xl font-bold text-center mb-10">Dashboard Reports</h1>
                 
                 <div className="bg-white shadow-lg rounded-lg p-6">
-                    {/* Dashboard Grid */}
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                        {/* Stats Section */}
+                       
                         <div className="col-span-2 lg:col-span-1">
                             <Stat />
                         </div>
 
-                        {/* Top Medicines Chart */}
+                       
                         <div className="col-span-2 md:col-span-1">
                             <TopMedicine chartData={topMedicinesChartData} />
                         </div>
 
-                        {/* Branch Orders Chart */}
+                    
                         <div className="col-span-2 md:col-span-1">
                             <BranchOrder chartData={branchOrdersChartData} />
                         </div>
 
-                        {/* Profit Section */}
+                     
                         <div className="col-span-2 md:col-span-1">
                             <Profit />
                         </div>
