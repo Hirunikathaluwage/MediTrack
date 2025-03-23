@@ -205,6 +205,7 @@ export const reviewPrescription = async (req, res) => {
 export const getPrescription = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`ID ==> ${id}`);
     const prescription = await Prescription.findById(id).populate("medicines.medicineId");
 
     if (!prescription) {

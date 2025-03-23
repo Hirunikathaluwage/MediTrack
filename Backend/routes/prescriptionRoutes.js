@@ -9,8 +9,9 @@ import { getPrescription } from '../controllers/prescriptionController.js';
 
 
 router.post("/", upload.single("image"), uploadPrescription);
-router.put("/:id/review", reviewPrescription);
 router.get("/:id", getPrescription);
+router.put("/:id/review", reviewPrescription);
+
 router.delete("/:id", deletePrescription);
 
 export default router;
