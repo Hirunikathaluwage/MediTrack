@@ -1,37 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, message } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getDeliveries, deleteDelivery } from './services/deliveryService'; // Import delivery APIs
-import API from './services/api'; // Import API instance for order-related requests
 
 const ManageDeliveries = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [deliveries, setDeliveries] = useState([]); // State to store delivery data
   const [loading, setLoading] = useState(true); // Loading state
 
-  // Fetch deliveries and enrich with order data
+  // Fetch deliveries
   useEffect(() => {
     const fetchDeliveries = async () => {
       try {
         const response = await getDeliveries(); // Fetch deliveries using the API
-        const enrichedDeliveries = await Promise.all(
-          response.data.map(async (delivery) => {
-            try {
-              // Fetch order details for each delivery
-              const orderResponse = await API.get(`/orders/${delivery.orderId}`); // Replace with the correct API for fetching order details
-              return {
-                ...delivery,
-                branch: orderResponse.data.branch, // Assign branch from the order database
-                amount: orderResponse.data.amount, // Assign amount from the order database
-              };
-            } catch (error) {
-              console.error(`Error fetching order details for order ID ${delivery.orderId}:`, error);
-              return { ...delivery, branch: 'N/A', amount: 'N/A' }; // Fallback values
-            }
-          })
-        );
-        setDeliveries(enrichedDeliveries); // Set the enriched deliveries
+        setDeliveries(response.data); // Set the deliveries in state
       } catch (error) {
         console.error('Error fetching deliveries:', error);
         message.error('Failed to fetch deliveries. Please try again.');
@@ -42,6 +26,21 @@ const ManageDeliveries = () => {
 
     fetchDeliveries();
   }, []);
+
+  // Update the driver name for all deliveries (or a specific one if needed)
+  useEffect(() => {
+    if (location.state?.updatedDriverName) {
+      const updatedDriverName = location.state.updatedDriverName;
+      console.log('Driver updated:', updatedDriverName);
+      setDeliveries((prevDeliveries) =>
+        prevDeliveries.map((delivery) => ({
+          ...delivery,
+          driver: updatedDriverName, // Update the driver field
+        }))
+      );
+      
+    }
+  }, [location.state]);
 
   const handleDelete = async (deliveryId) => {
     try {
@@ -54,14 +53,9 @@ const ManageDeliveries = () => {
     }
   };
 
-  const handleAssignDriver = (deliveryId) => {
-    console.log(`Navigating to AssignDriver page for delivery ID: ${deliveryId}`);
-    navigate('/assign-driver', { state: { deliveryId } }); // Navigate to AssignDriver page with deliveryId
-  };
-
-  const handleConfirmOrder = (deliveryId) => {
-    console.log(`Confirm order for delivery ID: ${deliveryId}`);
-    // Add your confirm order logic here
+  const handleAssignDriver = () => {
+    console.log('Navigate to Assign Driver page');
+    navigate('/assign-driver'); // Navigate to the Assign Driver page
   };
 
   return (
@@ -81,7 +75,7 @@ const ManageDeliveries = () => {
       ) : (
         deliveries.map((delivery) => (
           <Card
-            key={delivery.deliveryId}
+            key={delivery.deliveryId || delivery._id} // Use _id as a fallback key
             style={{
               width: '80%',
               maxWidth: '800px',
@@ -92,15 +86,14 @@ const ManageDeliveries = () => {
               position: 'relative',
             }}
           >
-            <div style={{ display: 'flex' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
-                <p><strong>Delivery ID:</strong> {delivery.deliveryId}</p>
-                <p><strong>Order ID:</strong> {delivery.orderId}</p>
-                <p><strong>Name:</strong> {delivery.name}</p>
-              </div>
-              <div style={{ marginLeft: '200px' }}>
-                <p><strong>Branch:</strong> {delivery.branch}</p>
-                <p><strong>Amount:</strong> {delivery.amount}</p>
+                <p><strong>Delivery ID:</strong> {delivery._id || "N/A"}</p>
+                <p><strong>Order ID:</strong> {delivery.orderId || "N/A"}</p>
+                <p><strong>Name:</strong> {delivery.name || "N/A"}</p>
+                <p><strong>Contact:</strong> {delivery.contact || "N/A"}</p>
+                <p><strong>Branch:</strong> Colombo Branch</p>
+                <p><strong>Driver:</strong> {delivery.driver || "Not Assigned"}</p> {/* Driver Field */}
               </div>
             </div>
             {/* Buttons */}
@@ -112,29 +105,16 @@ const ManageDeliveries = () => {
                 marginTop: '20px',
               }}
             >
+              {/* Assign Driver Button */}
               <Button
                 type="default"
-                onClick={() => handleAssignDriver(delivery.branch)}
-                style={{
-                  border: '2px solid black',
-                  borderRadius: '20px',
-                  fontWeight: 'bold',
-                  padding: '0 20px',
-                }}
+                shape="round"
+                onClick={handleAssignDriver} // Call the assign driver handler
               >
                 Assign Driver
               </Button>
-              <Button
-                type="primary"
-                onClick={() => handleConfirmOrder(delivery.deliveryId)}
-                style={{
-                  borderRadius: '20px',
-                  fontWeight: 'bold',
-                  padding: '0 20px',
-                }}
-              >
-                Confirm
-              </Button>
+
+              {/* Delete Button */}
               <Button
                 type="primary"
                 danger

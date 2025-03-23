@@ -8,9 +8,9 @@ export const updateDelivery = async (delivery) => API.put(`/delivery/${delivery.
 
 export const deleteDelivery = async (id) => API.delete(`/delivery/${id}`);
 
-export const getDeliveryFeedbacks = async () => API.get("/feedback"); // Fetch all feedback
+export const getDeliveryFeedbacks = async () => API.get("/"); // Fetch all feedback
 
-export const createDeliveryFeedback = async (feedback) => API.post("/feedback/submit", feedback);
+export const createDeliveryFeedback = async (feedback) => API.post("/feedbacks/submit", feedback);
 
 export const addDeliveryPerson = async (deliveryPerson) => API.post("/delivery-persons", deliveryPerson);
 

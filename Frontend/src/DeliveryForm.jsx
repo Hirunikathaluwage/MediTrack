@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, Input, message } from "antd";
-import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+import { useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { createDelivery } from "./services/deliveryService"; // Import backend API function
 
@@ -18,24 +18,22 @@ const formItemLayout = {
 const DeliveryForm = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const location = useLocation(); // Use useLocation to get state
   const [selectedLocation, setSelectedLocation] = useState(null);
 
-  // Retrieve orderID from location.state
-  const orderID = location.state?.orderID || ""; // Default to an empty string if not provided
+  // Static Order ID for now
+  const orderId = "67e03274a9441fc4cff224ff"; // Replace this with your static Order ID
 
   useEffect(() => {
-    // Set the orderID in the form when the component loads
-    if (orderID) {
-      form.setFieldsValue({ orderID });
-    }
-  }, [orderID, form]);
+    console.log("Setting Order ID:", orderId); // Debugging log
+    form.setFieldsValue({ orderId }); // Set the static Order ID in the form
+    console.log("Form values after setting Order ID:", form.getFieldsValue()); // Debugging log
+  }, [orderId, form]);
 
   const handleSubmit = async (values) => {
     try {
       // Prepare the data to send to the backend
       const deliveryData = {
-        orderID: values.orderID,
+        orderId: values.orderId,
         name: values.name,
         contact: values.contact,
         location: selectedLocation,
@@ -45,7 +43,9 @@ const DeliveryForm = () => {
       // Call the backend API to create a delivery
       const response = await createDelivery(deliveryData);
       message.success("Delivery created successfully!");
-      navigate("/delivery-main"); // Navigate to the next page
+      navigate("/delivery-main", {
+        state: { orderId: values.orderId, deliveryId: response.data.delivery._id },
+      }); // Navigate to the next page
     } catch (error) {
       console.error("Error creating delivery:", error);
       message.error("Failed to create delivery. Please try again.");
@@ -83,10 +83,11 @@ const DeliveryForm = () => {
         >
           {/* OrderID */}
           <Form.Item
-            label="OrderID"
-            name="orderID"
+            label="OrderId"
+            name="orderId"
+            rules={[{ required: true, message: "OrderID is required!" }]}
           >
-            <Input disabled /> {/* Disable the input field to prevent editing */}
+            <Input value={orderId} disabled /> {/* Disable the input field to prevent editing */}
           </Form.Item>
 
           {/* Name */}
@@ -147,3 +148,7 @@ const DeliveryForm = () => {
 };
 
 export default DeliveryForm;
+
+
+
+

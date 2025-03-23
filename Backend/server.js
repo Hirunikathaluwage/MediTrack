@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors'; // Cross-Origin Resource Sharing
 import mongoose from 'mongoose';
 import deliveryRoutes from './routes/deliveryRoutes.js'
 import DeliveryPersonRoutes from './routes/deliveryPersonRoutes.js';
@@ -9,6 +10,7 @@ dotenv.config(); // Load .env file
 
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 

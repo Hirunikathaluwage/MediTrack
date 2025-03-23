@@ -11,25 +11,25 @@ const DeliveryRate = () => {
   const navigate = useNavigate();
 
   // Fetch driver information (replace "driverIdHere" with the actual driver ID)
-  useEffect(() => {
-    const fetchDriver = async () => {
-      try {
-        const response = await getDeliveryPersonById("driverIdHere"); // Replace with actual driver ID
-        setDriver(response.data);
-      } catch (error) {
-        console.error("Error fetching driver details:", error);
-        message.error("Failed to fetch driver details.");
-      }
-    };
+  // useEffect(() => {
+  //   const fetchDriver = async () => {
+  //     try {
+  //       const response = await getDeliveryPersonById("driverIdHere"); // Replace with actual driver ID
+  //       setDriver(response.data);
+  //     } catch (error) {
+  //       console.error("Error fetching driver details:", error);
+  //       message.error("Failed to fetch driver details.");
+  //     }
+  //   };
 
-    fetchDriver();
-  }, []);
+  //   fetchDriver();
+  // }, []);
 
   const handleSubmit = async () => {
-    if (!driver) {
-      message.error("Driver details are not available. Please try again later.");
-      return;
-    }
+    // if (!driver) {
+    //   message.error("Driver details are not available. Please try again later.");
+    //   return;
+    // }
 
     if (deliveryRating === 0 || driverRating === 0) {
       message.error("Please provide both delivery and driver ratings before submitting!");
@@ -40,7 +40,7 @@ const DeliveryRate = () => {
       deliveryRating,
       driverRating,
       feedback,
-      driverId: driver._id, // Use the driver's ObjectId dynamically
+      //driverId: driver._id, // Use the driver's ObjectId dynamically
     };
 
     try {
