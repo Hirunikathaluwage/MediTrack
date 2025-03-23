@@ -12,25 +12,40 @@ const Prescription = () => {
   const [fileList, setFileList] = useState([]);
   const navigate = useNavigate();
 
-  // Handle image file selection
+  // Validate file type and size
+  const beforeUpload = (file) => {
+    const isValidType = file.type === "image/jpeg" || file.type === "image/png" || file.type === "application/pdf";
+    if (!isValidType) {
+      message.error("You can only upload JPG, PNG, or PDF files!");
+      return Upload.LIST_IGNORE;
+    }
+    return false; // Prevent auto upload
+  };
+
+  // Handle file selection
   const handleImageChange = (info) => {
-    setFileList(info.fileList);
-    if (info.file && info.file.originFileObj) {
+    let fileList = [...info.fileList];
+    fileList = fileList.slice(-1); // Ensure only one file is kept
+    setFileList(fileList);
+
+    if (fileList.length > 0 && fileList[0].originFileObj) {
       const reader = new FileReader();
-      reader.onload = () => {
-        setImageUrl(reader.result);
-      };
-      reader.readAsDataURL(info.file.originFileObj);
+      reader.onload = () => setImageUrl(reader.result);
+      reader.readAsDataURL(fileList[0].originFileObj);
+    } else {
+      setImageUrl(null);
     }
   };
 
   // Handle form submission
   const onFinish = async (values) => {
-    console.log("Form Data Before Sending:", values);
+    if (fileList.length === 0) {
+      message.error("Please upload a prescription file.");
+      return;
+    }
 
-    // Prepare form data with the image
     const formData = new FormData();
-    formData.append("userId","67ddfc9755c1bec1fb5cf57f");
+    formData.append("userId", "67ddfc9755c1bec1fb5cf57f");
     formData.append("name", values.name);
     formData.append("age", values.age);
     formData.append("mobile", values.mobile);
@@ -40,11 +55,9 @@ const Prescription = () => {
       const response = await axios.post(URL, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("Data saved successfully:", response.data);
       message.success("Prescription submitted successfully!");
       navigate("/MedicineList");
     } catch (error) {
-      console.error("Error submitting data:", error);
       message.error("Failed to submit prescription.");
     }
   };
@@ -55,16 +68,11 @@ const Prescription = () => {
         <img src={Orderprocess} alt="order" />
       </div>
       <div className="form-container">
-        <Form
-          name="prescription_form"
-          layout="vertical"
-          onFinish={onFinish}
-          className="custom-form"
-          initialValues={{userId:"67ddfc9755c1bec1fb5cf57f"}}
+        <Form name="prescription_form" layout="vertical" onFinish={onFinish} className="custom-form"
+         initialValues={{ userId: "67ddfc9755c1bec1fb5cf57f" }}
         >
           <Form.Item
-            name="userId"
-            label="User ID"
+            name="userId"   label="User ID"
             rules={[{ required: true, message: "Please enter your User ID!" }]}
           >
             <Input className="input-box" disabled />
@@ -79,34 +87,21 @@ const Prescription = () => {
           </Form.Item>
 
           <Form.Item
-            name="age"
-            label="Age"
-            rules={[{ required: true, message: "Please enter your age!" }]}
+            name="age" label="Age" rules={[{ required: true, message: "Please enter your age!" }]}
           >
             <Input placeholder="Enter age" type="number" className="input-box" />
           </Form.Item>
 
           <Form.Item
-            name="mobile"
-            label="Contact Number"
-            rules={[{ required: true, message: "Please enter your contact number!" }]}
+            name="mobile" label="Contact Number" rules={[{ required: true, message: "Please enter your contact number!" }]}
           >
             <Input placeholder="Enter contact" type="phone" className="input-box" />
           </Form.Item>
 
           <Form.Item
-            name="image"
-            label="Upload Prescription"
-            valuePropName="fileList"
-            getValueFromEvent={(e) => e.fileList}
+            name="image"  label="Upload Prescription"  rules={[{ required: true, message: "Please upload a file!" }]}
           >
-            <Upload
-              name="image"
-              listType="picture"
-              beforeUpload={() => false} // Disable auto upload
-              fileList={fileList}
-              onChange={handleImageChange}
-            >
+            <Upload name="image" listType="picture" beforeUpload={beforeUpload}  fileList={fileList}   onChange={handleImageChange}  maxCount={1}  > //1 file 
               <Button icon={<UploadOutlined />}>Click to Upload</Button>
             </Upload>
           </Form.Item>
@@ -127,6 +122,7 @@ const Prescription = () => {
               Submit
             </Button>
           </Form.Item>
+
         </Form>
       </div>
     </div>

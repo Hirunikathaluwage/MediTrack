@@ -10,7 +10,7 @@ function MedicineList() {
     // Replace with your API endpoint to fetch the medicines
     const fetchMedicines = async () => {
       try {
-        const response = await axios.get("/api/prescription/123"); // Fetch prescription with ID 123 (for example)
+        const response = await axios.get("/api/prescription/67e0108793b399cafcc8f41e"); // Fetch prescription with ID 123 (for example)
         if (response.data.success) {
           setMedicines(response.data.prescription.medicines); // Assume medicines are part of the response
         }
@@ -43,4 +43,5 @@ function MedicineList() {
   );
 }
 
-export default MedicineList;
+export default MedicineList; 
+
