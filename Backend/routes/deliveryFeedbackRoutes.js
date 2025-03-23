@@ -1,8 +1,8 @@
 import express from 'express';
-import { submitFeedback, getFeedback } from '../controllers/deliveryFeedbackController.js';
+import { submitFeedback, getDeliveryFeedbacks } from '../controllers/deliveryFeedbackController.js';
 
 const router = express.Router();
 router.post('/submit', submitFeedback);
-router.get('/', getFeedback);
+router.get('/', getDeliveryFeedbacks);
 
 export default router;
