@@ -1,6 +1,23 @@
 import mongoose from 'mongoose';
 import  BranchStock  from "../models/BranchStock.js";
 
+
+
+export const getAllBranchStocks = async (req, res) => {
+    try {
+        const allStocks = await BranchStock.find(); // Fetch all documents from the BranchStock collection
+
+        if (allStocks.length === 0) {
+            return res.status(404).json({ success: false, message: "No stocks found in the collection" });
+        }
+
+        res.status(200).json({ success: true, data: allStocks });
+    } catch (error) {
+        console.error("Error in fetching all branch stocks:", error.message);
+        res.status(500).json({ success: false, message: "Server error!" });
+    }
+};
+
 // searching Medicine by branch name
 export const getBranchStock =  async (req,res) => {
         try{

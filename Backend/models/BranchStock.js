@@ -6,7 +6,7 @@ const BranchStockSchema = new mongoose.Schema({
     medicineId: { type: mongoose.Schema.Types.ObjectId, ref: "Medicine" },
 
     stock: {type: Number,required : true,},
-    location: {type : String,required : true,},
+    // location: {type : String,required : true,},
     expiryDate: {type : Date,required : true,},
     price: {type : Number,required : true,},
 });
