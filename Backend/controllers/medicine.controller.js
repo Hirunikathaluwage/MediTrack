@@ -14,7 +14,7 @@ export const getMedicine = async (req, res) => {
 export const createMedicine = async (req, res) => {
     const medicine = req.body;
 
-    if(!medicine.name || !medicine.genericName || !medicine.price || !medicine.unit || !medicine.description || !medicine.expireDate || !medicine.manufactureDate){
+    if(!medicine.name || !medicine.genericName || !medicine.price || !medicine.unit || !medicine.description || !medicine.expireDate || !medicine.manufactureDate || !medicine.qty){
         return res.status(400).json({ success:false, message: "Please provide all Fields !" });
     }
 

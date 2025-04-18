@@ -35,6 +35,11 @@ const medicineSchema = new mongoose.Schema({
         type : Date,
         required : true,
     },
+
+    qty: {
+        type : String,
+        required : true,
+    },
 });
 
 //module.exports = mongoose.model('Medicine' , medicineSchema, 'medicine ');
