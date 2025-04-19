@@ -11,11 +11,6 @@ const medicineSchema = new mongoose.Schema({
         required : true,
     },
 
-    price: {
-        type : Number,
-        required : true,
-    },
-
     unit: {
         type : String,
         required : true,
@@ -26,20 +21,16 @@ const medicineSchema = new mongoose.Schema({
         required : true,
     },
 
-    expireDate: {
-        type : Date,
-        required : true,
-    },
-
-    manufactureDate: {
-        type : Date,
-        required : true,
-    },
 
     qty: {
         type : String,
         required : true,
     },
+    otc: {
+        type : Boolean,
+        required : true,
+    },
+
 });
 
 //module.exports = mongoose.model('Medicine' , medicineSchema, 'medicine ');
