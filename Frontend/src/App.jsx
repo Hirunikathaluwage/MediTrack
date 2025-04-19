@@ -7,6 +7,7 @@ import SearchPrescriptionInBranch from "./SearchPrescriptionInBranch";
 import AddMedicineToInventory from "./AddMedicine";
 import ManageMedicines from "./ManageMedicines";
 import CreateMedicine from "./CreateMedicine";
+import ManageBranches from "./ManageBranches"; // Import the ManageBranches component
 import "./index.css";
 
 const { Header, Sider, Content } = Layout;
@@ -23,6 +24,9 @@ function App() {
             </Title>
           </div>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
+            <Menu.Item key="admin-section" disabled style={{ fontWeight: "bold", color: "#ffffff" }}>
+              Admin Section
+            </Menu.Item>
             <Menu.Item key="1">
               <NavLink to="/add-stock">Add Stock</NavLink>
             </Menu.Item>
@@ -37,6 +41,16 @@ function App() {
             </Menu.Item>
             <Menu.Item key="5">
               <NavLink to="/manage-medicines">Manage Medicine</NavLink>
+            </Menu.Item>
+            <Menu.Item key="6">
+              <NavLink to="/manage-branches">Manage Branches</NavLink> {/* Add Manage Branches menu */}
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item key="customer-section" disabled style={{ fontWeight: "bold", color: "#ffffff" }}>
+              Customer Sections
+            </Menu.Item>
+            <Menu.Item key="7">
+              <NavLink to="/search-medicine-branches">Cust search med</NavLink>
             </Menu.Item>
           </Menu>
         </Sider>
@@ -67,6 +81,7 @@ function App() {
               />
               <Route path="/create-medicine" element={<CreateMedicine />} />
               <Route path="/manage-medicines" element={<ManageMedicines />} />
+              <Route path="/manage-branches" element={<ManageBranches />} /> {/* Add Manage Branches route */}
             </Routes>
           </Content>
         </Layout>

@@ -12,11 +12,10 @@ function ManageMedicines() {
   const [formData, setFormData] = useState({
     name: "",
     genericName: "",
-    price: "",
     unit: "",
     description: "",
-    expireDate: "",
-    manufactureDate: "",
+    qty: "",
+    otc: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
@@ -33,9 +32,12 @@ function ManageMedicines() {
   const handleEdit = (medicine) => {
     setEditingMedicine(medicine._id);
     setFormData({
-      ...medicine,
-      expireDate: medicine.expireDate.slice(0, 10),
-      manufactureDate: medicine.manufactureDate.slice(0, 10),
+      name: medicine.name,
+      genericName: medicine.genericName,
+      unit: medicine.unit,
+      description: medicine.description,
+      qty: medicine.qty,
+      otc: medicine.otc,
     });
   };
 
@@ -109,23 +111,24 @@ function ManageMedicines() {
         ),
     },
     {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (text, record) =>
-        editingMedicine === record._id ? (
-          <Input name="price" type="number" value={formData.price} onChange={handleInputChange} />
-        ) : (
-          text
-        ),
-    },
-    {
       title: "Unit",
       dataIndex: "unit",
       key: "unit",
       render: (text, record) =>
         editingMedicine === record._id ? (
-          <Input name="unit" value={formData.unit} onChange={handleInputChange} />
+          <select
+            name="unit"
+            value={formData.unit}
+            onChange={handleInputChange}
+            style={{ width: "100%" }}
+          >
+            <option value="tablets">Tablets</option>
+            <option value="syrups">Syrups</option>
+            <option value="inhalers">Inhalers</option>
+            <option value="injections">Injections</option>
+            <option value="drops">Drops</option>
+            <option value="creams">Creams</option>
+          </select>
         ) : (
           text
         ),
@@ -142,25 +145,46 @@ function ManageMedicines() {
         ),
     },
     {
-      title: "Expiry Date",
-      dataIndex: "expireDate",
-      key: "expireDate",
+      title: "Quantity",
+      dataIndex: "qty",
+      key: "qty",
       render: (text, record) =>
         editingMedicine === record._id ? (
-          <Input name="expireDate" type="date" value={formData.expireDate} onChange={handleInputChange} />
+          <Input name="qty" value={formData.qty} onChange={handleInputChange} />
         ) : (
-          text.slice(0, 10)
+          text
         ),
     },
     {
-      title: "Manufacture Date",
-      dataIndex: "manufactureDate",
-      key: "manufactureDate",
+      title: "OTC",
+      dataIndex: "otc",
+      key: "otc",
       render: (text, record) =>
         editingMedicine === record._id ? (
-          <Input name="manufactureDate" type="date" value={formData.manufactureDate} onChange={handleInputChange} />
+          <div>
+            <label style={{ marginRight: "10px" }}>
+              <input
+                type="radio"
+                name="otc"
+                value={true}
+                checked={formData.otc === true}
+                onChange={() => setFormData({ ...formData, otc: true })}
+              />
+              OTC
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="otc"
+                value={false}
+                checked={formData.otc === false}
+                onChange={() => setFormData({ ...formData, otc: false })}
+              />
+              Prescription
+            </label>
+          </div>
         ) : (
-          text.slice(0, 10)
+          text ? "OTC" : "Prescription"
         ),
     },
     {

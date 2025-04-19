@@ -7,16 +7,19 @@ function CreateMedicine() {
   const [formData, setFormData] = useState({
     name: "",
     genericName: "",
-    price: "",
     unit: "",
     description: "",
-    manufactureDate: "",
-    expireDate: "",
+    qty: "",
+    otc: false, // Added OTC field
   });
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -24,7 +27,7 @@ function CreateMedicine() {
     setError("");
 
     // Validate required fields
-    if (!formData.name || !formData.genericName || !formData.price || !formData.unit || !formData.expireDate || !formData.manufactureDate) {
+    if (!formData.name || !formData.genericName || !formData.unit || !formData.qty) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -44,7 +47,7 @@ function CreateMedicine() {
         setError(data.message || "Failed to add medicine.");
       }
     } catch (err) {
-      setError("Server error! Please try again."+err);
+      setError("Server error! Please try again." + err);
     }
   };
 
@@ -53,22 +56,82 @@ function CreateMedicine() {
       <h2>Create New Medicine</h2>
       {error && <p className="error-message">{error}</p>}
       <form onSubmit={handleSubmit}>
-        <input type="text" name="name" placeholder="Medicine Name" value={formData.name} onChange={handleChange} required />
-        <input type="text" name="genericName" placeholder="Generic Name" value={formData.genericName} onChange={handleChange} required />
-        <input type="number" name="price" placeholder="Price" value={formData.price} onChange={handleChange} required />
-        <input type="text" name="unit" placeholder="Unit (e.g., Tablet,Syrup)" value={formData.unit} onChange={handleChange} required />
-        
+        <input
+          type="text"
+          name="name"
+          placeholder="Medicine Name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="text"
+          name="genericName"
+          placeholder="Generic Name"
+          value={formData.genericName}
+          onChange={handleChange}
+          required
+        />
+
+        <label htmlFor="unit">Unit:</label>
+        <select
+          name="unit"
+          id="unit"
+          value={formData.unit} // Bind to formData.unit
+          onChange={handleChange} // Update formData when the value changes
+          required
+        >
+          <option value="">Select Unit</option> {/* Default placeholder option */}
+          <option value="tablets">Tablets</option>
+          <option value="syrups">Syrups</option>
+          <option value="inhalers">Inhalers</option>
+          <option value="injections">Injections</option>
+          <option value="drops">Drops</option>
+          <option value="creams">Creams</option>
+        </select>
+
         <label>
-          Expire Date:
-          <input type="date" name="expireDate" value={formData.expireDate} onChange={handleChange} required />
+          Quantity:
+          <input
+            type="text"
+            name="qty"
+            placeholder="Unit (e.g., 1 Tablet, 100ml)"
+            value={formData.qty}
+            onChange={handleChange}
+            required
+          />
         </label>
-        
-        <label>
-          Manufacture Date:
-          <input type="date" name="manufactureDate" value={formData.manufactureDate} onChange={handleChange} required />
-        </label>
-        
-        <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} />
+
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={formData.description}
+          onChange={handleChange}
+        />
+
+        <div className="otc-toggle" style={{ marginTop: "1rem" }}>
+          <label style={{ marginRight: "1rem" }}>
+            <input
+              type="radio"
+              name="otc"
+              value={true}
+              checked={formData.otc === true}
+              onChange={() => setFormData({ ...formData, otc: true })}
+            />
+            Over the Counter (OTC)
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="otc"
+              value={false}
+              checked={formData.otc === false}
+              onChange={() => setFormData({ ...formData, otc: false })}
+            />
+            Prescription Required
+          </label>
+        </div>
+
         <button type="submit">Add Medicine</button>
       </form>
     </div>

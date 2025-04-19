@@ -8,14 +8,13 @@ const { Option } = Select;
 
 function AddMedicineToInventory() {
   const [medicines, setMedicines] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [selectedMedicineId, setSelectedMedicineId] = useState("");
+  const [selectedBranchId, setSelectedBranchId] = useState("");
   const [stock, setStock] = useState("");
   const [price, setPrice] = useState("");
   const [location, setLocation] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
-
-  // TODO Replace with the actual branch ID
-  const branchId = "67d7232e677885938b5f5fbf";
 
   useEffect(() => {
     // Fetch existing medicines
@@ -27,31 +26,42 @@ function AddMedicineToInventory() {
         }
       })
       .catch(() => setMedicines([]));
+
+    // Fetch branches
+    fetch("http://localhost:5080/api/branch")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setBranches(data.data);
+        }
+      })
+      .catch(() => setBranches([]));
   }, []);
 
   const handleSubmit = async () => {
-    if (!selectedMedicineId) {
-      message.error("Please select a medicine.");
+    if (!selectedMedicineId || !selectedBranchId) {
+      message.error("Please select both a medicine and a branch.");
       return;
     }
-  
+
     const newStockEntry = {
-      branchId,
+      branchId: selectedBranchId,
       medicineId: selectedMedicineId,
       price: parseFloat(price),
       stock: parseInt(stock, 10),
       location,
       expiryDate,
     };
-  
+
     try {
       const result = await addMedicine(newStockEntry);
       console.log("API Response:", result); // Debugging log
-  
+
       if (result && result.success) {
         message.success("Stock added successfully!");
-        alert("Stock has been successfully added!"); 
+        alert("Stock has been successfully added!");
         setSelectedMedicineId("");
+        setSelectedBranchId("");
         setStock("");
         setPrice("");
         setLocation("");
@@ -97,6 +107,24 @@ function AddMedicineToInventory() {
             </Form.Item>
 
             <Form.Item
+              label="Select Branch"
+              name="branch"
+              rules={[{ required: true, message: "Please select a branch!" }]}
+            >
+              <Select
+                placeholder="Select Branch"
+                value={location}
+                onChange={(value) => setSelectedBranchId(value)}
+              >
+                {branches.map((branch) => (
+                  <Option key={branch._id} value={branch._id}>
+                    {branch.location}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
               label="Stock"
               name="stock"
               rules={[{ required: true, message: "Please enter the stock!" }]}
@@ -123,7 +151,7 @@ function AddMedicineToInventory() {
               />
             </Form.Item>
 
-            <Form.Item
+            {/* <Form.Item
               label="Location"
               name="location"
               rules={[{ required: true, message: "Please enter the location!" }]}
@@ -134,7 +162,7 @@ function AddMedicineToInventory() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
               />
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item label="Expiry Date" name="expiryDate">
               <Input

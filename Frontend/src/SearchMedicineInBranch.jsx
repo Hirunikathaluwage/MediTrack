@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Table, Input, Button, Typography, Space, Popconfirm } from "antd";
-import { EditOutlined, DeleteOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
+import { Table, Input, Button, Typography, Space, Tag } from "antd";
+import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import "./SearchMedicineInBranch.css";
 
 const { Title } = Typography;
@@ -8,17 +8,30 @@ const { Title } = Typography;
 function SearchMedicineInBranch() {
   const [medicines, setMedicines] = useState([]);
   const [branchStocks, setBranchStocks] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [editedMedicine, setEditedMedicine] = useState({
-    name: "",
+  const [formData, setFormData] = useState({
     stock: "",
-    location: "",
     expiryDate: "",
     price: "",
   });
 
   useEffect(() => {
+    // Fetch branch data
+    fetch("http://localhost:5080/api/branch")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setBranches(data.data);
+        } else {
+          setBranches([]);
+        }
+      })
+      .catch(() => setBranches([]));
+
+    // Fetch medicines
     fetch("http://localhost:5080/api/medicines")
       .then((res) => res.json())
       .then((data) => {
@@ -30,7 +43,8 @@ function SearchMedicineInBranch() {
       })
       .catch(() => setMedicines([]));
 
-    fetch("http://localhost:5080/api/branchstock/b/67d7232e677885938b5f5fbf")
+    // Fetch branch stocks
+    fetch("http://localhost:5080/api/branchstock/")
       .then((res) => res.json())
       .then((stockData) => {
         if (stockData.success && Array.isArray(stockData.data)) {
@@ -42,135 +56,129 @@ function SearchMedicineInBranch() {
       .catch(() => setBranchStocks([]));
   }, []);
 
-  const medicinesWithStock = medicines
-    .map((medicine) => {
-      const matchingStock = branchStocks.find(
-        (stock) => stock.medicineId === medicine._id
-      );
+  const handleEdit = (record) => {
+    setEditingId(record._id);
+    setFormData({
+      stock: record.stock,
+      expiryDate: record.expiryDate,
+      price: record.price,
+    });
+  };
 
-      if (matchingStock) {
-        return {
-          ...medicine,
-          stock: matchingStock.stock,
-          location: matchingStock.location,
-          expiryDate: matchingStock.expiryDate
-            ? matchingStock.expiryDate.slice(0, 10)
-            : "N/A",
-          price: matchingStock.price || "N/A",
-        };
-      }
-      return null;
-    })
-    .filter(Boolean);
-
-  const filteredMedicines = medicinesWithStock.filter((medicine) =>
-    medicine.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleDelete = async (medicineId) => {
-    const branchId = "67d7232e677885938b5f5fbf";
-
+  const handleSave = async () => {
     try {
-      const response = await fetch("http://localhost:5080/api/branchstock/delete", {
-        method: "DELETE",
+      // Find the current stock record to get branchId and medicineId
+      const currentStock = branchStocks.find((stock) => stock._id === editingId);
+
+      if (!currentStock) {
+        alert("Error: Stock record not found.");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5080/api/branchstock/update`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ branchId, medicineId }),
+        body: JSON.stringify({
+          branchId: currentStock.branchId,
+          medicineId: currentStock.medicineId,
+          stock: formData.stock,
+          expiryDate: formData.expiryDate,
+          price: formData.price,
+        }),
       });
 
       const data = await response.json();
       if (data.success) {
-        alert("Branch stock deleted successfully!");
-        setBranchStocks((prevStocks) =>
-          prevStocks.filter((stock) => stock.medicineId !== medicineId)
-        );
-      } else {
-        alert("Failed to delete branch stock: " + data.message);
-      }
-    } catch (error) {
-      alert("Error deleting branch stock.");
-    }
-  };
-
-  const handleUpdateClick = (medicine) => {
-    setEditingId(medicine._id);
-    setEditedMedicine({
-      name: medicine.name,
-      stock: medicine.stock,
-      location: medicine.location,
-      expiryDate: medicine.expiryDate,
-      price: medicine.price,
-    });
-  };
-
-  const handleUpdateSubmit = async () => {
-    const { name, stock, location, expiryDate, price } = editedMedicine;
-    const branchId = "67d7232e677885938b5f5fbf";
-
-    if (!name || !stock || !location || !expiryDate || !price) {
-      alert("All fields are required.");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `http://localhost:5080/api/branchstock/update`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            branchId,
-            medicineId: editingId,
-            name,
-            stock,
-            location,
-            expiryDate,
-            price,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        alert("Medicine stock updated successfully!");
-        setBranchStocks((prevStocks) =>
-          prevStocks.map((stock) =>
-            stock.medicineId === editingId ? { ...stock, ...editedMedicine } : stock
+        setBranchStocks((prev) =>
+          prev.map((stock) =>
+            stock._id === editingId ? { ...stock, ...formData } : stock
           )
         );
         setEditingId(null);
       } else {
-        alert("Failed to update medicine stock: " + data.message);
+        alert("Failed to update branch stock: " + data.message);
       }
     } catch (error) {
-      alert("Error updating medicine stock.");
+      alert("Error updating branch stock: " + error);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+  };
+
+  const handleDelete = async (record) => {
+    // Show confirmation dialog
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete the stock for "${record.name}" at "${record.location}"?`
+    );
+
+    if (!confirmDelete) {
+      return; // Exit if the user cancels
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5080/api/branchstock/delete`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          branchId: record.branchId,
+          medicineId: record.medicineId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete stock.");
+      }
+
+      const data = await response.json();
+      setBranchStocks((prev) =>
+        prev.filter((stock) => stock._id !== record._id)
+      );
+      alert("Stock deleted successfully!");
+    } catch (error) {
+      alert(`Error deleting stock: ${error.message}`);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditedMedicine((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
+
+  const medicinesWithStock = branchStocks.map((stock) => {
+    const medicine = medicines.find((med) => med._id === stock.medicineId);
+    const branch = branches.find((br) => br._id === stock.branchId);
+
+    return {
+      _id: stock._id,
+      branchId: stock.branchId, // Include branchId
+      medicineId: stock.medicineId, // Include medicineId
+      name: medicine ? medicine.name : "N/A",
+      stock: stock.stock,
+      location: branch ? branch.location : "N/A",
+      expiryDate: stock.expiryDate ? stock.expiryDate.slice(0, 10) : "N/A",
+      price: stock.price || "N/A",
+    };
+  });
+
+  const filteredMedicines = medicinesWithStock.filter((medicine) => {
+    const matchesName = medicine.name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesLocation = locationFilter
+      ? medicine.location?.toLowerCase() === locationFilter.toLowerCase()
+      : true;
+    return matchesName && matchesLocation;
+  });
 
   const columns = [
     {
       title: "Medicine Name",
       dataIndex: "name",
       key: "name",
-      render: (text, record) =>
-        editingId === record._id ? (
-          <Input
-            name="name"
-            value={editedMedicine.name}
-            onChange={handleInputChange}
-            disabled
-          />
-        ) : (
-          text
-        ),
     },
     {
       title: "Stock",
@@ -181,7 +189,7 @@ function SearchMedicineInBranch() {
           <Input
             name="stock"
             type="number"
-            value={editedMedicine.stock}
+            value={formData.stock}
             onChange={handleInputChange}
           />
         ) : (
@@ -192,16 +200,6 @@ function SearchMedicineInBranch() {
       title: "Location",
       dataIndex: "location",
       key: "location",
-      render: (text, record) =>
-        editingId === record._id ? (
-          <Input
-            name="location"
-            value={editedMedicine.location}
-            onChange={handleInputChange}
-          />
-        ) : (
-          text
-        ),
     },
     {
       title: "Expiry Date",
@@ -212,7 +210,7 @@ function SearchMedicineInBranch() {
           <Input
             name="expiryDate"
             type="date"
-            value={editedMedicine.expiryDate}
+            value={formData.expiryDate}
             onChange={handleInputChange}
           />
         ) : (
@@ -228,7 +226,7 @@ function SearchMedicineInBranch() {
           <Input
             name="price"
             type="number"
-            value={editedMedicine.price}
+            value={formData.price}
             onChange={handleInputChange}
           />
         ) : (
@@ -236,22 +234,18 @@ function SearchMedicineInBranch() {
         ),
     },
     {
-      title: "Action",
-      key: "action",
+      title: "Actions",
+      key: "actions",
       render: (_, record) =>
         editingId === record._id ? (
           <Space>
-            <Button
-              type="primary"
-              icon={<SaveOutlined />}
-              onClick={handleUpdateSubmit}
-            >
+            <Button type="primary" icon={<SaveOutlined />} onClick={handleSave}>
               Save
             </Button>
             <Button
               type="default"
               icon={<CloseOutlined />}
-              onClick={() => setEditingId(null)}
+              onClick={handleCancel}
             >
               Cancel
             </Button>
@@ -261,20 +255,16 @@ function SearchMedicineInBranch() {
             <Button
               type="default"
               icon={<EditOutlined />}
-              onClick={() => handleUpdateClick(record)}
+              onClick={() => handleEdit(record)}
             >
-              Update
+              Edit
             </Button>
-            <Popconfirm
-              title="Are you sure you want to delete this stock?"
-              onConfirm={() => handleDelete(record._id)}
-              okText="Yes"
-              cancelText="No"
+            <Button
+              type="danger"
+              onClick={() => handleDelete(record)}
             >
-              <Button type="danger" icon={<DeleteOutlined />}>
-                Delete
-              </Button>
-            </Popconfirm>
+              Delete
+            </Button>
           </Space>
         ),
     },
@@ -282,7 +272,7 @@ function SearchMedicineInBranch() {
 
   return (
     <div className="search-container">
-      <Title level={2}>Search Medicine in Branch</Title>
+      <Title level={2}>Manage Stock</Title>
 
       <Input
         placeholder="Search for medicine..."
@@ -290,6 +280,29 @@ function SearchMedicineInBranch() {
         onChange={(e) => setSearchQuery(e.target.value)}
         style={{ marginBottom: "16px", width: "100%" }}
       />
+
+      {/* Branch Location Chips */}
+      <div style={{ marginBottom: "16px" }}>
+        {branches.map((branch) => (
+          <Tag
+            key={branch._id}
+            color={locationFilter === branch.location ? "green" : "blue"}
+            style={{ marginBottom: "8px", cursor: "pointer" }}
+            onClick={() => setLocationFilter(branch.location)}
+          >
+            {branch.location}
+          </Tag>
+        ))}
+        {locationFilter && (
+          <Tag
+            color="red"
+            style={{ marginBottom: "8px", cursor: "pointer" }}
+            onClick={() => setLocationFilter("")}
+          >
+            Clear Filter
+          </Tag>
+        )}
+      </div>
 
       <Table
         dataSource={filteredMedicines}
