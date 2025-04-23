@@ -31,18 +31,16 @@ const medicineSchema = new mongoose.Schema({
         required : true,
     },
 
-    expireDate: {
-        type : Date,
+    qty: {
+        type : String,
         required : true,
     },
-
-    manufactureDate: {
-        type : Date,
-        required : true,
+    otc: {
+        type : Boolean,
+        required : false, // over the count .. kalin true.
     },
 });
 
-//module.exports = mongoose.model('Medicine' , medicineSchema, 'medicine ');
 
 export const Medicine = mongoose.model("Medicine", medicineSchema);
 

@@ -1,17 +1,31 @@
-import express from 'express'
+// routes/prescriptionRoutes.js
+import express from 'express';
+
 const router = express.Router();
 
-import { uploadPrescription } from '../controllers/prescriptionController.js';
-import {upload} from '../controllers/prescriptionController.js';
-import { reviewPrescription } from '../controllers/prescriptionController.js';
-import { deletePrescription } from '../controllers/prescriptionController.js';
-import { getPrescription } from '../controllers/prescriptionController.js';
+import {
+  uploadPrescription,
+  reviewPrescription,
+  deletePrescription,
+  getPrescription,
+  getApprovedMedicines,
+  upload
+} from '../controllers/prescriptionController.js';
 
+// Upload a prescription with OCR and medicine matching
+router.post('/', upload.single('image'), uploadPrescription);
 
-router.post("/", upload.single("image"), uploadPrescription);
-router.get("/:id", getPrescription);
-router.put("/:id/review", reviewPrescription);
+// Get a prescription by ID
+router.get('/:id', getPrescription);
 
-router.delete("/:id", deletePrescription);
+// Review and update medicines in a prescription
+router.put('/:id/review', reviewPrescription);
+
+// Delete a prescription by ID
+router.delete('/:id', deletePrescription);
+
+// Fix this route
+router.get('/approval/:prescriptionId', getApprovedMedicines);
+
 
 export default router;

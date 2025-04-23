@@ -1,3 +1,4 @@
+// controllers/prescriptionController.js
 import express from "express";
 import multer from "multer";
 import mongoose from "mongoose";
@@ -7,16 +8,13 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
 import dotenv from "dotenv";
 
+
 dotenv.config();
 
 const router = express.Router();
-
-console.log(`API KEY: ${process.env.GEMINI_API_KEY}`);
-
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// Multer storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
@@ -26,20 +24,17 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
-export { upload };
+export const upload = multer({ storage });
 
 function encodeImageToBase64(imagePath) {
   const imageBuffer = fs.readFileSync(imagePath);
   return imageBuffer.toString("base64");
 }
 
-// Extract Medicines using Gemini AI
 async function extractMedicinesFromImage(imagePath) {
   try {
     const base64Image = encodeImageToBase64(imagePath);
 
-    // Define function call for structured output
     const functionDefinition = {
       name: "extract_medicines",
       description: "Extract medicine names from a prescription image.",
@@ -61,82 +56,46 @@ async function extractMedicinesFromImage(imagePath) {
           role: "user",
           parts: [
             { inlineData: { data: base64Image, mimeType: "image/jpeg" } },
-            {
-              text: `Extract the medicine names from this prescription image.
-              Return only the JSON object in the format specified in the function below.`
-            }
+            { text: `Extract the medicine names from this prescription image.\nReturn only the JSON object in the format specified in the function below.` }
           ]
         }
       ],
       tools: [{ function_declarations: [functionDefinition] }]
     });
 
-    console.log("Gemini AI Raw Response:", JSON.stringify(response, null, 2));
-
-    if (!response.response || !response.response.candidates || response.response.candidates.length === 0) {
-      console.error("Gemini AI returned an empty response.");
-      return [];
-    }
-
-    const functionCall = response.response.candidates[0]?.content?.parts[0]?.functionCall;
-
-    if (!functionCall || !functionCall.args) {
-      console.error("Function call output missing.");
-      return [];
-    }
-
-    const jsonOutput = functionCall.args;
-    return jsonOutput.medicines || [];
-
+    const functionCall = response.response?.candidates?.[0]?.content?.parts?.[0]?.functionCall;
+    return functionCall?.args?.medicines || [];
   } catch (error) {
     console.error("Gemini AI Processing Error:", error);
     return [];
   }
 }
 
-// **Insert Prescription**
 export const uploadPrescription = async (req, res) => {
   try {
-    console.log("Received Body:", req.body);  // Log the request body
-    console.log("Received File:", req.file);  // Log the file received
-
-    const { userId, branchId } = req.body;
+    const { userId, name, age, branchId, note } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ success: false, message: "No image uploaded" });
     }
 
-    console.log("File saved at:", req.file.path);  // Log the file path
-
-    // Step 1: Extract Medicines from Image using Gemini AI
     const extractedMedicines = await extractMedicinesFromImage(req.file.path);
-    console.log("Extracted Medicines:", extractedMedicines);
 
-    if (extractedMedicines.length === 0) {
-      return res.status(400).json({ success: false, message: "No medicines detected in the prescription." });
-    }
-
-    // Step 2: Match Extracted Medicines with MongoDB
     const matchedMedicines = await Medicine.find({
       name: { $in: extractedMedicines },
     });
 
-    console.log("Matched Medicines:", matchedMedicines);
-
-    // Step 3: Format Medicines for Prescription Schema
     const medicinesForPrescription = matchedMedicines.map((med) => ({
       medicineId: med._id,
-      quantity: 1, // Default quantity (adjust as needed)
+      quantity: 1,
     }));
 
-    if (medicinesForPrescription.length === 0) {
-      return res.status(400).json({ success: false, message: "Couldn't find any matching medicines in the database." });
-    }
-
-    // Step 4: Save Prescription with Medicines
     const newPrescription = new Prescription({
       userId: new mongoose.Types.ObjectId(userId),
+      name,
+      age,
       branchId: new mongoose.Types.ObjectId(branchId),
+      note,
       imageUrl: `/uploads/${req.file.filename}`,
       status: "Pending",
       medicines: medicinesForPrescription,
@@ -144,19 +103,18 @@ export const uploadPrescription = async (req, res) => {
 
     await newPrescription.save();
 
-    // Step 5: Return Updated Prescription
     res.status(201).json({
       success: true,
       message: "Prescription uploaded and processed successfully",
-      prescription: newPrescription,
+      prescriptionId: newPrescription._id,
     });
+    
   } catch (error) {
     console.error("Prescription Upload Error:", error);
-    res.status(500).json({ success: false, error: error.message, stack: error.stack });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
-// **Review Medicines in a Prescription**
 export const reviewPrescription = async (req, res) => {
   try {
     const { id } = req.params;
@@ -165,28 +123,16 @@ export const reviewPrescription = async (req, res) => {
     if (!medicines || medicines.length === 0) {
       return res.status(400).json({ success: false, message: "No medicines provided for update." });
     }
-/*
-    // Validate prescription exists
+
     const prescription = await Prescription.findById(id);
     if (!prescription) {
       return res.status(404).json({ success: false, message: "Prescription not found." });
     }
-*/
-    // Validate medicine data (ensure `medicineId` and `quantity` exist)
-    for (const med of medicines) {
-      if (!med.medicineId || !med.quantity || med.quantity <= 0) {
-        return res.status(400).json({
-          success: false,
-          message: "Each medicine must have a valid 'medicineId' and a 'quantity' greater than 0.",
-        });
-      }
-    }
-/*
-    // Update prescription with new medicines & quantities
-    prescription.medicines = medicines.map(med => ({
+
+    prescription.medicines = medicines.map((med) => ({
       medicineId: new mongoose.Types.ObjectId(med.medicineId),
       quantity: med.quantity,
-    })); */
+    }));
 
     await prescription.save();
 
@@ -201,11 +147,9 @@ export const reviewPrescription = async (req, res) => {
   }
 };
 
-// **Read Prescription**
 export const getPrescription = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(`ID ==> ${id}`);
     const prescription = await Prescription.findById(id).populate("medicines.medicineId");
 
     if (!prescription) {
@@ -218,7 +162,6 @@ export const getPrescription = async (req, res) => {
   }
 };
 
-// **Delete Prescription**
 export const deletePrescription = async (req, res) => {
   try {
     const { id } = req.params;
@@ -234,4 +177,40 @@ export const deletePrescription = async (req, res) => {
   }
 };
 
-export default router;
+// GET /approval/:prescriptionId - Get medicines with price and availability
+export const getApprovedMedicines = async (req, res) => {
+  try {
+    const { prescriptionId } = req.params;
+
+    const prescription = await Prescription.findById(prescriptionId)
+      .populate("medicines.medicineId");
+
+    if (!prescription) {
+      return res.status(404).json({ success: false, message: "Prescription not found." });
+    }
+
+    if (prescription.status !== "Verified") {
+      return res.status(403).json({
+        success: false,
+        message: "Prescription has not been verified yet.",
+        status: prescription.status
+      });
+    }
+
+    const medicines = prescription.medicines.map((entry) => {
+      const med = entry.medicineId;
+      return {
+        id: med._id,
+        name: med.name,
+        availability: med.otc === true,
+        price: med.price || 0,
+        quantity: entry.quantity
+      };
+    });
+
+    res.status(200).json({ success: true, medicines });
+  } catch (error) {
+    console.error("Get approved medicines error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
