@@ -91,7 +91,7 @@ const Approval = () => {
                 medicineId: medicine.id,
                 quantity: 1,
                 price: medicine.price,  // Assuming `price` is the unit price in the `medicine` object
-                unitPrice: medicine.price
+                unitPrice: medicine.price * 1
             });
 
             if (response.data) {
@@ -129,27 +129,27 @@ const Approval = () => {
 
     const goToCart = async () => {
         try {
-            // Send cart data to backend before navigating
-            const response = await axios.post('http://localhost:5080/api/cart', {
-                userId: "67ddfc9755c1bec1fb5cf57f", // Use the correct userId here
-                items: cartItems.map(item => ({
-                    medicineId: item.id,
-                    quantity: item.quantity,
-                    price: item.price,
-                })),
+            const items = cartItems.map(item => ({
+                medicineId: item.id,
+                quantity: item.quantity || 1,
+                unitPrice: item.price,
+                price: item.price * item.quantity
+            }));
+
+            await axios.post('http://localhost:5080/api/cart', {
+                userId: "67ddfc9755c1bec1fb5cf57f",
+                items: items   // <---- this must be included
             });
 
-            if (response.data) {
-                // Cart has been successfully updated in the backend, now navigate to the cart page
-                navigate('/cart');
-            } else {
-                message.error("Failed to save cart data");
-            }
+            navigate('/cart');
         } catch (err) {
             console.error(err);
             message.error("Error saving cart data");
         }
     };
+
+
+
 
 
     const columns = [

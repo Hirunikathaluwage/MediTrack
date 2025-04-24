@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api/cart';
+const API_BASE_URL = 'http://localhost:5080/api/cart';
 
 // Replace this with your own logic to get the logged-in user's ID
-const getUserId = () => localStorage.getItem('userId');
+const getUserId = () => localStorage.getItem('67ddfc9755c1bec1fb5cf57f');
 
 export const getCart = async () => {
     const userId = getUserId();
@@ -20,18 +20,21 @@ export const updateCartItem = async (medicineId, quantity) => {
     await addToCart({ medicineId, quantity, price });
 };
 
-export const addToCart = async ({ medicineId, quantity, price }) => {
-    const userId = getUserId();
-    const branchId = localStorage.getItem('branchId') || 'defaultBranchId'; // or however you're managing it
-    const response = await axios.post(`${API_BASE_URL}/add`, {
+// cartService.js
+export const addToCart = async (userId, medicineId) => {
+    const payload = {
         userId,
-        medicineId,
-        quantity,
-        price,
-        branchId,
-    });
-    return response.data;
+        items: [
+            {
+                medicineId,
+                quantity: 1, // or any quantity logic
+            }
+        ]
+    };
+
+    return axios.post('http://localhost:5080/api/cart', payload);
 };
+
 
 export const removeCartItem = async (medicineId) => {
     const userId = getUserId();
