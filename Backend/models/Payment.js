@@ -3,10 +3,15 @@ import mongoose from "mongoose";
 const PaymentSchema = new mongoose.Schema({
     orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order", required: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    paymentMethod: { type: String, enum: ["Cash On Delivery", "Upload Slip"], required: true },
+
+    paymentMethod: { type: String, enum: ["slip", "cod"], required: true },
     amount: { type: Number, required: true },
-    date: { type: Date, default: Date.now },
+
+    slipImage: { type: String }, // path or URL to uploaded slip image
+    verificationStatus: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
+
+    date: { type: Date, default: Date.now }
 });
 
-export default mongoose.model("Payment", PaymentSchema);
-
+export const Payment = mongoose.model("Payment", PaymentSchema);
+export default Payment;

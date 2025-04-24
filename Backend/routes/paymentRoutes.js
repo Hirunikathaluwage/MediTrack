@@ -1,20 +1,25 @@
-import express from "express";
+import express from 'express';
 import {
-    upload,
     createPayment,
+    getPaymentsByUser,
     getAllPayments,
-    getPaymentByOrderId,
-    deletePayment
-} from "../controllers/paymentController.js";
+    updateVerificationStatus
+} from '../controllers/paymentController.js';
 
 const router = express.Router();
 
+// Create new payment
+router.post('/', createPayment);
 
-// Apply Multer Middleware to handle file uploads
-router.post("/", upload.single("slip"), createPayment);
+// Get payments for a user
+router.get('/user/:userId', getPaymentsByUser);
 
-router.get("/", getAllPayments);
-router.get("/:orderId", getPaymentByOrderId);
-router.delete("/:paymentId", deletePayment);
+// Get all payments (admin view)
+router.get('/', getAllPayments);
+
+// Update verification status (admin)
+router.put('/:paymentId/verify', updateVerificationStatus);
 
 export default router;
+
+

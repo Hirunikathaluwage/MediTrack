@@ -1,209 +1,153 @@
-import mongoose from "mongoose";
-import Order from "../models/Order.js";
-import OrderItem from "../models/OrderItem.js";
+import Order from '../models/Order.js';
+import Cart from '../models/Cart.js';
+import BranchStock from '../models/BranchStock.js';
+import Medicine from '../models/Medicine.js';
+import Payment from '../models/Payment.js';
 
-
-
-//  Create Order (User Requests Order)
+// Create order from cart
 export const createOrder = async (req, res) => {
+    const { userId, deliveryOption = 'pending' } = req.body;  // Provide default value for deliveryOption
+
     try {
-        const { userId, prescriptionId, deliveryOption } = req.body;
+        const cart = await Cart.findOne({ userId });
 
-        if (!userId || !prescriptionId) {
-            return res.status(400).json({ success: false, message: "User ID and Prescription ID are required" });
-        }
-
-        if (!["Home Delivery", "Pharmacy Pickup"].includes(deliveryOption)) {
-            return res.status(400).json({ success: false, message: "Invalid delivery option" });
-        }
-
-        // Check if there's already a pending order request for the user
-        const existingOrder = await Order.findOne({
-            userId: new mongoose.Types.ObjectId(userId),
-            status: "Requested"
-        });
-
-        if (existingOrder) {
-            return res.status(400).json({ success: false, message: "You already have a pending order request." });
-        }
-
-        // Fetch the prescription details from the provided prescriptionId
-        const prescription = await mongoose.connection.collection("prescriptions").findOne(
-            { _id: new mongoose.Types.ObjectId(prescriptionId) }
-        );
-
-
-        if (!prescription) {
-            return res.status(404).json({ success: false, message: "Prescription not found" });
-        }
-
-        // Fetch medicines from the database
-        const medicineIds = prescription.medicines.map(item => new mongoose.Types.ObjectId(item.medicineId));
-        const medicineCollection = mongoose.connection.collection("medicines");
-        const medicinesData = await medicineCollection.find({ _id: { $in: medicineIds } }).toArray();
-
-
-        if (!medicinesData.length) {
-            return res.status(400).json({ success: false, message: "No valid medicines found in the database" });
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ message: 'Cart is empty or not found' });
         }
 
         let totalAmount = 0;
-        const orderItems = prescription.medicines.map(item => {
-            const medicine = medicinesData.find(med => med._id.toString() === item.medicineId.toString());
-            if (!medicine) return null;
-            const itemTotal = medicine.price * item.quantity;
-            totalAmount += itemTotal;
-            return {
-                orderId: null,
-                medicineId: medicine._id,
-                quantity: item.quantity
-            };
-        }).filter(item => item !== null);
+        const orderItems = [];
 
-        if (orderItems.length === 0) {
-            return res.status(400).json({ success: false, message: "No valid order items to add" });
+        for (const cartItem of cart.items) {
+            const branchStock = await BranchStock.findOne({ medicineId: cartItem.medicineId });
+
+            if (!branchStock) {
+                return res.status(400).json({ message: `Medicine not available at this branch: ${cartItem.medicineId}` });
+            }
+
+            totalAmount += branchStock.price * cartItem.quantity;
+
+            orderItems.push({
+                medicineId: cartItem.medicineId,
+                quantity: cartItem.quantity
+            });
         }
 
-        // Create Order
+        // Create a new order with the provided deliveryOption or default value
         const newOrder = new Order({
-            userId: new mongoose.Types.ObjectId(userId),
-            prescriptionId,
-            branchId: prescription.branchId,
+            userId,
+            items: orderItems,
             totalAmount,
-            paymentStatus: "Pending",
-            status: "Requested",
-            deliveryOption
+            paymentStatus: 'Pending',
+            deliveryStatus: 'Pending',
+            deliveryOption  // Pass the deliveryOption here
         });
 
-        await newOrder.save();
+        const savedOrder = await newOrder.save();
 
-        // Add Order Items
-        orderItems.forEach(item => item.orderId = newOrder._id);
-        await OrderItem.insertMany(orderItems);
+        // Clear the cart after creating the order
+        await Cart.updateOne({ userId }, { $set: { items: [], totalPrice: 0 } });
 
-        // Fetch user & branch details directly from the database
-        const userCollection = mongoose.connection.collection("users");
-        const branchCollection = mongoose.connection.collection("branches");
-
-        const user = await userCollection.findOne(
-            { _id: new mongoose.Types.ObjectId(userId) },
-            { projection: { name: 1, email: 1 } }
-        );
-
-        const branch = await branchCollection.findOne(
-            { _id: new mongoose.Types.ObjectId(prescription.branchId) },
-            { projection: { name: 1, location: 1 } }
-        );
-
-        res.status(201).json({
-            success: true,
-            message: "Order placed successfully!",
-            order: {
-                _id: newOrder._id,
-                user,
-                branch,
-                totalAmount,
-                paymentStatus: newOrder.paymentStatus,
-                status: newOrder.status,
-                deliveryOption
-            }
-        });
-
+        return res.status(201).json(savedOrder);
     } catch (error) {
-        console.error("Order Creation Error:", error);
-        res.status(500).json({ success: false, error: error.message });
+        console.error(error);
+        return res.status(500).json({ message: 'Error creating order' });
     }
 };
 
-
-
-
-
-//  Get All Orders (with User & Branch Details)
-export const getAllOrders = async (req, res) => {
+export const getOrderDetails = async (req, res) => {
     try {
-        const orders = await Order.find().lean();
-        const userCollection = mongoose.connection.collection("users");
-        const branchCollection = mongoose.connection.collection("branches");
+        const order = await Order.findById(req.params.orderId).populate('items.medicineId');
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        res.json(order);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching order details' });
+    }
+};
 
-        const ordersWithDetails = await Promise.all(orders.map(async (order) => {
-            const user = await userCollection.findOne({ _id: order.userId });
-            const branch = await branchCollection.findOne({ _id: order.branchId });
+// Get all orders for a specific user
+export const getOrdersByUser = async (req, res) => {
+    try {
+        // Get userId from the URL parameters
+        const { userId } = req.params;
 
-            return { ...order, user: user || null, branch: branch || null };
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+
+        // Step 1: Get the orders of this user
+        const orders = await Order.find({ userId });
+
+        // Step 2: Get all BranchStock data once to use for price lookup
+        const branchStock = await BranchStock.find();
+
+        // Step 3: Populate medicine name and price from BranchStock (without needing branchId)
+        const populatedOrders = await Promise.all(orders.map(async (order) => {
+
+            const payment = await Payment.findOne({ orderId: order._id });
+
+            const populatedItems = await Promise.all(order.items.map(async (item) => {
+                const medicine = await Medicine.findById(item.medicineId);
+
+                // Get the stock entry for the medicine (use only medicineId for price lookup)
+                const stockEntry = branchStock.find(s =>
+                    s.medicineId.toString() === item.medicineId.toString()  // Use medicineId to find price
+                );
+
+                return {
+                    name: medicine?.name || 'Unknown',
+                    quantity: item.quantity,
+                    price: stockEntry?.price || 0  // Default to 0 if no price found
+                };
+            }));
+
+            return {
+                ...order.toObject(),
+                items: populatedItems,
+                paymentOption: payment?.paymentMethod || 'Not Available'
+            };
         }));
 
-        res.status(200).json(ordersWithDetails);
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        res.json(populatedOrders);
+    } catch (err) {
+        console.error("Error in getOrdersByUser:", err);
+        res.status(500).json({ error: err.message });
     }
 };
 
 
-//  Get Order by ID (with User & Branch Details)
-export const getOrderById = async (req, res) => {
-    try {
-        const order = await Order.findById(req.params.orderId).lean();
-        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-        const userCollection = mongoose.connection.collection("users");
-        const branchCollection = mongoose.connection.collection("branches");
-
-        const user = await userCollection.findOne({ _id: order.userId });
-        const branch = await branchCollection.findOne({ _id: order.branchId });
-
-        res.status(200).json({ ...order, user: user || null, branch: branch || null });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-};
-
-export const getOrdersByUserId = async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const orders = await Order.find({ userId }).populate("orderItems"); // Adjust if needed
-        res.status(200).json(orders);
-    } catch (error) {
-        console.error("Error fetching orders:", error);
-        res.status(500).json({ message: "Failed to fetch orders." });
-    }
-};
-
-/*
-//  Update Order Status
+// Update delivery status of an order
 export const updateOrderStatus = async (req, res) => {
     try {
+        const { orderId } = req.params;
         const { status } = req.body;
-        const updatedOrder = await Order.findByIdAndUpdate(req.params.orderId, { status }, { new: true });
 
-        if (!updatedOrder) return res.status(404).json({ success: false, message: "Order not found" });
-
-        res.status(200).json({ success: true, message: "Order updated", order: updatedOrder });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        const order = await Order.findByIdAndUpdate(orderId, { deliveryStatus: status }, { new: true });
+        res.status(200).json(order);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 };
-*/
 
-//  Delete Order
-export const deleteOrder = async (req, res) => {
+//  Update delivery option separately (NEW)
+export const updateDeliveryOption = async (req, res) => {
     try {
-        await OrderItem.deleteMany({ orderId: req.params.orderId });
+        const { orderId } = req.params;
+        const { deliveryOption } = req.body;
 
-        const deletedOrder = await Order.findByIdAndDelete(req.params.orderId);
-        if (!deletedOrder) return res.status(404).json({ success: false, message: "Order not found" });
+        const order = await Order.findById(orderId);
+        if (!order) return res.status(404).send('Order not found');
 
-        res.status(200).json({ success: true, message: "Order deleted" });
+        order.deliveryOption = deliveryOption; // Update delivery option
+        await order.save();
+
+        res.status(200).send(order);
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Error updating order:', error);
+        res.status(500).send('Failed to update order');
     }
 };
-
-
-
-
-
-
-
-
-
