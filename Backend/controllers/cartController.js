@@ -3,87 +3,49 @@ import Medicine from '../models/Medicine.js';
 import BranchStock from '../models/BranchStock.js';
 
 // Cart Controller: Add or Update Cart
-// Cart Controller: Add or Update Cart
-export const addOrUpdateCart = async (req, res) => {
+export const createOrUpdateCart = async (req, res) => {
     const { userId, items } = req.body;
 
+    if (!items || !Array.isArray(items)) {
+        return res.status(400).json({ error: "Items must be an array" });
+    }
+
     try {
-        // Fetch the user's cart
-        let cart = await Cart.findOne({ userId });
+        const updatedItems = [];
 
-        // If cart exists, update the cart
-        if (cart) {
-            // Update the existing cart items with the new data
-            for (let item of items) {
-                const existingItemIndex = cart.items.findIndex(existingItem => existingItem.medicineId.toString() === item.medicineId);
-
-                if (existingItemIndex !== -1) {
-                    // Update the quantity of the existing item
-                    cart.items[existingItemIndex].quantity += item.quantity;
-                } else {
-                    // Add new item to the cart with unitPrice
-                    const medicine = await Medicine.findById(item.medicineId);
-                    if (!medicine) {
-                        return res.status(404).json({ message: `Medicine with ID ${item.medicineId} not found` });
-                    }
-
-                    // Fetch the price from BranchStock using the medicineId
-                    const branchMedicine = await BranchStock.findOne({ medicineId: item.medicineId });
-                    if (!branchMedicine) {
-                        return res.status(404).json({ message: `Price for medicine with ID ${item.medicineId} not found` });
-                    }
-
-                    // Add the item with the unit price
-                    cart.items.push({
-                        medicineId: item.medicineId,
-                        quantity: item.quantity,
-                        unitPrice: branchMedicine.price,  // Fetch price from BranchStock
-                    });
-                }
+        for (let item of items) {
+            const medicine = await Medicine.findById(item.medicineId);
+            if (!medicine) {
+                return res.status(404).json({ error: `Medicine with ID ${item.medicineId} not found` });
             }
 
-            // Recalculate totalPrice
-            cart.totalPrice = cart.items.reduce((total, item) => total + item.unitPrice * item.quantity, 0);
-            await cart.save();
-            return res.status(200).json(cart);
-        } else {
-            // If no cart exists, create a new cart
-            const newItems = [];
-            for (let item of items) {
-                const medicine = await Medicine.findById(item.medicineId);
-                if (!medicine) {
-                    return res.status(404).json({ message: `Medicine with ID ${item.medicineId} not found` });
-                }
-
-                // Fetch the price from BranchStock using the medicineId
-                const branchMedicine = await BranchStock.findOne({ medicineId: item.medicineId });
-                if (!branchMedicine) {
-                    return res.status(404).json({ message: `Price for medicine with ID ${item.medicineId} not found` });
-                }
-
-                // Add the item with the unit price
-                newItems.push({
-                    medicineId: item.medicineId,
-                    quantity: item.quantity,
-                    unitPrice: branchMedicine.price,  // Fetch price from BranchStock
-                });
+            const branchStock = await BranchStock.findOne({ medicineId: item.medicineId });
+            if (!branchStock) {
+                return res.status(404).json({ error: `Price for medicine with ID ${item.medicineId} not found` });
             }
 
-            // Create a new cart
-            cart = new Cart({
-                userId,
-                items: newItems,
-                totalPrice: newItems.reduce((total, item) => total + item.unitPrice * item.quantity, 0),
+            updatedItems.push({
+                medicineId: item.medicineId,
+                quantity: item.quantity,
+                unitPrice: branchStock.price,
+                price: branchStock.price * item.quantity,
             });
-            await cart.save();
-            return res.status(201).json(cart);
         }
+
+        const totalPrice = updatedItems.reduce((sum, item) => sum + item.price, 0);
+
+        const cart = await Cart.findOneAndUpdate(
+            { userId },
+            { userId, items: updatedItems, totalPrice },
+            { new: true, upsert: true }
+        );
+
+        res.status(200).json(cart);
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error saving cart' });
+        console.error("Error in createOrUpdateCart:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 };
-
 
 
 // Cart Controller: Get Cart by User ID
@@ -187,3 +149,22 @@ export const clearCart = async (req, res) => {
     }
 };
 
+// POST /api/cart/update
+// router.post('/update', async (req, res) => {
+export const updateCart = async (req, res) => {
+    const { userId, items } = req.body;
+
+    try {
+        // 1. Remove existing cart
+        await Cart.findOneAndUpdate(
+            { userId },
+            { items, totalPrice: items.reduce((sum, item) => sum + (item.price * item.quantity), 0) },
+            { new: true, upsert: true }
+        );
+
+        return res.status(200).json({ success: true, message: "Cart updated" });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: "Error updating cart" });
+    }
+};

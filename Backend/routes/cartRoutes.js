@@ -1,7 +1,7 @@
 import express from 'express';
 import {
-    addOrUpdateCart, getCartByUserId, removeItemFromCart,
-    updateItemQuantity, clearCart
+    createOrUpdateCart, getCartByUserId, removeItemFromCart,
+    updateItemQuantity, clearCart, updateCart
 } from '../controllers/cartController.js';
 
 const router = express.Router();
@@ -9,12 +9,12 @@ const router = express.Router();
 
 
 // Route to add or update items in the cart
-router.post('/', addOrUpdateCart);
+router.post('/', createOrUpdateCart);
 
 // Route to get the cart by userId
 router.get('/', getCartByUserId);
 
-
+router.post('/update', updateCart);
 router.delete('/item/:itemId', removeItemFromCart);
 router.put('/item/:itemId', updateItemQuantity);
 
