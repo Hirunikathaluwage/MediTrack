@@ -13,6 +13,7 @@ const PaymentPage = () => {
     const [deliveryOption, setDeliveryOption] = useState('home');
     const [totalAmount, setTotalAmount] = useState(0); // Store totalAmount in state
     const [cartItems, setCartItems] = useState([]); // Store cartItems
+    const [baseAmount, setBaseAmount] = useState(0);
 
     const userId = "67ddfc9755c1bec1fb5cf57f";
     // Calculate the total amount whenever cartItems or deliveryOption changes
@@ -34,7 +35,9 @@ const PaymentPage = () => {
                 if (response.status === 200) {
                     const order = response.data;
                     setCartItems(order.items || []);
-                    setTotalAmount(order.totalAmount || 0);
+                    setBaseAmount(order.totalAmount || 0);
+                    setTotalAmount(amount);
+
                     setDeliveryOption(order.deliveryOption || 'home');
                 } else {
                     console.error('Error fetching order details');
@@ -47,9 +50,35 @@ const PaymentPage = () => {
         fetchOrderDetails();
     }, [orderId]);
 
-    // useEffect(() => {
-    //     setTotalAmount(calculateTotalAmount());
-    // }, [cartItems, deliveryOption]);
+    useEffect(() => {
+        const fetchOrderAndAdjustTotal = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5080/api/orders/${orderId}`);
+                if (response.status === 200) {
+                    const order = response.data;
+                    setCartItems(order.items || []);
+
+                    let amount = order.totalAmount || 0;
+                    if (deliveryOption === 'home') {
+                        amount += 5;
+                    }
+                    setTotalAmount(amount);
+                }
+            } catch (error) {
+                console.error('Error updating total amount based on delivery option:', error);
+            }
+        };
+
+        fetchOrderAndAdjustTotal();
+    }, [deliveryOption, orderId]);
+
+
+    // Update total amount dynamically based on delivery option
+    useEffect(() => {
+        let total = baseAmount;
+        if (deliveryOption === 'home') total += 5;
+        setTotalAmount(total);
+    }, [baseAmount, deliveryOption]);
 
     // Handle upload of payment slip
     const handleUploadSlip = (file) => {

@@ -29,8 +29,10 @@ const Approval = () => {
     const pollingRef = useRef(null);
 
     useEffect(() => {
-        const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
-        setCartItems(existingCart);
+        localStorage.removeItem("cart"); // clear old cart
+
+        setCartItems([]); // reset cart state
+        setReservedItems([]); // optional: reset reserves too
 
         if (prescriptionId) {
             startPollingStatus();
@@ -93,10 +95,14 @@ const Approval = () => {
         try {
             const response = await axios.post('http://localhost:5080/api/cart', {
                 userId: "680b51cc9304025f19b2d7d1",
-                medicineId: medicine.id,
-                quantity: 1,
-                price: medicine.price,
-                unitPrice: medicine.price * 1
+                items: [
+                    {
+                        medicineId: medicine.id,
+                        quantity: 1,
+                        unitPrice: medicine.price,
+                        price: medicine.price * 1
+                    }
+                ]
             });
 
             if (response.data) {
@@ -134,24 +140,46 @@ const Approval = () => {
 
     const goToCart = async () => {
         try {
-            const items = cartItems.map(item => ({
-                medicineId: item.id,
-                quantity: item.quantity || 1,
-                unitPrice: item.price,
-                price: item.price * item.quantity
-            }));
+            // Take all available medicines, assign quantity 1
+            const itemsToAdd = medicines
+                .filter(med => med.availability)
+                .map(med => ({
+                    medicineId: med.id,
+                    quantity: 1,
+                    unitPrice: med.price,
+                    price: med.price
+                }));
 
-            await axios.post('http://localhost:5080/api/cart', {
+            if (itemsToAdd.length === 0) {
+                message.info("No available medicines to add to cart.");
+                return;
+            }
+
+            const response = await axios.post('http://localhost:5080/api/cart', {
                 userId: "680b51cc9304025f19b2d7d1",
-                items: items
+                items: itemsToAdd
             });
 
-            navigate('/cart');
+            if (response.data) {
+                // store in localStorage for UI sync
+                const updatedCart = response.data.items.map(item => ({
+                    id: item.medicineId,
+                    quantity: item.quantity,
+                    price: item.unitPrice
+                }));
+                setCartItems(updatedCart);
+                localStorage.setItem("cart", JSON.stringify(updatedCart));
+                message.success("Available medicines added to cart.");
+                navigate(`/cart?id=${prescriptionId}&branch=${branch}`);
+            } else {
+                message.error("Failed to update cart.");
+            }
         } catch (err) {
             console.error(err);
-            message.error("Error saving cart data");
+            message.error("Error saving cart data.");
         }
     };
+
 
 
 

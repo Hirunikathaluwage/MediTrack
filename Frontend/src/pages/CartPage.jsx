@@ -6,7 +6,7 @@ import {
     ShoppingCartOutlined, DeleteOutlined, DollarCircleOutlined,
     MinusCircleOutlined, PlusCircleOutlined, ArrowRightOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const { Title, Text } = Typography;
@@ -17,6 +17,16 @@ const CartPage = () => {
 
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    const location = useLocation();
+
+    // Get the prescriptionId and branchId from query parameters
+    const queryParams = new URLSearchParams(location.search);
+    const prescriptionId = queryParams.get('id');
+    const branchId = queryParams.get('branch');
+
+    // You can now use these values on this page
+    console.log(prescriptionId, branchId);
 
     // Fetch cart from backend
     useEffect(() => {
@@ -75,12 +85,21 @@ const CartPage = () => {
 
     const handleProceedToPayment = async () => {
         try {
-            // Temporarily set a default deliveryOption (e.g., "pending" or "not-selected")
-            const deliveryOption = 'pending';  // Or set a default value like "standard" or "not-selected"
+
+            const deliveryOption = 'pending';
+
+            // Get branchId from URL (or state if it's being stored somewhere else)
+            const branchId = new URLSearchParams(window.location.search).get('branch');  // Assuming it's passed as a query param
+
+            if (!branchId) {
+                message.error('Branch ID is required');
+                return;
+            }
 
             const response = await axios.post('http://localhost:5080/api/orders/create', {
                 userId,
-                deliveryOption,  // Pass default value for now
+                branchId,
+                deliveryOption,
             });
 
             navigate(`/payment/${response.data._id}`);
