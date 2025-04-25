@@ -209,20 +209,16 @@ export const getApprovedMedicines = async (req, res) => {
         const medicines = await Promise.all(
             prescription.medicines.map(async (entry) => {
                 const med = entry.medicineId;
-
-                // Find stock for this medicine in the given branch
                 const branchStock = await BranchStock.findOne({
                     medicineId: med._id,
-                    branch: branch
+                    branchId: branch
                 });
 
-                // Debugging logs to check fetched branchStock
                 console.log('branchStock:', branchStock);
 
-                const stockAvailable = branchStock?.stock > 0; // Ensure stock availability is checked correctly
-                const price = branchStock?.price || 0; // Price fallback to 0 if not found
+                const stockAvailable = branchStock?.stock > 0;
+                const price = branchStock?.price || 0;
 
-                // Debugging log to check price and availability logic
                 console.log('Price:', price, 'Stock:', branchStock?.stock, 'Availability:', stockAvailable);
 
                 return {
@@ -230,7 +226,7 @@ export const getApprovedMedicines = async (req, res) => {
                     name: med.name,
                     price: price,
                     quantity: entry.quantity,
-                    availability: stockAvailable // Check if stock is > 0 for availability
+                    availability: stockAvailable
                 };
             })
         );
@@ -245,115 +241,3 @@ export const getApprovedMedicines = async (req, res) => {
 
 
 
-
-
-
-
-// GET /approval/:prescriptionId - Get medicines with price and availability
-// export const getApprovedMedicines = async (req, res) => {
-//     try {
-//         const { prescriptionId } = req.params;
-
-//         const prescription = await Prescription.findById(prescriptionId)
-//             .populate("medicines.medicineId");
-
-//         if (!prescription) {
-//             return res.status(404).json({ success: false, message: "Prescription not found." });
-//         }
-
-//         if (prescription.status !== "Verified") {
-//             return res.status(403).json({
-//                 success: false,
-//                 message: "Prescription has not been verified yet.",
-//                 status: prescription.status
-//             });
-//         }
-
-//         const medicines = prescription.medicines.map((entry) => {
-//             const med = entry.medicineId;
-//             return {
-//                 id: med._id,
-//                 name: med.name,
-//                 availability: med.otc === true,
-//                 price: med.price || 0,
-//                 quantity: entry.quantity
-//             };
-//         });
-
-//         res.status(200).json({ success: true, medicines });
-//     } catch (error) {
-//         console.error("Get approved medicines error:", error);
-//         res.status(500).json({ success: false, error: error.message });
-//     }
-// };
-
-
-
-// GET /approval/:prescriptionId - Get medicines with price and availability
-// GET /approval/:prescriptionId - Get medicines with price and availability
-
-
-// export const getApprovedMedicines = async (req, res) => {
-//     try {
-//         const { prescriptionId } = req.params;
-//         const { branch } = req.query; // Get branch from query params
-
-//         if (!branch) {
-//             return res.status(400).json({ success: false, message: "Branch is required." });
-//         }
-
-//         // Fetch the prescription and its associated medicines
-//         const prescription = await Prescription.findById(prescriptionId)
-//             .populate("medicines.medicineId");  // Populate medicine details
-
-//         if (!prescription) {
-//             return res.status(404).json({ success: false, message: "Prescription not found." });
-//         }
-
-//         if (prescription.status !== "Verified") {
-//             return res.status(403).json({
-//                 success: false,
-//                 message: "Prescription has not been verified yet.",
-//                 status: prescription.status
-//             });
-//         }
-
-//         // Map medicines and check stock quantity for availability
-//         const medicines = await Promise.all(prescription.medicines.map(async (entry) => {
-//             const med = entry.medicineId;
-
-//             // Find stock for this medicine in the given branch
-//             const branchStock = await BranchStock.findOne({
-//                 medicineId: med._id,
-//                 branch: branch
-//             });
-
-//             const quantityInStock = branchStock?.quantity || 0;
-
-//             if (!branchStock) {
-//                 // If no matching BranchStock found, fallback to price 0
-//                 return {
-//                     id: med._id,
-//                     name: med.name,
-//                     availability: false, // Not available if no stock entry
-//                     price: 0,
-//                     quantity: entry.quantity
-//                 };
-//             }
-
-//             return {
-//                 id: med._id,
-//                 name: med.name,
-//                 price: branchStock.price,
-//                 quantity: entry.quantity,
-//                 availability: quantityInStock >= entry.quantity // Available if enough stock
-//             };
-//         }));
-
-//         res.status(200).json({ success: true, medicines });
-
-//     } catch (error) {
-//         console.error("Get approved medicines error:", error);
-//         res.status(500).json({ success: false, error: error.message });
-//     }
-// };
