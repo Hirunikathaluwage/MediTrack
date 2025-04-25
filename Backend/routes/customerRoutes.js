@@ -1,7 +1,8 @@
 import express from 'express';
+import multer from 'multer';
 import {
-  loginUser,
   registerUser,
+  loginUser,
   logoutUser,
   getUserProfile,
   updateUserProfile,
@@ -12,25 +13,29 @@ import { protectCustomer } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// @route   POST /api/customers/register
+// ✅ Multer file storage setup
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  }
+});
+const upload = multer({ storage });
+
+// ✅ Public routes
 router.post('/register', registerUser);
-
-// @route   POST /api/customers/login
 router.post('/login', loginUser);
-
-// @route   POST /api/customers/logout
 router.post('/logout', logoutUser);
 
-// @route   GET /api/customers/profile
+// ✅ Protected customer routes
 router.get('/profile', protectCustomer, getUserProfile);
+router.put('/profile', protectCustomer, upload.single('avatar'), updateUserProfile);
 
-// @route   PUT /api/customers/profile
-router.put('/profile', protectCustomer, updateUserProfile);
-
-// @route   POST /api/customers/reset-password-request
+// ✅ Password recovery
 router.post('/reset-password-request', resetPasswordRequest);
-
-// @route   POST /api/customers/reset-password/:id/:token
 router.post('/reset-password/:id/:token', resetPassword);
 
 export default router;

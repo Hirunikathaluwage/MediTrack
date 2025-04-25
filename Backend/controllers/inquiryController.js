@@ -1,6 +1,7 @@
 import Inquiry from '../models/Inquiry.js';
 import { transporter } from '../utils/emailConfig.js';
 import { InquiryResponseTemplate } from '../utils/InquiryResponseTemplate.js';
+import { faqMap } from '../utils/autoResponderFAQ.js'; // ✅ NEW: Smart Auto-Responder keywords
 
 // Get all inquiries with optional filters
 export const getAllInquiries = async (req, res) => {
@@ -20,7 +21,7 @@ export const getAllInquiries = async (req, res) => {
   }
 };
 
-// Add a new inquiry
+// Add a new inquiry (includes Smart Auto-Responder)
 export const addInquiry = async (req, res) => {
   const { name, email, subject, description, category, priority } = req.body;
   const attachment = req.file ? `/uploads/${req.file.filename}` : null;
@@ -34,7 +35,65 @@ export const addInquiry = async (req, res) => {
     console.log("Saving inquiry:", inquiry);
     await inquiry.save();
 
-    res.status(201).json({ message: 'Inquiry added successfully', inquiry });
+    // ✅ Smart Auto-Responder logic
+    let autoReplied = false;
+    for (const faq of faqMap) {
+      for (const keyword of faq.keywords) {
+        if (description.toLowerCase().includes(keyword)) {
+          await transporter.sendMail({
+            from: `"MediTrack Support" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: `📩 Auto-Response: ${subject}`,
+            html: `
+              <div style="font-family: Arial; padding: 20px;">
+                <p>Hi ${name},</p>
+                <p>Thank you for your inquiry about <strong>"${subject}"</strong>.</p>
+                <p><strong>Here’s an instant answer:</strong></p>
+                <blockquote style="background-color:#f0f0f0; padding: 1rem; border-left: 4px solid #36A2EB;">
+                  ${faq.response}
+                </blockquote>
+                <p>If this didn't solve your issue, our team will still reach out shortly.</p>
+                <p style="margin-top: 20px;">Best,<br/>MediTrack Support</p>
+              </div>
+            `
+          });
+
+          // ✅ Mark inquiry as resolved
+          inquiry.status = "Resolved";
+          await inquiry.save();
+          autoReplied = true;
+          break;
+        }
+      }
+      if (autoReplied) break;
+    }
+
+    // ✅ Always send confirmation email
+    const confirmationHtml = `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>📝 Your inquiry has been received!</h2>
+        <p>Hi ${name},</p>
+        <p>Thank you for reaching out to us regarding <strong>"${subject}"</strong>.</p>
+        <p>Our support team will review your inquiry and get back to you shortly.</p>
+        <br/>
+        <p><strong>Details:</strong></p>
+        <ul>
+          <li><strong>Category:</strong> ${category || 'General'}</li>
+          <li><strong>Priority:</strong> ${priority || 'Normal'}</li>
+        </ul>
+        <p>If you have any further questions, feel free to reply to this email.</p>
+        <p style="margin-top: 20px;">Best regards,<br/>The MediTrack Support Team</p>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"MediTrack Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `✅ Inquiry Received: ${subject}`,
+      html: confirmationHtml,
+    });
+
+    res.status(201).json({ message: 'Inquiry added successfully and confirmation email sent.', inquiry });
   } catch (err) {
     console.error("Error adding inquiry:", err.stack);
     res.status(500).json({ message: 'Error adding inquiry', error: err.message });
@@ -116,7 +175,46 @@ export const getInquiryStats = async (req, res) => {
   }
 };
 
-// Respond to inquiry (mark as Resolved + send email)
+// Inquiry analytics with Month/Year filters
+export const getInquiryAnalytics = async (req, res) => {
+  try {
+    const { month, year } = req.query;
+    let match = {};
+
+    if (month && year) {
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+      match.createdAt = { $gte: startDate, $lte: endDate };
+    }
+
+    const total = await Inquiry.countDocuments(match);
+    const resolved = await Inquiry.countDocuments({ ...match, status: "Resolved" });
+    const pending = await Inquiry.countDocuments({ ...match, status: "Pending" });
+
+    const high = await Inquiry.countDocuments({ ...match, priority: "High" });
+    const medium = await Inquiry.countDocuments({ ...match, priority: "Medium" });
+    const low = await Inquiry.countDocuments({ ...match, priority: "Low" });
+
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
+    const thisWeek = await Inquiry.countDocuments({ createdAt: { $gte: sevenDaysAgo } });
+
+    res.status(200).json({
+      total,
+      resolved,
+      pending,
+      thisWeek,
+      priority: { high, medium, low }
+    });
+  } catch (error) {
+    console.error("❌ Failed to load inquiry analytics:", error);
+    res.status(500).json({ message: "Error loading inquiry analytics", error: error.message });
+  }
+};
+
+// Respond to inquiry manually
 export const respondToInquiry = async (req, res) => {
   const { id } = req.params;
   const { response, status } = req.body;

@@ -1,37 +1,34 @@
-// backend/utils/emailConfig.js
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
-dotenv.config(); // Load environment variables
+dotenv.config();
 
-// ✅ Nodemailer transporter using Gmail SMTP
+// ✅ Gmail SMTP transporter setup
 export const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // use TLS, not SSL
+  secure: false, // use TLS
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.EMAIL_USER, // ameditrack@gmail.com
+    pass: process.env.EMAIL_PASS  // App Password only
   }
 });
 
-// ✅ Optional: Run this to test email sending directly
-/*
-const SendEmail = async () => {
-  try {
-    const info = await transporter.sendMail({
-      from: `"MediTrack🐼" <${process.env.EMAIL_USER}>`,
-      to: "awanthaimesh65@example.com", // change to your test email
-      subject: "Test Email from MediTrack ✔",
-      text: "This is a plain text test email.",
-      html: "<b>This is a test email sent from your MediTrack backend</b>",
-    });
+// ✅ Function to send email
+export const sendEmail = async ({ to, subject, text }) => {
+  const mailOptions = {
+    from: `"MediTrack Alerts" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    text,
+    html: `<p>${text}</p>`,  // ✅ Helps avoid spam filters
+    replyTo: process.env.EMAIL_USER
+  };
 
-    console.log("✅ Email sent:", info.messageId);
-  } catch (err) {
-    console.error("❌ Failed to send email:", err.message || err);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Email sent to ${to}`);
+  } catch (error) {
+    console.error(`❌ Email sending failed:`, error.message);
   }
 };
-
-// SendEmail(); // uncomment to run test
-*/

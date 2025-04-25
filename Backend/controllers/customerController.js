@@ -30,7 +30,8 @@ export const loginUser = async (req, res, next) => {
       email: user.email,
       address: user.address,
       phoneNumber: user.phoneNumber,
-      age: user.age
+      age: user.age,
+      avatar: user.avatar || ''
     });
   } catch (error) {
     next(error);
@@ -67,7 +68,8 @@ export const registerUser = async (req, res, next) => {
       email: user.email,
       address: user.address,
       phoneNumber: user.phoneNumber,
-      age: user.age
+      age: user.age,
+      avatar: user.avatar || ''
     });
   } catch (error) {
     next(error);
@@ -84,7 +86,6 @@ export const logoutUser = (req, res) => {
 export const getUserProfile = async (req, res, next) => {
   try {
     const user = await Customer.findById(req.user._id);
-
     if (!user) {
       res.status(404);
       throw new Error('User not found');
@@ -97,14 +98,15 @@ export const getUserProfile = async (req, res, next) => {
       email: user.email,
       address: user.address,
       phoneNumber: user.phoneNumber,
-      age: user.age
+      age: user.age,
+      avatar: user.avatar || ''
     });
   } catch (error) {
     next(error);
   }
 };
 
-// UPDATE PROFILE
+// UPDATE PROFILE WITH AVATAR
 export const updateUserProfile = async (req, res, next) => {
   try {
     const { name, email, password, address, phoneNumber, age } = req.body;
@@ -121,6 +123,10 @@ export const updateUserProfile = async (req, res, next) => {
     user.phoneNumber = phoneNumber || user.phoneNumber;
     user.age = age || user.age;
 
+    if (req.file) {
+      user.avatar = `/uploads/${req.file.filename}`;
+    }
+
     if (password) {
       user.password = await bcrypt.hash(password, 10);
     }
@@ -134,7 +140,8 @@ export const updateUserProfile = async (req, res, next) => {
       email: updatedUser.email,
       address: updatedUser.address,
       phoneNumber: updatedUser.phoneNumber,
-      age: updatedUser.age
+      age: updatedUser.age,
+      avatar: updatedUser.avatar || ''
     });
   } catch (error) {
     next(error);

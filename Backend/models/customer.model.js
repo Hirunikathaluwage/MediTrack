@@ -30,6 +30,10 @@ const customerSchema = new mongoose.Schema({
   age: {
     type: Number,
     default: null
+  },
+  avatar: {
+    type: String,
+    default: '' // e.g. '/uploads/avatar123.jpg'
   }
 }, {
   timestamps: true
