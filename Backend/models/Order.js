@@ -21,11 +21,11 @@ const orderSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    // branchId: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Branch',
-    //     required: true
-    // },
+    branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Branch',
+        required: true
+    },
     items: [orderItemSchema], // Embedded order items
     totalAmount: {
         type: Number,

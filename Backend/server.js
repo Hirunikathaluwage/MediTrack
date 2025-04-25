@@ -9,6 +9,7 @@ import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import prescriptionRoutes from "./routes/prescriptionRoutes.js";
+import branchRoutes from "./routes/branchRoutes.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use("/prescription", prescriptionRoutes);
+app.use("/branches", branchRoutes);
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
