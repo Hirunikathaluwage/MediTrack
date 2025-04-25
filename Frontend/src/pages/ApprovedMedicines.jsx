@@ -92,21 +92,21 @@ const Approval = () => {
 
         try {
             const response = await axios.post('http://localhost:5080/api/cart', {
-                userId: "680b51cc9304025f19b2d7d1", // Assuming you have the userId available
+                userId: "680b51cc9304025f19b2d7d1",
                 medicineId: medicine.id,
                 quantity: 1,
-                price: medicine.price,  // Assuming `price` is the unit price in the `medicine` object
+                price: medicine.price,
                 unitPrice: medicine.price * 1
             });
 
             if (response.data) {
                 const updatedCart = response.data.items.map(item => ({
-                    id: item.medicineId,  // ensure we keep .id format in frontend
+                    id: item.medicineId,
                     quantity: item.quantity,
                     price: item.unitPrice
                 }));
                 setCartItems(updatedCart);
-                localStorage.setItem("cart", JSON.stringify(updatedCart)); // Optional fallback
+                localStorage.setItem("cart", JSON.stringify(updatedCart));
                 message.success(`${medicine.name} added to cart`);
 
 
@@ -124,9 +124,6 @@ const Approval = () => {
             const updatedReserved = [...reservedItems, { ...medicine, quantity: 1 }];
             setReservedItems(updatedReserved);
             message.success(`${medicine.name} reserved.`);
-
-            // Navigate to confirmation page with reserved items
-
         }
     };
 
@@ -146,7 +143,7 @@ const Approval = () => {
 
             await axios.post('http://localhost:5080/api/cart', {
                 userId: "680b51cc9304025f19b2d7d1",
-                items: items   // <---- this must be included
+                items: items
             });
 
             navigate('/cart');
@@ -176,9 +173,14 @@ const Approval = () => {
             title: "Price ($)",
             dataIndex: "price",
             key: "price",
-            render: (price) => (
-                <Text style={{ color: "#0e9f6e", fontWeight: 'bold' }}>${price.toFixed(2)}</Text>
-            )
+
+            render: (price) => {
+                const displayPrice = typeof price === "number" ? price.toFixed(2) : "0.00";
+                return (
+                    <Text style={{ color: "#0e9f6e", fontWeight: 'bold' }}>${displayPrice}</Text>
+                );
+            }
+
         },
         {
             title: "Availability",
