@@ -9,9 +9,11 @@ const AddInquiry = () => {
     description: '',
     category: 'General',
     priority: 'Medium',
-    location: '', // ✅ Added for Product Issue category
+    location: '',
     attachment: null
   });
+
+  const [otherDescription, setOtherDescription] = useState('');
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -24,12 +26,21 @@ const AddInquiry = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.description.length < 20) {
+    const finalDescription = formData.category === "Other"
+      ? otherDescription
+      : formData.description;
+
+    if (finalDescription.length < 20) {
       return alert('❌ Description must be at least 20 characters.');
     }
 
     const form = new FormData();
-    Object.entries(formData).forEach(([key, value]) => form.append(key, value));
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== "description") {
+        form.append(key, value);
+      }
+    });
+    form.append("description", finalDescription);
 
     try {
       await addInquiry(form);
@@ -76,13 +87,29 @@ const AddInquiry = () => {
         className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      <textarea
-        name="description"
-        placeholder="Description (min 20 characters)"
-        required
-        onChange={handleChange}
-        className="w-full p-3 h-28 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-      ></textarea>
+      {/* ✅ Show textarea only if not Other */}
+      {formData.category !== 'Other' && (
+        <textarea
+          name="description"
+          placeholder="Describe your issue (min 20 characters)"
+          required
+          value={formData.description}
+          onChange={handleChange}
+          className="w-full p-3 h-28 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        ></textarea>
+      )}
+
+      {/* ✅ Show special textarea only if category is Other */}
+      {formData.category === 'Other' && (
+        <textarea
+          name="otherDescription"
+          placeholder="Ask your custom question (e.g. What are your opening hours?)"
+          required
+          value={otherDescription}
+          onChange={(e) => setOtherDescription(e.target.value)}
+          className="w-full p-3 h-28 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        ></textarea>
+      )}
 
       <select
         name="category"
@@ -99,7 +126,7 @@ const AddInquiry = () => {
         <option>Other</option>
       </select>
 
-      {/* ✅ New: Show branch location selector only if Product Issue */}
+      {/* ✅ Branch selector for Product Issue */}
       {formData.category === 'Product Issue' && (
         <select
           name="location"
