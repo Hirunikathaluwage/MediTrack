@@ -87,7 +87,7 @@ const Approval = () => {
 
         try {
             const response = await axios.post('http://localhost:5080/api/cart', {
-                userId: "67ddfc9755c1bec1fb5cf57f", // Assuming you have the userId available
+                userId: "67da71ea411ce40824ebff88", // Assuming you have the userId available
                 medicineId: medicine.id,
                 quantity: 1,
                 price: medicine.price,  // Assuming `price` is the unit price in the `medicine` object
@@ -95,10 +95,16 @@ const Approval = () => {
             });
 
             if (response.data) {
-                const updatedCart = response.data.items;
+                const updatedCart = response.data.items.map(item => ({
+                    id: item.medicineId,  // ensure we keep .id format in frontend
+                    quantity: item.quantity,
+                    price: item.unitPrice
+                }));
                 setCartItems(updatedCart);
                 localStorage.setItem("cart", JSON.stringify(updatedCart)); // Optional fallback
                 message.success(`${medicine.name} added to cart`);
+
+
             } else {
                 message.error("Failed to add to cart");
             }
@@ -137,7 +143,7 @@ const Approval = () => {
             }));
 
             await axios.post('http://localhost:5080/api/cart', {
-                userId: "67ddfc9755c1bec1fb5cf57f",
+                userId: "67da71ea411ce40824ebff88",
                 items: items   // <---- this must be included
             });
 
@@ -196,12 +202,13 @@ const Approval = () => {
             render: (_, medicine) => {
                 const alreadyInCart = cartItems.some(item => item.id === medicine.id);
                 const alreadyReserved = reservedItems.some(item => item.id === medicine.id);
+                const isAvailable = medicine.availability;
 
                 return (
                     <div className="flex gap-2">
                         <Button
                             icon={<ShoppingCartOutlined />}
-                            disabled={!medicine.availability || alreadyInCart}
+                            disabled={!isAvailable || alreadyInCart}
                             onClick={() => addToCart(medicine)}
                             style={{
                                 borderRadius: '6px',
@@ -215,7 +222,7 @@ const Approval = () => {
 
                         <Button
                             icon={<BookOutlined />}
-                            disabled={medicine.availability || alreadyReserved}
+                            disabled={isAvailable || alreadyReserved}
                             onClick={() => reserve(medicine)}
                             style={{
                                 borderRadius: '6px',

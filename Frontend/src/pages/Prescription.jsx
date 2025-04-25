@@ -46,7 +46,7 @@ const Prescription = () => {
         }
 
         const formData = new FormData();
-        formData.append("userId", "67ddfc9755c1bec1fb5cf57f");
+        formData.append("userId", "67da71ea411ce40824ebff88");
         formData.append("name", values.name);
         formData.append("age", values.age);
         formData.append("mobile", values.mobile);
