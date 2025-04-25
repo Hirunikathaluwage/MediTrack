@@ -1,7 +1,7 @@
 import Inquiry from '../models/Inquiry.js';
 import { transporter } from '../utils/emailConfig.js';
 import { InquiryResponseTemplate } from '../utils/InquiryResponseTemplate.js';
-import { faqMap } from '../utils/autoResponderFAQ.js'; // ✅ NEW: Smart Auto-Responder keywords
+import { faqMap } from '../utils/autoResponderFAQ.js'; 
 
 // Get all inquiries with optional filters
 export const getAllInquiries = async (req, res) => {
@@ -35,7 +35,7 @@ export const addInquiry = async (req, res) => {
     console.log("Saving inquiry:", inquiry);
     await inquiry.save();
 
-    // ✅ Smart Auto-Responder logic
+    // Smart Auto-Responder logic
     let autoReplied = false;
     for (const faq of faqMap) {
       for (const keyword of faq.keywords) {
@@ -58,7 +58,7 @@ export const addInquiry = async (req, res) => {
             `
           });
 
-          // ✅ Mark inquiry as resolved
+          
           inquiry.status = "Resolved";
           await inquiry.save();
           autoReplied = true;
@@ -68,7 +68,7 @@ export const addInquiry = async (req, res) => {
       if (autoReplied) break;
     }
 
-    // ✅ Always send confirmation email
+    //  Always send confirmation email
     const confirmationHtml = `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
         <h2>📝 Your inquiry has been received!</h2>
@@ -237,7 +237,7 @@ export const respondToInquiry = async (req, res) => {
 
     res.status(200).json({ message: 'Response email sent successfully', inquiry });
   } catch (error) {
-    console.error("❌ Failed to send response:", error);
+    console.error(" Failed to send response:", error);
     res.status(500).json({ message: 'Failed to respond to inquiry', error: error.message });
   }
 };

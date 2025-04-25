@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import Customer from '../models/customer.model.js';
+import Customer from '../models/users.model.js';
 import Admin from '../models/admin.model.js';
 
 /**

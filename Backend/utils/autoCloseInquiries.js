@@ -24,7 +24,7 @@ const autoCloseOldInquiries = async () => {
       console.log("✅ No pending inquiries to auto-close.");
     }
   } catch (error) {
-    console.error("❌ Auto-close task failed:", error.message);
+    console.error(" Auto-close task failed:", error.message);
   }
 };
 
