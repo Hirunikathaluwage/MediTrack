@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button, Form, Input, Upload, message, Select } from "antd";
 import Container from "../assets/Container.png";
@@ -9,9 +9,25 @@ const { Option } = Select;
 const URL = "http://localhost:5080/prescription";
 
 const Prescription = () => {
+
     const [imageUrl, setImageUrl] = useState(null);
     const [fileList, setFileList] = useState([]);
     const navigate = useNavigate();
+    const [branches, setBranches] = useState([]);
+
+    useEffect(() => {
+        const fetchBranches = async () => {
+            try {
+                const res = await axios.get("http://localhost:5080/branches"); // Adjust URL if needed
+                setBranches(res.data);
+            } catch (error) {
+                message.error("Failed to load branches");
+            }
+        };
+
+        fetchBranches();
+    }, []);
+
 
     const beforeUpload = (file) => {
         const isValidType =
@@ -46,7 +62,7 @@ const Prescription = () => {
         }
 
         const formData = new FormData();
-        formData.append("userId", "67da71ea411ce40824ebff88");
+        formData.append("userId", "680b51cc9304025f19b2d7d1");
         formData.append("name", values.name);
         formData.append("age", values.age);
         formData.append("mobile", values.mobile);
@@ -63,7 +79,7 @@ const Prescription = () => {
             message.success("Prescription submitted successfully!");
 
             // Navigate to the verified page with prescription ID
-            navigate(`/approved-medicines?id=${prescriptionId}`);
+            navigate(`/approved-medicines?id=${prescriptionId}&branch=${values.branch}`);
         } catch (error) {
             message.error("Failed to submit prescription.");
         }
@@ -118,7 +134,7 @@ const Prescription = () => {
                         name="prescription_form"
                         layout="vertical"
                         onFinish={onFinish}
-                        initialValues={{ userId: "67ddfc9755c1bec1fb5cf57f" }}
+                        initialValues={{ userId: "680b51cc9304025f19b2d7d1" }}
                         className="space-y-4"
                     >
                         <Form.Item
@@ -164,11 +180,14 @@ const Prescription = () => {
                             {...customStyles.formItem}
                         >
                             <Select placeholder="Choose a branch">
-                                <Option value="Colombo">Colombo</Option>
-                                <Option value="Kandy">Kandy</Option>
-                                <Option value="Galle">Galle</Option>
+                                {branches.map((branch) => (
+                                    <Option key={branch._id} value={branch._id}>
+                                        {branch.branchName} - {branch.location}
+                                    </Option>
+                                ))}
                             </Select>
                         </Form.Item>
+
 
                         <Form.Item
                             name="note"

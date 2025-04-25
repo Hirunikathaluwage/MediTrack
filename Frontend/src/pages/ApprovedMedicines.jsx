@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Result, Table, Typography, Button, Tag, message, Spin } from 'antd';
-// import { reserveMedicine } from '../services/reserveService';
+
 
 import {
     CheckCircleOutlined,
@@ -17,6 +17,7 @@ const { Title, Text } = Typography;
 const Approval = () => {
     const [searchParams] = useSearchParams();
     const prescriptionId = searchParams.get("id");
+    const branch = searchParams.get("branch");
     const [approved, setApproved] = useState(false);
     const [loading, setLoading] = useState(true);
     const [medicines, setMedicines] = useState([]);
@@ -50,15 +51,19 @@ const Approval = () => {
 
     const fetchMedicines = async () => {
         try {
-            const res = await axios.get(`http://localhost:5080/prescription/approval/${prescriptionId}`);
+            const res = await axios.get(`http://localhost:5080/prescription/approval/${prescriptionId}?branch=${branch}`);
+
             const data = res.data;
 
             // console.log("Polling result:", data);
 
             if (data.success && Array.isArray(data.medicines)) {
+                console.log("Verified medicines:", data.medicines);
                 const updatedMedicines = data.medicines.map(m => ({
                     ...m,
                     id: m.id || m._id,
+                    name: m.name,
+                    availability: m.availability,
                     price: m.price || 0
                 }));
                 setMedicines(updatedMedicines);
@@ -87,7 +92,7 @@ const Approval = () => {
 
         try {
             const response = await axios.post('http://localhost:5080/api/cart', {
-                userId: "67da71ea411ce40824ebff88", // Assuming you have the userId available
+                userId: "680b51cc9304025f19b2d7d1", // Assuming you have the userId available
                 medicineId: medicine.id,
                 quantity: 1,
                 price: medicine.price,  // Assuming `price` is the unit price in the `medicine` object
@@ -113,9 +118,6 @@ const Approval = () => {
             message.error("Error adding to cart");
         }
     };
-
-
-
 
     const reserve = (medicine) => {
         if (!reservedItems.some(item => item.id === medicine.id)) {
@@ -143,7 +145,7 @@ const Approval = () => {
             }));
 
             await axios.post('http://localhost:5080/api/cart', {
-                userId: "67da71ea411ce40824ebff88",
+                userId: "680b51cc9304025f19b2d7d1",
                 items: items   // <---- this must be included
             });
 

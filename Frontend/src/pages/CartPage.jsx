@@ -13,7 +13,7 @@ const { Title, Text } = Typography;
 
 const CartPage = () => {
     const navigate = useNavigate();
-    const userId = "67da71ea411ce40824ebff88"; // Replace with actual user ID logic
+    const userId = "680b51cc9304025f19b2d7d1"; // Replace with actual user ID logic
 
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(false);
