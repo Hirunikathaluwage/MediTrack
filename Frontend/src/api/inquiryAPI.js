@@ -1,5 +1,3 @@
-// MediTrack/Frontend/src/api/inquiryAPI.js
-
 import axios from 'axios';
 
 const api = axios.create({
@@ -47,8 +45,14 @@ export const respondToInquiry = async (id, responsePayload) => {
   return res.data;
 };
 
-// ✅ Get inquiry statistics
+// ✅ Get inquiry statistics (for counts only)
 export const getInquiryStats = async () => {
   const res = await api.get('/stats');
+  return res.data;
+};
+
+// ✅ NEW: Get inquiry analytics (for chart data)
+export const getInquiryAnalytics = async () => {
+  const res = await api.get('/analytics');
   return res.data;
 };

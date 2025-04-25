@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import InquiryCard from "../../components/InquiryCard";
-import * as api from "../../api/inquiryAPI";
+import { getAllInquiries, respondToInquiry, deleteInquiry } from "../../api/inquiryAPI";
 
 const ViewInquiries = () => {
   const [inquiries, setInquiries] = useState([]);
@@ -18,8 +18,8 @@ const ViewInquiries = () => {
 
   const fetchInquiries = async () => {
     try {
-      const res = await api.get('/');
-      setInquiries(res.data.inquiries);
+      const data = await getAllInquiries();
+      setInquiries(data.inquiries);
     } catch (err) {
       console.error(err);
       alert('❌ Failed to fetch inquiries');
@@ -42,7 +42,7 @@ const ViewInquiries = () => {
 
   const handleResolve = async (inquiry) => {
     try {
-      await api.post(`/respond/${inquiry._id}`, {
+      await respondToInquiry(inquiry._id, {
         status: 'Resolved',
         response: 'Thank you for contacting MediTrack. Your inquiry has been resolved.'
       });
@@ -57,7 +57,7 @@ const ViewInquiries = () => {
     if (!window.confirm('Are you sure you want to delete this inquiry?')) return;
 
     try {
-      await api.delete(`/${id}`);
+      await deleteInquiry(id);
       fetchInquiries(); // Refresh list
     } catch (err) {
       console.error(err);

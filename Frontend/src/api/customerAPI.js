@@ -4,7 +4,7 @@ import api from './axios'; // Axios instance with baseURL & withCredentials enab
 export const registerCustomer = async (data) => {
   try {
     const res = await api.post('/customers/register', data);
-    return res.data; // { message, user }
+    return res.data;
   } catch (err) {
     throw err;
   }
@@ -14,7 +14,7 @@ export const registerCustomer = async (data) => {
 export const loginCustomer = async (data) => {
   try {
     const res = await api.post('/customers/login', data);
-    return res.data; // { message, user }
+    return res.data;
   } catch (err) {
     throw err;
   }
@@ -24,7 +24,7 @@ export const loginCustomer = async (data) => {
 export const logoutCustomer = async () => {
   try {
     const res = await api.post('/customers/logout');
-    return res.data; // { message }
+    return res.data;
   } catch (err) {
     throw err;
   }
@@ -34,17 +34,21 @@ export const logoutCustomer = async () => {
 export const getCustomerProfile = async () => {
   try {
     const res = await api.get('/customers/profile');
-    return res.data; // { name, email, role }
+    return res.data;
   } catch (err) {
     throw err;
   }
 };
 
-// ✅ Update customer profile
-export const updateCustomerProfile = async (data) => {
+// ✅ FIXED: Update customer profile with avatar file
+export const updateCustomerProfile = async (formData) => {
   try {
-    const res = await api.put('/customers/profile', data);
-    return res.data; // { message, user }
+    const res = await api.put('/customers/profile', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data' // ✅ REQUIRED for uploading files
+      }
+    });
+    return res.data;
   } catch (err) {
     throw err;
   }
@@ -54,7 +58,7 @@ export const updateCustomerProfile = async (data) => {
 export const requestPasswordReset = async (data) => {
   try {
     const res = await api.post('/customers/reset-password-request', data);
-    return res.data; // { message }
+    return res.data;
   } catch (err) {
     throw err;
   }
@@ -66,7 +70,7 @@ export const resetPassword = async (userId, token, newPassword) => {
     const res = await api.post(`/customers/reset-password/${userId}/${token}`, {
       password: newPassword,
     });
-    return res.data; // { message }
+    return res.data;
   } catch (err) {
     throw err;
   }
