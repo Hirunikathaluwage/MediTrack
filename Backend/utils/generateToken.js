@@ -21,6 +21,6 @@ export const generateToken = (req, res, userId) => {
   });
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('✅ JWT set in cookie for user:', userId);
+    console.log(' JWT set in cookie for user:', userId);
   }
 };

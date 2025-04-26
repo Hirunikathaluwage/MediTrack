@@ -1,4 +1,3 @@
-// backend/models/Inquiry.js
 import mongoose from 'mongoose';
 
 const inquirySchema = new mongoose.Schema({
@@ -6,6 +5,11 @@ const inquirySchema = new mongoose.Schema({
   email: { type: String, required: true, match: /\S+@\S+\.\S+/ },
   subject: { type: String, required: true, minlength: 5 },
   description: { type: String, required: true, maxlength: 1000, minlength: 20 },
+
+  // 🆕 Translated + Detected Language
+  translatedDescription: { type: String }, // Auto-translated to English
+  originalLanguage: { type: String }, // e.g., 'si', 'ta', 'en'
+
   category: {
     type: String,
     enum: [

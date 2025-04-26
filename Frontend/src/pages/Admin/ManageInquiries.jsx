@@ -14,7 +14,10 @@ const ManageInquiries = () => {
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [expandedInquiry, setExpandedInquiry] = useState(null);
+  const [viewingAttachment, setViewingAttachment] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const fetchInquiries = async () => {
     setLoading(true);
@@ -87,9 +90,35 @@ const ManageInquiries = () => {
     }
   };
   
+  const openAttachment = (attachment) => {
+    setViewingAttachment(attachment);
+  };
+  
+  const closeAttachment = () => {
+    setViewingAttachment(null);
+  };
+  
+  const predefinedCategories = [
+    'all', 
+    'General', 
+    'Technical Support', 
+    'Payment Issue', 
+    'Delivery Issue', 
+    'Billing', 
+    'Product Issue', 
+    'Other'
+  ];
+  
+  // Filter inquiries based on status, category, and search query
   const filteredInquiries = inquiries.filter(inq => {
-    if (filter === 'all') return true;
-    return inq.status.toLowerCase() === filter.toLowerCase();
+    const statusMatch = filter === 'all' || inq.status.toLowerCase() === filter.toLowerCase();
+    const categoryMatch = categoryFilter === 'all' || inq.category === categoryFilter;
+    const searchMatch = searchQuery === '' || 
+      inq.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      inq.message?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      inq.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return statusMatch && categoryMatch && searchMatch;
   });
   
   const getPriorityColor = (priority) => {
@@ -144,6 +173,31 @@ const ManageInquiries = () => {
         )}
         
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+          {/* Search Bar */}
+          <div className="p-4 border-b border-gray-200">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by subject, message or email..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                🔍
+              </div>
+              {searchQuery && (
+                <button 
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  onClick={() => setSearchQuery('')}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {/* Status Filter Tabs */}
           <div className="border-b border-gray-200 p-4">
             <div className="flex flex-wrap gap-2">
               <button 
@@ -189,6 +243,26 @@ const ManageInquiries = () => {
             </div>
           </div>
           
+          {/* Category Filter */}
+          <div className="border-b border-gray-200 p-4 bg-gray-50">
+            <h3 className="text-sm font-medium text-gray-600 mb-2">Filter by Category:</h3>
+            <div className="flex flex-wrap gap-2">
+              {predefinedCategories.map((category, index) => (
+                <button 
+                  key={index}
+                  onClick={() => setCategoryFilter(category)} 
+                  className={`px-3 py-1 rounded-md text-sm transition-all ${
+                    categoryFilter === category 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                  }`}
+                >
+                  {category === 'all' ? 'All Categories' : category}
+                </button>
+              ))}
+            </div>
+          </div>
+          
           {loading ? (
             <div className="p-8 text-center">
               <div className="animate-spin mx-auto mb-4 w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
@@ -219,6 +293,23 @@ const ManageInquiries = () => {
                             <span className="text-gray-500">🕒</span>
                             {new Date(inq.createdAt).toLocaleDateString()}
                           </span>
+                          {inq.category && (
+                            <span className="flex items-center gap-1">
+                              <span className="text-green-500">📂</span>
+                              {inq.category}
+                            </span>
+                          )}
+                          {inq.attachments && inq.attachments.length > 0 && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openAttachment(inq.attachments[0]);
+                              }}
+                              className="flex items-center gap-1 text-sm px-3 py-1 bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-all"
+                            >
+                              📎 View Attachment
+                            </button>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -240,6 +331,28 @@ const ManageInquiries = () => {
                           {inq.message}
                         </div>
                       </div>
+                      
+                      {/* Attachments Section */}
+                      {inq.attachments && inq.attachments.length > 0 && (
+                        <div className="mb-4">
+                          <h4 className="font-medium mb-2">Attachments:</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {inq.attachments.map((attachment, index) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openAttachment(attachment);
+                                }}
+                                className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md hover:bg-gray-50"
+                              >
+                                <span className="text-blue-500">📎</span>
+                                <span className="text-sm">{attachment.filename || `Attachment ${index + 1}`}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       
                       <div className="flex flex-wrap gap-4 mb-4">
                         <div className="flex-1">
@@ -304,6 +417,55 @@ const ManageInquiries = () => {
           )}
         </div>
       </div>
+      
+      {/* Attachment Viewer Modal */}
+      {viewingAttachment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-auto">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium">
+                {viewingAttachment.filename || 'Attachment Preview'}
+              </h3>
+              <button 
+                onClick={closeAttachment}
+                className="text-gray-500 hover:text-gray-700 text-xl font-bold"
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div className="p-4">
+              {viewingAttachment.type?.startsWith('image/') ? (
+                <img 
+                  src={viewingAttachment.url || '#'} 
+                  alt={viewingAttachment.filename || 'Attachment'} 
+                  className="max-w-full h-auto max-h-96 mx-auto"
+                />
+              ) : viewingAttachment.type?.startsWith('application/pdf') ? (
+                <div className="h-96 flex items-center justify-center bg-gray-100 rounded-lg">
+                  <iframe 
+                    src={viewingAttachment.url || '#'} 
+                    className="w-full h-full rounded" 
+                    title={viewingAttachment.filename || 'PDF Document'}
+                  />
+                </div>
+              ) : (
+                <div className="text-center p-8">
+                  <div className="text-6xl mb-4">📄</div>
+                  <p className="mb-4">{viewingAttachment.filename || 'Document'}</p>
+                  <a 
+                    href={viewingAttachment.url || '#'} 
+                    download={viewingAttachment.filename}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 inline-block"
+                  >
+                    Download File
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

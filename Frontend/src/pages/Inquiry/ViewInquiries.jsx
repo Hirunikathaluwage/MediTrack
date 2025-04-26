@@ -53,6 +53,20 @@ const ViewInquiries = () => {
     }
   };
 
+  const handleSendReply = async (id, responseText) => {
+    if (!responseText.trim()) return alert("Reply cannot be empty!");
+    try {
+      await respondToInquiry(id, {
+        status: 'Resolved',
+        response: responseText,
+      });
+      fetchInquiries(); // Refresh list
+    } catch (err) {
+      console.error(err);
+      alert("❌ Failed to send reply");
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this inquiry?')) return;
 
@@ -66,9 +80,20 @@ const ViewInquiries = () => {
   };
 
   const downloadCSV = () => {
-    const headers = ['Name', 'Email', 'Subject', 'Description', 'Category', 'Priority', 'Status'];
+    const headers = [
+      'Name', 'Email', 'Subject', 'Original Language', 'Original Description',
+      'Translated Description', 'Category', 'Priority', 'Status'
+    ];
     const rows = filtered.map(i => [
-      i.name, i.email, i.subject, i.description, i.category, i.priority, i.status
+      i.name,
+      i.email,
+      i.subject,
+      i.originalLanguage || '',
+      i.description,
+      i.translatedDescription || '',
+      i.category,
+      i.priority,
+      i.status
     ]);
 
     const csvContent = [
@@ -89,7 +114,7 @@ const ViewInquiries = () => {
 
   return (
     <div style={{ maxWidth: '800px', margin: 'auto' }}>
-      <h2>All Inquiries</h2>
+      <h2>📋 All Inquiries</h2>
 
       <div style={{ marginBottom: '20px' }}>
         <input
@@ -121,6 +146,7 @@ const ViewInquiries = () => {
             inquiry={inquiry}
             onResolve={handleResolve}
             onDelete={handleDelete}
+            onSendReply={handleSendReply} // ✅ New prop for manual reply
           />
         ))
       ) : (

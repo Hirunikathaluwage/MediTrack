@@ -1,7 +1,8 @@
 import Inquiry from '../models/Inquiry.js';
 import { transporter } from '../utils/emailConfig.js';
 import { InquiryResponseTemplate } from '../utils/InquiryResponseTemplate.js';
-import { faqMap } from '../utils/autoResponderFAQ.js'; 
+import { faqMap } from '../utils/autoResponderFAQ.js';
+import { detectLanguage, translateText } from '../utils/translate.js';
 
 // Get all inquiries with optional filters
 export const getAllInquiries = async (req, res) => {
@@ -21,7 +22,7 @@ export const getAllInquiries = async (req, res) => {
   }
 };
 
-// Add a new inquiry (includes Smart Auto-Responder)
+// Add a new inquiry (with translation + auto-responder)
 export const addInquiry = async (req, res) => {
   const { name, email, subject, description, category, priority } = req.body;
   const attachment = req.file ? `/uploads/${req.file.filename}` : null;
@@ -31,15 +32,31 @@ export const addInquiry = async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const inquiry = new Inquiry({ name, email, subject, description, category, priority, attachment });
-    console.log("Saving inquiry:", inquiry);
+    // 🔍 Detect language and translate to English
+    const originalLanguage = await detectLanguage(description);
+    const translatedDescription = originalLanguage !== 'en'
+      ? await translateText(description, 'en')
+      : description;
+
+    const inquiry = new Inquiry({
+      name,
+      email,
+      subject,
+      description,
+      translatedDescription,
+      originalLanguage,
+      category,
+      priority,
+      attachment,
+    });
+
     await inquiry.save();
 
-    // Smart Auto-Responder logic
+    // Auto-Responder
     let autoReplied = false;
     for (const faq of faqMap) {
       for (const keyword of faq.keywords) {
-        if (description.toLowerCase().includes(keyword)) {
+        if (translatedDescription.toLowerCase().includes(keyword)) {
           await transporter.sendMail({
             from: `"MediTrack Support" <${process.env.EMAIL_USER}>`,
             to: email,
@@ -58,7 +75,6 @@ export const addInquiry = async (req, res) => {
             `
           });
 
-          
           inquiry.status = "Resolved";
           await inquiry.save();
           autoReplied = true;
@@ -68,7 +84,7 @@ export const addInquiry = async (req, res) => {
       if (autoReplied) break;
     }
 
-    //  Always send confirmation email
+    // Confirmation email
     const confirmationHtml = `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
         <h2>📝 Your inquiry has been received!</h2>
@@ -80,6 +96,7 @@ export const addInquiry = async (req, res) => {
         <ul>
           <li><strong>Category:</strong> ${category || 'General'}</li>
           <li><strong>Priority:</strong> ${priority || 'Normal'}</li>
+          <li><strong>Language Detected:</strong> ${originalLanguage}</li>
         </ul>
         <p>If you have any further questions, feel free to reply to this email.</p>
         <p style="margin-top: 20px;">Best regards,<br/>The MediTrack Support Team</p>
@@ -93,7 +110,10 @@ export const addInquiry = async (req, res) => {
       html: confirmationHtml,
     });
 
-    res.status(201).json({ message: 'Inquiry added successfully and confirmation email sent.', inquiry });
+    res.status(201).json({
+      message: 'Inquiry added successfully with translation and confirmation email sent.',
+      inquiry
+    });
   } catch (err) {
     console.error("Error adding inquiry:", err.stack);
     res.status(500).json({ message: 'Error adding inquiry', error: err.message });
@@ -214,7 +234,7 @@ export const getInquiryAnalytics = async (req, res) => {
   }
 };
 
-// Respond to inquiry manually
+// Respond to inquiry manually (with reverse translation)
 export const respondToInquiry = async (req, res) => {
   const { id } = req.params;
   const { response, status } = req.body;
@@ -223,21 +243,37 @@ export const respondToInquiry = async (req, res) => {
     const inquiry = await Inquiry.findById(id);
     if (!inquiry) return res.status(404).json({ message: 'Inquiry not found' });
 
+    const userLang = inquiry.originalLanguage || 'en';
+    const translatedResponse =
+      userLang !== 'en' ? await translateText(response, userLang) : response;
+
     inquiry.status = status || inquiry.status;
     await inquiry.save();
 
-    const html = InquiryResponseTemplate(inquiry.name, inquiry.subject, response, inquiry.status);
+    const html = `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>📩 MediTrack Support Response</h2>
+        <p>Hi ${inquiry.name},</p>
+        <p>We have reviewed your inquiry regarding <strong>"${inquiry.subject}"</strong>.</p>
+        <p><strong>Response:</strong></p>
+        <blockquote style="background-color:#f1f1f1; padding: 10px; border-left: 4px solid #2196F3;">
+          ${translatedResponse}
+        </blockquote>
+        <p>If you need more help, feel free to reply.</p>
+        <p style="margin-top: 20px;">Best regards,<br/>MediTrack Team</p>
+      </div>
+    `;
 
     await transporter.sendMail({
       from: `"MediTrack Support" <${process.env.EMAIL_USER}>`,
       to: inquiry.email,
-      subject: `📩 Update on your inquiry: ${inquiry.subject}`,
+      subject: `📩 Response to your inquiry: ${inquiry.subject}`,
       html,
     });
 
-    res.status(200).json({ message: 'Response email sent successfully', inquiry });
+    res.status(200).json({ message: '✅ Response email sent successfully', inquiry });
   } catch (error) {
-    console.error(" Failed to send response:", error);
+    console.error("❌ Failed to send response:", error);
     res.status(500).json({ message: 'Failed to respond to inquiry', error: error.message });
   }
 };
