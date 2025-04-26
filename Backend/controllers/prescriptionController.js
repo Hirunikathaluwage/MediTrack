@@ -56,15 +56,31 @@ async function extractMedicinesFromImage(imagePath) {
                     role: "user",
                     parts: [
                         { inlineData: { data: base64Image, mimeType: "image/jpeg" } },
-                        { text: `Extract the medicine names from this prescription image.\nReturn only the JSON object in the format specified in the function below.` }
+                        { text:` Extract the medicine names from this prescription image. Return only a JSON. `}
                     ]
                 }
             ],
             tools: [{ function_declarations: [functionDefinition] }]
         });
 
+        // Try functionCall first
         const functionCall = response.response?.candidates?.[0]?.content?.parts?.[0]?.functionCall;
-        return functionCall?.args?.medicines || [];
+        if (functionCall?.args?.medicines) {
+            console.log("Extracted from functionCall ✅");
+            return functionCall.args.medicines;
+        }
+
+        // Fallback: Try parsing text manually
+        const textResponse = response.response?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!textResponse) return [];
+
+        const jsonStringMatch = textResponse.match(/\{[\s\S]*?\}/);
+        if (!jsonStringMatch) return [];
+
+        const jsonObject = JSON.parse(jsonStringMatch[0]);
+        console.log("Extracted from text fallback ✅");
+        return jsonObject.medicines || [];
+
     } catch (error) {
         console.error("Gemini AI Processing Error:", error);
         return [];

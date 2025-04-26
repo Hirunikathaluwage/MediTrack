@@ -55,7 +55,7 @@ const prescriptionData = [
   },
 ];
 
-const SplitPage = () => {
+const SplitPagefinal = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [prescriptions, setPrescriptions] = useState([]);
   const [adminSearchQuery, setAdminSearchQuery] = useState("");
@@ -140,12 +140,12 @@ const SplitPage = () => {
       key: "actions",
       render: (_, record) => (
         <div className="flex gap-2">
-          <Tooltip title="Edit this prescription">
+          <Tooltip title="View this prescription">
             <Button
               icon={<EditOutlined />}
               className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-none hover:from-indigo-600 hover:to-purple-600"
             >
-              Edit
+              View
             </Button>
           </Tooltip>
           <Tooltip title="Delete this prescription">
@@ -327,7 +327,7 @@ const SplitPage = () => {
                               key="1"
                             >
                               {/* Mock medicine data for demo */}
-                              <Table
+                              {/* <Table
                                 dataSource={[
                                   { key: '1', name: 'Paracetamol', quantity: 10 },
                                   { key: '2', name: 'Amoxicillin', quantity: 5 }
@@ -350,7 +350,7 @@ const SplitPage = () => {
                                 pagination={false}
                                 className="mt-2"
                                 size="small"
-                              />
+                              /> */}
                             </Panel>
                           </Collapse>
                         </div>
@@ -373,4 +373,4 @@ const SplitPage = () => {
   );
 };
 
-export default SplitPage;
+export default SplitPagefinal;
