@@ -119,7 +119,7 @@ const PharmacistDashboard = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {/* 🌐 Sidebar */}
+      {/*Sidebar */}
       <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
         <div className="text-white text-center py-4 font-bold text-lg tracking-wide">
           MediTrack

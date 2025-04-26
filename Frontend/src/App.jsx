@@ -5,8 +5,13 @@ import Prescription from './pages/Prescription'
 // import MedicineList from './pages/ApprovedMedicines'
 import Approval from './component/Approval';
 import Reportgen from './pages/Reportgen'
-import AdminPrescription from './pages/AdminPrescription'
+//import AdminPrescription from './pages/AdminPrescription'
 import ApprovedMedicines from './pages/ApprovedMedicines'; // was MedicineList
+//import SearchMedicineInBranch from "./pages/SearchMedicineInBranch.jsx";
+// import SplitScreenDashboard from "./pages/SplitScreenDashboard.jsx"; deleted this file
+import AdminPrescription from "./component/AdminPrescription.jsx";
+import  SearchMedicineInBranch from "./component/SearchMedicineInBranch.jsx";
+import SplitPage from "./pages/split.jsx";
 
 //import Stat from "./component/Stat";
 //import TopMedicine from "./component/TopMedicine";
@@ -29,6 +34,9 @@ function App() {
         {/* <Route path="/MedicineList" element={<MedicineList />} /> */}
         <Route path="/reportgen" element={<Reportgen />} />
         <Route path="/adminPrescription" element={<AdminPrescription />} />
+        <Route path="/SearchMedicineInBranch" element={<SearchMedicineInBranch />} />
+        {/* <Route path="/SplitScreenDashboard" element={<SplitScreenDashboard />} /> not used */}
+        <Route path="/SplitPage" element={<SplitPage />} />
        
        {/* <Route path="/Reportgen" element={<Reportgen />} />
         <Route path="/Reportgen" element={<Stat />} />

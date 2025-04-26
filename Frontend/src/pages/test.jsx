@@ -29,10 +29,8 @@ const Approval = () => {
     const pollingRef = useRef(null);
 
     useEffect(() => {
-        localStorage.removeItem("cart"); // clear old cart
-
-        setCartItems([]); // reset cart state
-        setReservedItems([]); // optional: reset reserves too
+        const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+        setCartItems(existingCart);
 
         if (prescriptionId) {
             startPollingStatus();
@@ -94,26 +92,22 @@ const Approval = () => {
 
         try {
             const response = await axios.post('http://localhost:5080/api/cart', {
-                userId: "680b51cc9304025f19b2d7d1",
-                items: [
-                    {
-                        medicineId: medicine.id,
-                        quantity: 1,
-                        unitPrice: medicine.price,
-                        price: medicine.price * 1
-                    }
-                ]
+                userId: "680b51cc9304025f19b2d7d1", // Assuming you have the userId available
+                medicineId: medicine.id,
+                quantity: 1,
+                price: medicine.price,  // Assuming price is the unit price in the medicine object
+                unitPrice: medicine.price * 1
             });
 
             if (response.data) {
                 const updatedCart = response.data.items.map(item => ({
-                    id: item.medicineId,
+                    id: item.medicineId,  // ensure we keep .id format in frontend
                     quantity: item.quantity,
                     price: item.unitPrice
                 }));
                 setCartItems(updatedCart);
-                localStorage.setItem("cart", JSON.stringify(updatedCart));
-                message.success(`${medicine.name} added to cart`);
+                localStorage.setItem("cart", JSON.stringify(updatedCart)); // Optional fallback
+                message.success();
 
 
             } else {
@@ -129,7 +123,10 @@ const Approval = () => {
         if (!reservedItems.some(item => item.id === medicine.id)) {
             const updatedReserved = [...reservedItems, { ...medicine, quantity: 1 }];
             setReservedItems(updatedReserved);
-            message.success(`${medicine.name} reserved.`);
+            message.success();
+
+            // Navigate to confirmation page with reserved items
+
         }
     };
 
@@ -140,46 +137,24 @@ const Approval = () => {
 
     const goToCart = async () => {
         try {
-            // Take all available medicines, assign quantity 1
-            const itemsToAdd = medicines
-                .filter(med => med.availability)
-                .map(med => ({
-                    medicineId: med.id,
-                    quantity: 1,
-                    unitPrice: med.price,
-                    price: med.price
-                }));
+            const items = cartItems.map(item => ({
+                medicineId: item.id,
+                quantity: item.quantity || 1,
+                unitPrice: item.price,
+                price: item.price * item.quantity
+            }));
 
-            if (itemsToAdd.length === 0) {
-                message.info("No available medicines to add to cart.");
-                return;
-            }
-
-            const response = await axios.post('http://localhost:5080/api/cart', {
+            await axios.post('http://localhost:5080/api/cart', {
                 userId: "680b51cc9304025f19b2d7d1",
-                items: itemsToAdd
+                items: items   // <---- this must be included
             });
 
-            if (response.data) {
-                // store in localStorage for UI sync
-                const updatedCart = response.data.items.map(item => ({
-                    id: item.medicineId,
-                    quantity: item.quantity,
-                    price: item.unitPrice
-                }));
-                setCartItems(updatedCart);
-                localStorage.setItem("cart", JSON.stringify(updatedCart));
-                message.success("Available medicines added to cart.");
-                navigate(`/cart?id=${prescriptionId}&branch=${branch}`);
-            } else {
-                message.error("Failed to update cart.");
-            }
+            navigate('/cart');
         } catch (err) {
             console.error(err);
-            message.error("Error saving cart data.");
+            message.error("Error saving cart data");
         }
     };
-
 
 
 
@@ -201,14 +176,9 @@ const Approval = () => {
             title: "Price ($)",
             dataIndex: "price",
             key: "price",
-
-            render: (price) => {
-                const displayPrice = typeof price === "number" ? price.toFixed(2) : "0.00";
-                return (
-                    <Text style={{ color: "#0e9f6e", fontWeight: 'bold' }}>${displayPrice}</Text>
-                );
-            }
-
+            render: (price) => (
+                <Text style={{ color: "#0e9f6e", fontWeight: 'bold' }}>${price.toFixed(2)}</Text>
+            )
         },
         {
             title: "Availability",
