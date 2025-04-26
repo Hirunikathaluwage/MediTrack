@@ -50,7 +50,7 @@ function App() {
               Customer Sections
             </Menu.Item>
             <Menu.Item key="7">
-              <NavLink to="/search-medicine-branches">Cust search med</NavLink>
+              <NavLink to="/search-medicine-branches">Check available Branch</NavLink>
             </Menu.Item>
           </Menu>
         </Sider>

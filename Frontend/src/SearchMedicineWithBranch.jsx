@@ -228,7 +228,7 @@ function SearchMedicineWithBranch() {
                       </div>
                     ) : (
                       <p style={{ color: "red", marginTop: "10px" }}>
-                        Contact the branch for purchasing at{" "}
+                        Please follow our Prescription Uploading process or Contact the branch for purchasing at{" "} 
                         <strong>
                           <a href={`tel:${record.phoneNumber || ""}`} style={{ color: "inherit" }}>
                             {record.phoneNumber || "N/A"}
