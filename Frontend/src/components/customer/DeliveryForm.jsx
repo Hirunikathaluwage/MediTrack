@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { MapPinIcon, TruckIcon } from 'lucide-react';
 import LocationMap from './LocationMap';
 
 const DeliveryForm = () => {
   const navigate = useNavigate();
 
+  const { orderId: urlOrderId } = useParams(); // <-- fetch orderId from URL params
+
+  // Assume userId is stored in localStorage (or replace with your logic to fetch userId)
+  const userId = localStorage.getItem('userId') || '680b51cc9304025f19b2d7d1'; // Example userId
+  const hardcodedOrderId = '680cd676039274757403e31c'; // <-- for now
+
   const [formData, setFormData] = useState({
+    userId: userId, // Include userId in the form data
+    orderId: urlOrderId || hardcodedOrderId, // <-- if URL param exists, use it; else fallback to hardcoded
     receiverName: '',
     contact: '',
     location: {
@@ -35,10 +43,27 @@ const DeliveryForm = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const mockDeliveryId = 'DEL' + Math.floor(Math.random() * 10000);
-    navigate(`/tracking/${mockDeliveryId}`);
+
+    try {
+      const response = await fetch('http://localhost:5080/api/deliveries', {
+        method: 'POST', // Specifies that this is a POST request
+        headers: {
+          'Content-Type': 'application/json', // Indicates the request body is JSON
+        },
+        body: JSON.stringify(formData), // Converts the form data to a JSON string
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        navigate(`/tracking/${data._id}`); // Redirect to the tracking page with the delivery ID
+      } else {
+        console.error('Failed to create delivery request');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (
@@ -71,7 +96,7 @@ const DeliveryForm = () => {
               type="text"
               id="userId"
               className="bg-gray-100 cursor-not-allowed border border-gray-300 text-gray-500 p-2 w-full rounded-md"
-              value="USR12345"
+              value={formData.userId}
               disabled
             />
           </div>

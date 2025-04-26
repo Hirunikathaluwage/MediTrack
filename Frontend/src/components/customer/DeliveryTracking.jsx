@@ -17,42 +17,68 @@ import {
 const DeliveryTracking = () => {
   const { deliveryId } = useParams();
   const navigate = useNavigate();
-  const [deliveryStatus, setDeliveryStatus] = useState('in transit');
+  const [deliveryData, setDeliveryData] = useState(null);
+  const [orderDetails, setOrderDetails] = useState([]);
+  const [deliveryStatus, setDeliveryStatus] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDeliveryStatus('delivered');
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchDeliveryDetails = async () => {
+      try {
+        // Fetch delivery details
+        const response = await fetch(`http://localhost:5080/api/deliveries/${deliveryId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch delivery details');
+        }
+        const data = await response.json();
+        setDeliveryData(data);
+        setDeliveryStatus(data.status); // Set the status from the backend
+  
+        // Fetch order details using userId from the response
+        const userId = data.userId._id; // Use `data` directly here
+        const orderResponse = await fetch(`http://localhost:5080/api/orders/user/${userId}`);
+        if (!orderResponse.ok) {
+          throw new Error('Failed to fetch order details');
+        }
+        const orderData = await orderResponse.json();
 
-  const deliveryData = {
-    deliveryId: deliveryId || 'DEL1234',
-    userId: 'USR12345',
-    date: new Date().toLocaleDateString(),
-    status: deliveryStatus,
-    orderSummary: [
-      { name: 'Smartphone', price: 299.99 },
-      { name: 'Protective Case', price: 19.99 },
-      { name: 'Screen Protector', price: 9.99 },
-    ],
-    branch: {
-      name: 'Downtown Branch',
-      address: '123 Main St, Downtown',
-    },
-    driver: {
-      name: 'John Smith',
-      contact: '555-123-4567',
-      vehicleNo: 'ABC 123',
-      rating: 4.8,
-    },
-  };
+        setOrderDetails(orderData[0]?.items || []); // Set the fetched order items
+        // Fetch branch details using branchId
+        const branchId = orderData[0]?.branchId;
+        if (branchId) {
+          const branchResponse = await fetch(`http://localhost:5080/api/branches/${branchId}`);
+          if (!branchResponse.ok) {
+            throw new Error('Failed to fetch branch details');
+          }
+          const branchData = await branchResponse.json();
+  
+          // Set the branch information in deliveryData
+          setDeliveryData((prevData) => ({
+            ...prevData,
+            branch: {
+              name: branchData.branchName || 'N/A',
+              address: branchData.location || 'N/A',
+              phone: branchData.phoneNumber || 'N/A',
+            },
+          }));
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+  
+    fetchDeliveryDetails();
+  }, [deliveryId]);
 
-  const handleRateDelivery = () => {
-    navigate(`/rating/${deliveryId}`);
-  };
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
+  }
 
-  const totalAmount = deliveryData.orderSummary.reduce((sum, item) => sum + item.price, 0);
+  if (!deliveryData) {
+    return <div className="text-center">Loading delivery details...</div>;
+  }
+
+  const totalAmount = orderDetails.reduce((sum, item) => sum + (item.price * item.quantity || 0), 0);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -80,6 +106,10 @@ const DeliveryTracking = () => {
     }
   };
 
+  const handleRateDelivery = () => {
+    navigate(`/rating/${deliveryId}`);
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
       <div className="mb-8 text-center">
@@ -97,20 +127,20 @@ const DeliveryTracking = () => {
           <div className="flex flex-col md:flex-row justify-between mb-6">
             <div>
               <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                Delivery #{deliveryData.deliveryId}
+                Delivery #{deliveryData._id}
               </h2>
               <div className="flex items-center text-sm text-gray-600">
                 <CalendarIcon size={16} className="mr-1" />
-                <span>{deliveryData.date}</span>
+                <span>{new Date(deliveryData.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
             <div className="mt-4 md:mt-0">
               <div className="flex items-center">
                 <span className="mr-2 text-sm">Status</span>
                 <div className="flex items-center">
-                  {getStatusIcon(deliveryData.status)}
-                  <span className={`ml-2 text-sm font-medium px-3 py-1 rounded-full text-white ${getStatusColor(deliveryData.status)}`}>
-                    {deliveryData.status.charAt(0).toUpperCase() + deliveryData.status.slice(1)}
+                  {getStatusIcon(deliveryStatus)}
+                  <span className={`ml-2 text-sm font-medium px-3 py-1 rounded-full text-white ${getStatusColor(deliveryStatus)}`}>
+                    {deliveryStatus ? deliveryStatus.charAt(0).toUpperCase() + deliveryStatus.slice(1) : 'Loading...'}
                   </span>
                 </div>
               </div>
@@ -145,10 +175,10 @@ const DeliveryTracking = () => {
               <h3 className="font-semibold text-gray-800 mb-3">Order Summary</h3>
               <div className="bg-gray-50 rounded-md p-4">
                 <ul className="divide-y divide-gray-200">
-                  {deliveryData.orderSummary.map((item, index) => (
+                {orderDetails.map((item, index) =>(
                     <li key={index} className="py-2 flex justify-between">
-                      <span>{item.name}</span>
-                      <span className="font-medium">${item.price.toFixed(2)}</span>
+                      <span>{item.name || 'Unknown Item'}</span>
+                      <span className="font-medium">{item.quantity}</span>
                     </li>
                   ))}
                 </ul>
@@ -165,9 +195,10 @@ const DeliveryTracking = () => {
                 <div className="flex items-start mb-2">
                   <BuildingIcon size={18} className="mr-2 text-blue-600 mt-0.5" />
                   <div>
-                    <p className="font-medium">{deliveryData.branch.name}</p>
-                    <p className="text-sm text-gray-600">{deliveryData.branch.address}</p>
-                  </div>
+                  <p className="font-medium">{deliveryData.branch?.name || 'N/A'}</p>
+                  <p className="text-sm text-gray-600">{deliveryData.branch?.address || 'N/A'}</p>
+                  <p className="text-sm text-gray-600">Phone: {deliveryData.branch?.phone || 'N/A'}</p>
+              </div>
                 </div>
               </div>
 
@@ -175,19 +206,19 @@ const DeliveryTracking = () => {
               <div className="bg-gray-50 rounded-md p-4">
                 <div className="flex items-center mb-2">
                   <UserIcon size={18} className="mr-2 text-blue-600" />
-                  <span>{deliveryData.driver.name}</span>
+                  <span>{deliveryData.driver?.name || 'N/A'}</span>
                 </div>
                 <div className="flex items-center mb-2">
                   <PhoneIcon size={18} className="mr-2 text-blue-600" />
-                  <span>{deliveryData.driver.contact}</span>
+                  <span>{deliveryData.driver?.contact || 'N/A'}</span>
                 </div>
                 <div className="flex items-center mb-2">
                   <TruckIcon size={18} className="mr-2 text-blue-600" />
-                  <span>Vehicle: {deliveryData.driver.vehicleNo}</span>
+                  <span>Vehicle: {deliveryData.driver?.vehicleNo || 'N/A'}</span>
                 </div>
                 <div className="flex items-center">
                   <StarIcon size={18} className="mr-2 text-yellow-500" />
-                  <span className="font-medium">{deliveryData.driver.rating}</span>
+                  <span className="font-medium">{deliveryData.driver?.rating || 'N/A'}</span>
                   <span className="text-gray-500 text-sm ml-1">/ 5.0</span>
                 </div>
               </div>
@@ -220,3 +251,5 @@ const DeliveryTracking = () => {
 };
 
 export default DeliveryTracking;
+
+

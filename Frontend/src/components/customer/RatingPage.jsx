@@ -43,15 +43,34 @@ const RatingPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({
+  
+    const ratingData = {
       deliveryId,
-      ratings,
+      overall: ratings.overall,
+      driver: ratings.driver,
       selectedTags,
       comment,
-    });
-    navigate('/thank-you');
+    };
+  
+    try {
+      const response = await fetch('http://localhost:5080/api/ratings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ratingData),
+      });
+  
+      if (response.ok) {
+        navigate('/thank-you'); // Redirect to a thank-you page
+      } else {
+        console.error('Failed to submit rating');
+      }
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+    }
   };
 
   return (

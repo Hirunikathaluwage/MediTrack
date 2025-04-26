@@ -1,145 +1,168 @@
-import React, { useState } from 'react';
-import { PencilIcon, TrashIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { TrashIcon } from 'lucide-react';
 
-const DeliveriesManagement = () => {
+const DeliveriesManagement = ({ onViewDelivery = () => {} }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [deliveries, setDeliveries] = useState([]);
+  const [error, setError] = useState(null);
 
-  const deliveries = [
-    {
-      id: 1,
-      orderId: 'ORD-5678',
-      destination: 'Central Hospital',
-      status: 'In Transit',
-      driver: 'John Doe',
-      estimatedDelivery: '2025-04-23',
-      priority: 'High',
-    },
-    {
-      id: 2,
-      orderId: 'ORD-5679',
-      destination: 'Westside Clinic',
-      status: 'Delivered',
-      driver: 'Sarah Smith',
-      estimatedDelivery: '2025-04-22',
-      priority: 'Medium',
-    },
-    {
-      id: 3,
-      orderId: 'ORD-5680',
-      destination: 'North Medical Center',
-      status: 'Pending',
-      driver: 'Mike Johnson',
-      estimatedDelivery: '2025-04-24',
-      priority: 'Low',
-    },
-    {
-      id: 4,
-      orderId: 'ORD-5681',
-      destination: 'Eastside Pharmacy',
-      status: 'In Transit',
-      driver: 'Lisa Brown',
-      estimatedDelivery: '2025-04-23',
-      priority: 'High',
-    },
-  ];
+  useEffect(() => {
+    const fetchDeliveries = async () => {
+      try {
+        const response = await fetch("http://localhost:5080/api/deliveries");
+        if (!response.ok) {
+          throw new Error("Failed to fetch deliveries");
+        }
+        const deliveriesData = await response.json();
+
+        const deliveriesWithBranch = await Promise.all(
+          deliveriesData.map(async (delivery) => {
+            try {
+              if (!delivery.orderId) {
+                console.error('No orderId for delivery', delivery._id);
+                return { ...delivery, branch: 'N/A' };
+              }
+
+              // Step 1: Fetch Order Details
+              const orderResponse = await fetch(`http://localhost:5080/api/orders/by-order/${delivery.orderId}`);
+              if (!orderResponse.ok) {
+                console.error('Order not found for orderId:', delivery.orderId);
+                return { ...delivery, branch: 'N/A' };
+              }
+              const orderData = await orderResponse.json();
+
+              if (!orderData.branchId) {
+                console.error('No branchId found in order:', delivery.orderId);
+                return { ...delivery, branch: 'N/A' };
+              }
+
+              // Step 2: Fetch Branch Details
+              const branchResponse = await fetch(`http://localhost:5080/api/branches/${orderData.branchId}`);
+              if (!branchResponse.ok) {
+                console.error('Branch not found for branchId:', orderData.branchId);
+                return { ...delivery, branch: 'N/A' };
+              }
+              const branchData = await branchResponse.json();
+
+              return {
+                ...delivery,
+                branch: branchData.branchName || 'N/A',
+              };
+            } catch (error) {
+              console.error('Error fetching branch info for delivery:', error);
+              return { ...delivery, branch: 'N/A' };
+            }
+          })
+        );
+
+        setDeliveries(deliveriesWithBranch);
+      } catch (error) {
+        console.error('Error fetching deliveries:', error);
+        setError(error.message);
+      }
+    };
+
+    fetchDeliveries();
+  }, []);
+
+  const handleDeleteDelivery = async (deliveryId) => {
+    if (!window.confirm('Are you sure you want to delete this delivery?')) return;
+    try {
+      const response = await fetch(`http://localhost:5080/api/deliveries/${deliveryId}`, { method: 'DELETE' });
+      if (response.ok) {
+        setDeliveries(prev => prev.filter(d => d._id !== deliveryId));
+        console.log('Delivery deleted successfully');
+      } else {
+        console.error('Failed to delete delivery');
+      }
+    } catch (error) {
+      console.error('Error deleting delivery:', error);
+    }
+  };
+
+  const filteredDeliveries = deliveries.filter(
+    (d) =>
+      (d.orderId?.toString().toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (d.receiverName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (d.location?.address?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (d.branch?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+
+  if (error) {
+    return <div className="text-center text-red-500">Error: {error}</div>;
+  }
 
   return (
-    <div className="bg-white rounded-md shadow-sm p-6">
-      <h2 className="text-2xl font-medium mb-6">Manage Deliveries</h2>
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Manage Deliveries</h2>
 
-      <div className="mb-6">
+      <div className="mb-4">
         <input
           type="text"
-          placeholder="Search for deliveries..."
-          className="w-full p-3 border border-gray-300 rounded-md"
+          placeholder="Search deliveries..."
+          className="w-full p-2 border border-gray-300 rounded-md"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      <div className="flex gap-2 mb-4">
-        <button className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm">
-          In Transit
-        </button>
-        <button className="bg-green-100 text-green-800 px-3 py-1 rounded-md text-sm">
-          Delivered
-        </button>
-        <button className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-md text-sm">
-          Pending
-        </button>
-        <button className="bg-gray-100 text-gray-800 px-3 py-1 rounded-md text-sm ml-auto">
-          Clear Filter
-        </button>
-      </div>
-
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="py-3 text-left">Order ID</th>
-              <th className="py-3 text-left">Destination</th>
-              <th className="py-3 text-left">Status</th>
-              <th className="py-3 text-left">Driver</th>
-              <th className="py-3 text-left">Est. Delivery</th>
-              <th className="py-3 text-left">Priority</th>
-              <th className="py-3 text-left">Actions</th>
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2">Order ID</th>
+              <th className="px-4 py-2">Receiver Name</th>
+              <th className="px-4 py-2">Contact</th>
+              <th className="px-4 py-2">Destination</th>
+              <th className="px-4 py-2">Branch</th>
+              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2">Driver</th>
+              <th className="px-4 py-2">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {deliveries.map((delivery) => (
-              <tr key={delivery.id} className="border-b hover:bg-gray-50">
-                <td className="py-4">{delivery.orderId}</td>
-                <td className="py-4">{delivery.destination}</td>
-                <td className="py-4">
+          <tbody className="divide-y divide-gray-200">
+            {filteredDeliveries.map((delivery) => (
+              <tr
+                key={delivery._id}
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => onViewDelivery(delivery)}
+              >
+                <td className="px-4 py-2">{delivery.orderId || 'N/A'}</td>
+                <td className="px-4 py-2">{delivery.receiverName || 'N/A'}</td>
+                <td className="px-4 py-2">{delivery.contact || 'N/A'}</td>
+                <td className="px-4 py-2">{delivery.location?.address || 'N/A'}</td>
+                <td className="px-4 py-2">{delivery.branch || 'N/A'}</td>
+                <td className="px-4 py-2">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      delivery.status === 'In Transit'
-                        ? 'bg-blue-100 text-blue-800'
-                        : delivery.status === 'Delivered'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                    className={`inline-block px-2 py-1 text-xs rounded-full ${
+                      delivery.status === 'delivered'
+                        ? 'bg-green-100 text-green-700'
+                        : delivery.status === 'in transit'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-yellow-100 text-yellow-700'
                     }`}
                   >
-                    {delivery.status}
+                    {delivery.status || 'N/A'}
                   </span>
                 </td>
-                <td className="py-4">{delivery.driver}</td>
-                <td className="py-4">{delivery.estimatedDelivery}</td>
-                <td className="py-4">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      delivery.priority === 'High'
-                        ? 'bg-red-100 text-red-800'
-                        : delivery.priority === 'Medium'
-                        ? 'bg-orange-100 text-orange-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
+                <td className="px-4 py-2">
+                  {delivery.driver ? delivery.driver : <span className="text-gray-500 italic">Not Assigned</span>}
+                </td>
+                <td className="px-4 py-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteDelivery(delivery._id);
+                    }}
+                    className="text-red-500 hover:text-red-700"
                   >
-                    {delivery.priority}
-                  </span>
-                </td>
-                <td className="py-4">
-                  <div className="flex space-x-2">
-                    <button className="p-1 rounded-md hover:bg-gray-100">
-                      <PencilIcon size={16} className="text-gray-600" />
-                    </button>
-                    <button className="p-1 rounded-md hover:bg-gray-100">
-                      <TrashIcon size={16} className="text-red-500" />
-                    </button>
-                  </div>
+                    <TrashIcon size={16} />
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
-
-      <div className="flex justify-end mt-4">
-        <nav className="flex items-center">
-          <button className="p-2 border rounded-md mr-2">&lt;</button>
-          <button className="p-2 border rounded-md bg-blue-600 text-white">1</button>
-          <button className="p-2 border rounded-md ml-2">&gt;</button>
-        </nav>
       </div>
     </div>
   );
