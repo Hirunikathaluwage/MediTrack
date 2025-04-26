@@ -6,11 +6,13 @@ import Payment from '../models/Payment.js';
 
 // Create order from cart
 export const createOrder = async (req, res) => {
-    const { userId, deliveryOption = 'pending' } = req.body;  // Provide default value for deliveryOption
+    const { userId, branchId, deliveryOption = 'pending' } = req.body; // Extract branchId from request body
 
     try {
+        // Retrieve the cart based on the userId
         const cart = await Cart.findOne({ userId });
 
+        // Check if the cart is empty
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ message: 'Cart is empty or not found' });
         }
@@ -18,8 +20,10 @@ export const createOrder = async (req, res) => {
         let totalAmount = 0;
         const orderItems = [];
 
+        // Loop through cart items to calculate total amount and prepare order items
         for (const cartItem of cart.items) {
-            const branchStock = await BranchStock.findOne({ medicineId: cartItem.medicineId });
+            // Find branch stock for each medicine
+            const branchStock = await BranchStock.findOne({ medicineId: cartItem.medicineId, branchId });
 
             if (!branchStock) {
                 return res.status(400).json({ message: `Medicine not available at this branch: ${cartItem.medicineId}` });
@@ -29,13 +33,16 @@ export const createOrder = async (req, res) => {
 
             orderItems.push({
                 medicineId: cartItem.medicineId,
-                quantity: cartItem.quantity
+                quantity: cartItem.quantity,
+                unitPrice: branchStock.price,
+                branchId // Include the branchId in order items for tracking
             });
         }
 
         // Create a new order with the provided deliveryOption or default value
         const newOrder = new Order({
             userId,
+            branchId, // Include branchId in the main order document
             items: orderItems,
             totalAmount,
             paymentStatus: 'Pending',
@@ -43,17 +50,20 @@ export const createOrder = async (req, res) => {
             deliveryOption  // Pass the deliveryOption here
         });
 
+        // Save the new order
         const savedOrder = await newOrder.save();
 
         // Clear the cart after creating the order
         await Cart.updateOne({ userId }, { $set: { items: [], totalPrice: 0 } });
 
+        // Return the created order as a response
         return res.status(201).json(savedOrder);
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Error creating order' });
     }
 };
+
 
 export const getOrderDetails = async (req, res) => {
     try {

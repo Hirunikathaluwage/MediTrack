@@ -5,11 +5,26 @@ import {
     getAllPayments,
     updateVerificationStatus
 } from '../controllers/paymentController.js';
+import multer from 'multer';
+
+// Setup multer
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/slips'); // Make sure this folder exists
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ storage });
 
 const router = express.Router();
 
-// Create new payment
-router.post('/', createPayment);
+// POST route for creating a payment with optional slip
+router.post('/', upload.single('slipImage'), createPayment);
+
+
 
 // Get payments for a user
 router.get('/user/:userId', getPaymentsByUser);

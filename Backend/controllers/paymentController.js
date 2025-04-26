@@ -5,27 +5,32 @@ import Medicine from '../models/Medicine.js';
 export const createPayment = async (req, res) => {
     try {
         const { paymentMethod, amount, verificationStatus, userId, orderId } = req.body;
+        let slipImage = null;
 
-        // Create a new payment record
+        // If slip image is uploaded
+        if (req.file) {
+            slipImage = req.file.filename; // Or req.file.path, depending on your multer config
+        }
+
         const newPayment = new Payment({
             paymentMethod,
             amount,
             verificationStatus,
             userId,
             orderId,
+            slipImage,
             date: new Date()
         });
 
-        // Save the new payment to the database
         await newPayment.save();
 
-        // Return a success response
         res.status(200).json({ message: 'Payment created successfully', payment: newPayment });
     } catch (error) {
         console.error('Error creating payment:', error);
         res.status(500).json({ message: 'Error creating payment', error: error.message });
     }
 };
+
 
 // Get all payments by user
 export const getPaymentsByUser = async (req, res) => {
