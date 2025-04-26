@@ -4,12 +4,12 @@ import express from 'express';
 const router = express.Router();
 
 import {
-  uploadPrescription,
-  reviewPrescription,
-  deletePrescription,
-  getPrescription,
-  getApprovedMedicines,
-  upload
+    uploadPrescription,
+    reviewPrescription,
+    deletePrescription,
+    getPrescription,
+    getApprovedMedicines,
+    upload
 } from '../controllers/prescriptionController.js';
 
 // Upload a prescription with OCR and medicine matching
