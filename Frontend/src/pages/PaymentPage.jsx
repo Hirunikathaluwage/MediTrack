@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, message, Upload, Space, Radio, Typography, Divider, Card } from 'antd';
+import { Button, message, Upload, Space, Radio, Typography, Divider, Card, Select } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { UploadOutlined, CheckCircleOutlined, DollarCircleOutlined, CarOutlined, ShopOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
+const { Option } = Select;
+const URL = "http://localhost:5080/payment";
 const { Title, Text } = Typography;
 
 const PaymentPage = () => {
@@ -14,34 +16,33 @@ const PaymentPage = () => {
     const [totalAmount, setTotalAmount] = useState(0); // Store totalAmount in state
     const [cartItems, setCartItems] = useState([]); // Store cartItems
     const [baseAmount, setBaseAmount] = useState(0);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [previewURL, setPreviewURL] = useState(null);
+
+    const [fileList, setFileList] = useState([]);
+    const [paymentMethod, setPaymentMethod] = useState("");
+    const [slipImage, setSlipImage] = useState(null);
 
     const userId = "67ddfc9755c1bec1fb5cf57f";
-    // Calculate the total amount whenever cartItems or deliveryOption changes
-    // const calculateTotalAmount = () => {
-    //     if (cartItems && cartItems.length > 0) {
-    //         let total = cartItems.reduce((acc, item) => {
-    //             return acc + (item.price && item.quantity ? item.price * item.quantity : 0);
-    //         }, 0);
-    //         if (deliveryOption === 'home') total += 5;
-    //         return total;
-    //     }
-    //     return 0;
-    // };
+
+    const beforeUpload = (file) => {
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+            message.error('You can only upload JPG/PNG file!');
+        }
+        return isJpgOrPng;
+    };
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:5080/api/orders/${orderId}`);
-                if (response.status === 200) {
-                    const order = response.data;
-                    setCartItems(order.items || []);
-                    setBaseAmount(order.totalAmount || 0);
-                    setTotalAmount(amount);
+                const order = response.data;
+                setCartItems(order.items || []);
+                setBaseAmount(order.totalAmount || 0);
+                // setTotalAmount(amount);
 
-                    setDeliveryOption(order.deliveryOption || 'home');
-                } else {
-                    console.error('Error fetching order details');
-                }
+                setDeliveryOption(order.deliveryOption || 'home');
             } catch (error) {
                 console.error('An error occurred while fetching order details');
             }
@@ -50,6 +51,7 @@ const PaymentPage = () => {
         fetchOrderDetails();
     }, [orderId]);
 
+    /*
     useEffect(() => {
         const fetchOrderAndAdjustTotal = async () => {
             try {
@@ -71,7 +73,7 @@ const PaymentPage = () => {
 
         fetchOrderAndAdjustTotal();
     }, [deliveryOption, orderId]);
-
+*/
 
     // Update total amount dynamically based on delivery option
     useEffect(() => {
@@ -81,15 +83,47 @@ const PaymentPage = () => {
     }, [baseAmount, deliveryOption]);
 
     // Handle upload of payment slip
-    const handleUploadSlip = (file) => {
-        message.success('Slip uploaded successfully. We will verify it shortly.');
-        setPaymentOption('Upload Slip');
-        return false;
+    const handleUploadSlip = async (file) => {
+
+        if (paymentOption === 'slip') {
+            message.error('Payment slip has already been uploaded.');
+            return; // Prevent further uploads if already uploaded
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('slipImage', file);
+            formData.append('paymentMethod', 'slip');
+            formData.append('amount', totalAmount);
+            formData.append('verificationStatus', 'pending');
+            formData.append('userId', userId);
+            formData.append('orderId', orderId);
+
+            const response = await axios.post('http://localhost:5080/api/payments/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 200) {
+                message.success('Slip uploaded successfully.');
+                setSlipImage(file);
+                setPaymentOption('slip');
+            } else {
+                message.error('Failed to upload slip.');
+            }
+        } catch (error) {
+            console.error('Error uploading slip:', error);
+            message.error('Error uploading slip.');
+        }
+
+        return false; // prevent Ant Design from uploading automatically
     };
+
 
     const handleCODPayment = () => {
         message.success('Cash on Delivery selected.');
-        setPaymentOption('COD');
+        setPaymentOption('cod');
     };
 
 
@@ -102,18 +136,18 @@ const PaymentPage = () => {
         try {
             // Log the payment data being sent
             console.log("Payment Data: ", {
-                paymentMethod: paymentOption === 'Upload Slip' ? 'slip' : 'cod',
+                paymentMethod: paymentOption,
                 amount: totalAmount,
-                verificationStatus: paymentOption === 'Upload Slip' ? 'pending' : 'approved',
+                verificationStatus: paymentOption === 'slip' ? 'pending' : 'approved',
                 userId,
                 orderId
             });
 
             // Prepare payment data
             const paymentData = {
-                paymentMethod: paymentOption === 'Upload Slip' ? 'slip' : 'cod',
+                paymentMethod: paymentOption,
                 amount: totalAmount,
-                verificationStatus: paymentOption === 'Upload Slip' ? 'pending' : 'approved',
+                verificationStatus: paymentOption === 'slip' ? 'pending' : 'approved',
                 userId,
                 orderId
             };
@@ -174,7 +208,7 @@ const PaymentPage = () => {
                             WebkitTextFillColor: 'transparent',
                             fontWeight: 'bold'
                         }}>
-                            Payment & Delivery
+                            Payment
                         </Title>
                         <div className="w-16 h-1 mx-auto mt-2" style={{
                             background: 'linear-gradient(90deg, #0e9f6e, #0c8599)',
@@ -260,9 +294,9 @@ const PaymentPage = () => {
                                 style={{
                                     height: '50px',
                                     borderRadius: '8px',
-                                    border: paymentOption === 'COD' ? 'none' : '1px solid #0e9f6e',
-                                    color: paymentOption === 'COD' ? 'white' : '#0e9f6e',
-                                    background: paymentOption === 'COD'
+                                    border: paymentOption === 'cod' ? 'none' : '1px solid #0e9f6e',
+                                    color: paymentOption === 'cod' ? 'white' : '#0e9f6e',
+                                    background: paymentOption === 'cod'
                                         ? 'linear-gradient(90deg, #0e9f6e, #0c8599)'
                                         : 'transparent',
                                     fontWeight: 'medium'
@@ -273,28 +307,44 @@ const PaymentPage = () => {
                             </Button>
 
                             {deliveryOption === 'pickup' && (
+
                                 <Upload
-                                    beforeUpload={handleUploadSlip}
-                                    showUploadList={false}
+                                    customRequest={({ file, onSuccess, onError }) => {
+                                        if (paymentOption === 'slip') return; // Prevent if already uploaded
+
+                                        handleUploadSlip(file).then(() => {
+                                            onSuccess("ok");
+                                            setFileList([{ uid: file.uid, name: file.name, status: 'done' }]);
+                                        }).catch(onError);
+                                    }}
+                                    fileList={fileList}
+                                    beforeUpload={beforeUpload}
+                                    showUploadList={false} // hide file preview list
+                                    disabled={paymentOption === 'slip'} // Disable after successful upload
                                 >
+
                                     <Button
-                                        icon={<UploadOutlined />}
                                         block
+                                        icon={<UploadOutlined />}
+                                        disabled={paymentOption === 'slip'}
                                         style={{
                                             height: '50px',
                                             borderRadius: '8px',
-                                            border: paymentOption === 'Upload Slip' ? 'none' : '1px solid #0c8599',
-                                            color: paymentOption === 'Upload Slip' ? 'white' : '#0c8599',
-                                            background: paymentOption === 'Upload Slip'
+                                            background: paymentOption === 'slip'
                                                 ? 'linear-gradient(90deg, #0e9f6e, #0c8599)'
                                                 : 'transparent',
-                                            fontWeight: 'medium'
+                                            color: paymentOption === 'slip' ? 'white' : '#0e9f6e',
+                                            border: paymentOption === 'slip' ? 'none' : '1px solid #0e9f6e',
+                                            fontWeight: 'medium',
                                         }}
                                     >
-                                        Upload Payment Slip
+                                        {paymentOption === 'slip' ? 'Uploaded' : 'Upload Payment Slip'}
                                     </Button>
                                 </Upload>
+
                             )}
+
+
                         </Space>
                     </div>
 
@@ -309,6 +359,7 @@ const PaymentPage = () => {
                                 color: 'white',
                             }}
                             onClick={proceedToConfirmation}
+                            disabled={!paymentOption}
                         >
                             Proceed to Confirmation
                         </Button>
