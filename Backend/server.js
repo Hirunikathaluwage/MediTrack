@@ -10,7 +10,7 @@ import cors from "cors";
 import branchRoutes from "./routes/branchRoutes.js"; 
 import PrescriptionRoute from './routes/PrescriptionRoute.js';
 import adminPrescriptionRoutes from './routes/AdminPresRoutes.js';
-const reportRoutes = require('./routes/reportRoutes');
+import reportRoutes  from './routes/reportRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 
 dotenv.config();
