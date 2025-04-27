@@ -1,21 +1,17 @@
-import express from "express";
-import {
-  getPrescriptionsByBranch,
-  updatePrescriptionStatus,
-  getAllMedicines,
-  getBranchMedicineStock
-} from "../controllers/prescriptionController.js";
+// adminPrescriptionRoutes.js
+import express from 'express';
+import { getPrescriptionsByBranch, getMedicinesByPrescription,updatePrescriptionStatus } from '../controllers/AdminPresController.js';
 
 const router = express.Router();
 
-// Prescription routes
+// Fetch prescriptions by branch
 router.get('/prescription/:branchId', getPrescriptionsByBranch);
+
+// Fetch medicines for a prescription
+router.get('/prescriptions/:id/medicines', getMedicinesByPrescription);
+
+// Update prescription status
 router.put('/prescription/:prescriptionId/status', updatePrescriptionStatus);
 
-// Medicines
-router.get('/medicines', getAllMedicines);
-
-// Branch stock for a specific medicine
-router.get('/branch-stock/:branchId/:medicineId', getBranchMedicineStock);
 
 export default router;
