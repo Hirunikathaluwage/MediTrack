@@ -8,12 +8,11 @@ const { Panel } = Collapse;
 function SearchMedicineInBranch() {
   const [prescriptions, setPrescriptions] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [medicines, setMedicines] = useState([]);
 
-  const branchId = "67d690256c54c8fbf5a1eff3";
+  const branchId = "67d690256c54c8fbf5a1eff3"; // your branch ID
 
   useEffect(() => {
-    fetch(`http://localhost:5080/api/prescription/${branchId}`)
+    fetch(`http://localhost:5080/adminprescription/prescription/${branchId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.prescriptions)) {
@@ -23,15 +22,6 @@ function SearchMedicineInBranch() {
         }
       })
       .catch(() => setPrescriptions([]));
-
-    fetch("http://localhost:5080/api/medicines")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.data)) {
-          setMedicines(data.data);
-        }
-      })
-      .catch(() => setMedicines([]));
   }, [branchId]);
 
   const filteredPrescriptions = prescriptions.filter(
@@ -43,7 +33,7 @@ function SearchMedicineInBranch() {
   const handleStatusUpdate = async (prescriptionId, status) => {
     try {
       const response = await fetch(
-        `http://localhost:5080/api/prescription/${prescriptionId}/status`,
+        `http://localhost:5080/adminprescription/prescription/${prescriptionId}/status`,
         {
           method: "PUT",
           headers: {
@@ -138,31 +128,26 @@ function SearchMedicineInBranch() {
             className="overflow-x-auto"
             pagination={{
               pageSize: 5,
-              className: "px-4"
+              className: "px-4",
             }}
             expandable={{
               expandedRowRender: (record) => (
                 <div className="px-4 py-2 bg-gray-50">
                   <Collapse defaultActiveKey={["1"]} className="bg-white">
-                    <Panel 
+                    <Panel
                       header={
                         <span className="font-medium text-blue-600">
                           Prescription Medicines
                         </span>
-                      } 
+                      }
                       key="1"
                     >
                       <Table
-                        dataSource={record.medicines.map((med) => {
-                          const medicine = medicines.find(
-                            (medItem) => medItem._id === med.medicineId
-                          );
-                          return {
-                            key: med._id || med.medicineId,
-                            name: medicine ? medicine.name : "Medicine not found",
-                            quantity: med.quantity,
-                          };
-                        })}
+                        dataSource={record.medicines.map((med) => ({
+                          key: med.medicineId,
+                          name: med.name,
+                          quantity: med.quantity,
+                        }))}
                         columns={[
                           {
                             title: "Medicine Name",
@@ -186,7 +171,8 @@ function SearchMedicineInBranch() {
                   </Collapse>
                 </div>
               ),
-              rowExpandable: (record) => record.medicines && record.medicines.length > 0,
+              rowExpandable: (record) =>
+                record.medicines && record.medicines.length > 0,
               expandRowByClick: true,
             }}
           />

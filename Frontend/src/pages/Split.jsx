@@ -67,7 +67,7 @@ const SplitPagefinal = () => {
 
   useEffect(() => {
     // For the right side component - fetch data from API in a real implementation
-    fetch(`http://localhost:5080/api/prescription/${branchId}`)
+    fetch(`http://localhost:5080/adminprescription/prescription/${branchId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data?.success && Array.isArray(data.prescriptions)) {
@@ -79,7 +79,7 @@ const SplitPagefinal = () => {
       })
       .catch(() => setPrescriptions([]));
 
-    fetch("http://localhost:5080/api/medicines")
+    fetch("http://localhost:5080/adminpresciption/prescriptions/:id/medicines")
       .then((res) => res.json())
       .then((data) => {
         if (data?.success && Array.isArray(data.data)) {
@@ -327,7 +327,7 @@ const SplitPagefinal = () => {
                               key="1"
                             >
                               {/* Mock medicine data for demo */}
-                              {/* <Table
+                              <Table
                                 dataSource={[
                                   { key: '1', name: 'Paracetamol', quantity: 10 },
                                   { key: '2', name: 'Amoxicillin', quantity: 5 }
@@ -350,7 +350,7 @@ const SplitPagefinal = () => {
                                 pagination={false}
                                 className="mt-2"
                                 size="small"
-                              /> */}
+                              />
                             </Panel>
                           </Collapse>
                         </div>
