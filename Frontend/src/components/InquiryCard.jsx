@@ -119,3 +119,4 @@ const InquiryCard = ({ inquiry, onResolve, onDelete, onSendReply }) => {
 };
 
 export default InquiryCard; 
+
