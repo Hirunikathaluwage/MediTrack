@@ -4,7 +4,6 @@ import BranchStock from '../models/BranchStock.js';
 import Medicine from '../models/Medicine.js';
 import Payment from '../models/Payment.js';
 import Branch from "../models/Branch.js";
-import User from "../models/User.js";
 
 // Create order from cart
 export const createOrder = async (req, res) => {
