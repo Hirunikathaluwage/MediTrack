@@ -2,5 +2,7 @@
 node_modules/
 Frontend/node_modules/
 Backend/node_modules/
+
 Backend/.env
 Backend/uploads
+

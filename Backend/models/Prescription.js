@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const PrescriptionSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+
     name: { type: String, required: true },
     age: { type: Number, required: true },
     branchId: { type: mongoose.Schema.Types.ObjectId, ref: "Branch", required: true },
