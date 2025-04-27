@@ -18,7 +18,7 @@ const Prescription = () => {
     useEffect(() => {
         const fetchBranches = async () => {
             try {
-                const res = await axios.get("http://localhost:5080/branches"); 
+                const res = await axios.get("http://localhost:5080/branches"); // Adjust URL if needed
                 setBranches(res.data);
             } catch (error) {
                 message.error("Failed to load branches");

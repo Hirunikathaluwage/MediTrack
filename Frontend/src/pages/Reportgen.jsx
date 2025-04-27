@@ -1,9 +1,9 @@
 import React from 'react';
 import { Row, Col, Typography } from 'antd';
-import TopMedicine from '../components/TopMedicine';
-import BranchOrder from '../components/BranchOrder';
-import Stat from '../components/Stat';
-import Profit from '../components/Profit';
+import TopMedicine from '../component/TopMedicine';
+import Stat from '../component/Stat';
+import Profit from '../component/Profit';
+import BranchOrder from '../component/BranchOrder';
 
 const { Title } = Typography;
 
