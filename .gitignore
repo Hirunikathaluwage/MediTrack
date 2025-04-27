@@ -7,6 +7,7 @@ frontend/node_modules/
 Backend/.env
 Frontend/.env
 uploads/
+Backend/uploads/
 ../.vscode/
 
 
