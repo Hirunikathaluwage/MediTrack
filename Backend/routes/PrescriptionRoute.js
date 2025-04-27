@@ -10,7 +10,3 @@ router.put("/:id/status", updatePrescriptionStatus);
 
 
 export default router;
-
-
-
-

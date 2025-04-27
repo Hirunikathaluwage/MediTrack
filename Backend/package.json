@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
 
+
     "@google-cloud/vision": "^4.3.3",
     "@google/generative-ai": "^0.24.0",
 
