@@ -10,14 +10,13 @@ const Login = () => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userType, setUserType] = useState('customer'); // 'customer' or 'admin'
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage('');
-    
+
     try {
-      // Handle admin login with predefined credentials
       if (userType === 'admin') {
         if (email === 'admin@gmail.com' && password === 'Admin123@') {
           const adminUser = {
@@ -25,46 +24,40 @@ const Login = () => {
             email,
             role: 'admin',
           };
-          
           localStorage.setItem('user', JSON.stringify(adminUser));
           setMessage('✅ Admin login successful');
-          
+
           setTimeout(() => {
             navigate('/admin/panel', { replace: true });
           }, 500);
         } else {
           setMessage('❌ Invalid admin credentials');
         }
-      } 
-      // Handle customer login through API
-      else {
+      } else {
         try {
           const res = await loginCustomer({ email, password });
           console.log('Customer login response:', res);
-          
-          // Accept flexible response: either user or inline details
+
           const user = res?.user || {
             name: res?.name,
             email: res?.email,
-            role: res?.role || 'customer', // default role fallback
+            role: res?.role || 'customer',
             _id: res?.userId || res?.id
           };
-          
-          // Confirm required user properties before saving
+
           if (user?.email) {
             localStorage.setItem('user', JSON.stringify(user));
-            setMessage('✅ Login successful');
-            
-            // Redirect after slight delay (for UX)
+            setMessage('✅ Customer login successful');
+
             setTimeout(() => {
-              navigate('/profile', { replace: true });
-            }, 300);
+              navigate('/customer/home', { replace: true }); // ✅ Updated redirect here
+            }, 500);
           } else {
-            setMessage(res.message || 'Login succeeded, but user details not found.');
+            setMessage(res.message || 'Login succeeded but user details missing.');
           }
         } catch (apiError) {
           console.error('Customer login error:', apiError);
-          setMessage(apiError.response?.data?.message || '❌ Login failed');
+          setMessage(apiError.response?.data?.message || '❌ Login failed.');
         }
       }
     } catch (err) {
@@ -74,7 +67,7 @@ const Login = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -83,13 +76,13 @@ const Login = () => {
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500"></div>
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-200 rounded-full opacity-20"></div>
           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-200 rounded-full opacity-20"></div>
-          
+
           <div className="relative p-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">MediTrack</h2>
               <p className="text-gray-500 mt-2">Sign in to your account</p>
             </div>
-            
+
             {/* User Type Selection */}
             <div className="mb-6">
               <div className="flex rounded-lg overflow-hidden border border-gray-200">
@@ -117,7 +110,7 @@ const Login = () => {
                 </button>
               </div>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
@@ -134,7 +127,7 @@ const Login = () => {
                   <span className="absolute left-3 top-3.5 text-gray-400">✉️</span>
                 </div>
               </div>
-              
+
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <div className="relative">
@@ -150,23 +143,7 @@ const Login = () => {
                   <span className="absolute left-3 top-3.5 text-gray-400">🔒</span>
                 </div>
               </div>
-              
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="remember-me" className="ml-2 text-gray-600">
-                    Remember me
-                  </label>
-                </div>
-                <a href="#" className="text-blue-600 hover:text-blue-800">
-                  Forgot password?
-                </a>
-              </div>
-              
+
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -185,7 +162,7 @@ const Login = () => {
                 )}
               </button>
             </form>
-            
+
             {message && (
               <div className={`mt-6 p-4 rounded-lg text-center animate-fadeIn ${
                 message.includes('✅') 
@@ -195,8 +172,8 @@ const Login = () => {
                 {message}
               </div>
             )}
-            
-            {/* Admin credentials hint (for development only) */}
+
+            {/* Admin credentials hint */}
             {userType === 'admin' && (
               <div className="mt-4 bg-blue-50 p-3 rounded-lg text-blue-700 text-xs">
                 <p className="font-medium">Admin Login</p>
@@ -208,7 +185,7 @@ const Login = () => {
             )}
           </div>
         </div>
-        
+
         <div className="text-center mt-6 text-gray-500 text-sm">
           {userType === 'customer' && (
             <>
@@ -227,4 +204,3 @@ const Login = () => {
 };
 
 export default Login;
-

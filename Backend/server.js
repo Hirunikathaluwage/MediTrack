@@ -6,9 +6,14 @@ import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createServer } from 'http';  // ✅ Added
+import { Server } from 'socket.io';   // ✅ Added
 
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+
+// ✅ NEW: Import SLA Scheduler
+import { scheduleSLAAlert } from './utils/slaChecker.js';
 
 // Routes
 import customerRoutes from './routes/customerRoutes.js';
@@ -55,8 +60,34 @@ app.use('/api/inquiries', inquiryRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-// ✅ Start the Express server
+// ✅ Start SLA Checker (Cron-based Alerts)
+scheduleSLAAlert();
+
+// ✅ Create HTTP Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const httpServer = createServer(app);
+
+// ✅ Setup Socket.IO server
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.ORIGIN || 'http://localhost:5173',
+    credentials: true
+  }
+});
+
+// ✅ Handle WebSocket connection
+io.on('connection', (socket) => {
+  console.log('🟢 New Client Connected:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('🔴 Client Disconnected:', socket.id);
+  });
+});
+
+// ✅ Export io to use in controllers (like inquiryController.js)
+export { io };
+
+// ✅ Start Express + WebSocket server
+httpServer.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

@@ -36,6 +36,6 @@ const checkInquirySLA = async () => {
 };
 
 export const scheduleSLAAlert = () => {
-  cron.schedule("*/60 * * * *", checkInquirySLA);
-  console.log("🕒 SLA checker scheduled to run every 5 minutes");
+  cron.schedule("*/20 * * * *", checkInquirySLA);
+  console.log("🕒 SLA checker scheduled to run every 20 minutes");
 };

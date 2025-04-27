@@ -3,6 +3,15 @@ import { transporter } from '../utils/emailConfig.js';
 import { InquiryResponseTemplate } from '../utils/InquiryResponseTemplate.js';
 import { faqMap } from '../utils/autoResponderFAQ.js';
 import { detectLanguage, translateText } from '../utils/translate.js';
+import { io } from '../server.js';
+import Branch from '../models/Branch.js'; 
+import twilio from 'twilio'; 
+
+//  Twilio setup
+const accountSid = 'ACbe6de37aa642ca0559419a9e1c2bea42';
+const authToken = '0207a8a3533c490dd0fe72f9ef24ca13';
+const twilioPhoneNumber = '+19082013766';
+const client = twilio(accountSid, authToken);
 
 // Get all inquiries with optional filters
 export const getAllInquiries = async (req, res) => {
@@ -22,9 +31,9 @@ export const getAllInquiries = async (req, res) => {
   }
 };
 
-// Add a new inquiry (with translation + auto-responder)
+//  Updated Add Inquiry (with translation, email, real-time, auto-responder, branch SMS)
 export const addInquiry = async (req, res) => {
-  const { name, email, subject, description, category, priority } = req.body;
+  const { name, email, subject, description, category, priority, location } = req.body;
   const attachment = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
@@ -32,7 +41,6 @@ export const addInquiry = async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // 🔍 Detect language and translate to English
     const originalLanguage = await detectLanguage(description);
     const translatedDescription = originalLanguage !== 'en'
       ? await translateText(description, 'en')
@@ -48,11 +56,36 @@ export const addInquiry = async (req, res) => {
       category,
       priority,
       attachment,
+      location, 
     });
 
     await inquiry.save();
 
-    // Auto-Responder
+    // ✅ New Part: Send SMS if Product Issue
+    if (category === 'Product Issue' && location) {
+      const branch = await Branch.findOne({ location });
+      if (branch) {
+        const branchPhoneNumber = branch.phoneNumber;
+        try {
+          await client.messages.create({
+            body: `🔔 New Product Issue Inquiry!\nSubject: ${subject}\nFrom: ${name}`,
+            from: twilioPhoneNumber,
+            to: branchPhoneNumber
+          });
+          console.log(`📩 SMS sent successfully to Branch (${location}) - ${branchPhoneNumber}`);
+        } catch (smsError) {
+          console.error("❌ Failed to send SMS to branch:", smsError.message);
+        }
+      } else {
+        console.warn(`⚠️ No matching branch found for location: ${location}`);
+      }
+    }
+
+    // ✅ Real-time event
+    io.emit('newInquiry', inquiry);
+    console.log('📢 Real-time New Inquiry event emitted');
+
+    // ✅ Auto-Responder
     let autoReplied = false;
     for (const faq of faqMap) {
       for (const keyword of faq.keywords) {
@@ -84,7 +117,7 @@ export const addInquiry = async (req, res) => {
       if (autoReplied) break;
     }
 
-    // Confirmation email
+    // ✅ Confirmation Email
     const confirmationHtml = `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
         <h2>📝 Your inquiry has been received!</h2>
@@ -111,9 +144,10 @@ export const addInquiry = async (req, res) => {
     });
 
     res.status(201).json({
-      message: 'Inquiry added successfully with translation and confirmation email sent.',
+      message: 'Inquiry added successfully with translation, confirmation email, real-time notification, and branch SMS (if product issue).',
       inquiry
     });
+
   } catch (err) {
     console.error("Error adding inquiry:", err.stack);
     res.status(500).json({ message: 'Error adding inquiry', error: err.message });
@@ -234,7 +268,7 @@ export const getInquiryAnalytics = async (req, res) => {
   }
 };
 
-// Respond to inquiry manually (with reverse translation)
+// Respond to inquiry manually
 export const respondToInquiry = async (req, res) => {
   const { id } = req.params;
   const { response, status } = req.body;
@@ -277,3 +311,4 @@ export const respondToInquiry = async (req, res) => {
     res.status(500).json({ message: 'Failed to respond to inquiry', error: error.message });
   }
 };
+

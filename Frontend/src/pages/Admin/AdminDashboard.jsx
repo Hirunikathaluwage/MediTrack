@@ -1,4 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import InqurySidebar from '../../components/inqurySidebar';
+
+import { io } from 'socket.io-client';
+import { toast } from 'react-toastify'; 
+
+
 import { getAdminProfile } from '../../api/adminAPI';
 import { getInquiryStats, getInquiryAnalytics } from '../../api/inquiryAPI';
 import {
@@ -185,6 +191,25 @@ const AdminDashboard = () => {
   const [reportData, setReportData] = useState(null);
   const [reportType, setReportType] = useState('');
 
+
+  useEffect(() => {
+    const socket = io('http://localhost:5000'); // 👈 Connect to backend
+  
+    socket.on('newInquiry', (inquiry) => {
+      console.log('📢 New Inquiry received:', inquiry);
+  
+      toast.info(`🔔 New Inquiry: ${inquiry.subject}`, {
+        position: 'top-right',
+        autoClose: 5000,
+      });
+    });
+  
+    return () => {
+      socket.disconnect(); // Cleanup when page unloads
+    };
+  }, []);
+  
+
   useEffect(() => {
     const fetchAdmin = async () => {
       try {
@@ -284,6 +309,12 @@ const AdminDashboard = () => {
   ] : [];
 
   return (
+
+
+    <div className="flex min-h-screen bg-gray-50">
+      {/* ✅ Sidebar Section */}
+      <InqurySidebar />
+
     <div className="bg-gray-50 min-h-screen">
       {/* Top Navigation */}
       <div className="bg-white shadow-sm">
@@ -688,6 +719,7 @@ const AdminDashboard = () => {
         reportData={reportData}
         reportType={reportType}
       />
+    </div>
     </div>
   );
 };
