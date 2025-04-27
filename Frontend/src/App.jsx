@@ -71,6 +71,14 @@ import TopMedicine from "./component/TopMedicine.jsx";
 import Profit from "./component/Profit.jsx"
 import BranchOrder from "./component/BranchOrder.jsx"
 import Stat from "./component/Stat.jsx";
+import Login from './pages/Customer/Login';
+import Register from './pages/Customer/Register';
+import Dashboard from './pages/Customer/Dashboard';
+
+//import Stat from "./component/Stat";
+//import TopMedicine from "./component/TopMedicine";
+//import BranchOrder from "./component/BranchOrder";
+//import Profit from "./component/Profit"; 
 
 
 function App() {
@@ -78,7 +86,11 @@ function App() {
     <Router>  
       <Routes>
 
-        <Route path="/" element={<Prescription />} />
+      <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+        <Route path="/prescription" element={<Prescription />} />
         <Route path="/approval" element={<Approval />} />
         <Route path="/approved-medicines" element={<ApprovedMedicines />} />
         {/* <Route path="/Approval" element={<Approval />} /> */}

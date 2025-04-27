@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button, Form, Input, Upload, message, Select } from "antd";
-import Container from "../assets/Container.png";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import Container from "../assets/Container.png"; // background image
 
 const { Option } = Select;
 const URL = "http://localhost:5080/prescription";
 
 const Prescription = () => {
-
     const [imageUrl, setImageUrl] = useState(null);
     const [fileList, setFileList] = useState([]);
     const navigate = useNavigate();
@@ -24,10 +23,8 @@ const Prescription = () => {
                 message.error("Failed to load branches");
             }
         };
-
         fetchBranches();
     }, []);
-
 
     const beforeUpload = (file) => {
         const isValidType =
@@ -77,9 +74,7 @@ const Prescription = () => {
 
             const prescriptionId = res.data.prescriptionId;
             message.success("Prescription submitted successfully!");
-
-            // Navigate to the verified page with prescription ID
-            navigate(`/approved-medicines?id=${prescriptionId}&branch=${values.branch}`);
+            navigate(`/approved-medicines?id=${prescriptionId}&branch=${values.branchId}`);
         } catch (error) {
             message.error("Failed to submit prescription.");
         }
@@ -114,15 +109,15 @@ const Prescription = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center py-6 px-4">
-            <div className="w-full max-w-3xl mb-6">
-                <img
-                    src={Container}
-                    alt="Container"
-                    className="w-full h-auto rounded-lg shadow-lg"
-                />
-            </div>
-
+        <div
+            className="min-h-screen flex flex-col items-center justify-center py-6 px-4 bg-cover bg-center"
+            style={{ 
+                backgroundImage: `url(${Container})`, 
+                backgroundRepeat: "no-repeat", 
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+            }}
+        >
             <div className="w-full max-w-xl px-4">
                 <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 md:p-8 shadow-xl border border-white border-opacity-30">
                     <h2 className="text-center text-cyan-800 text-2xl font-semibold mb-8 relative">
@@ -142,6 +137,7 @@ const Prescription = () => {
                             label="User ID"
                             rules={[{ required: true, message: "Please enter your User ID!" }]}
                             {...customStyles.formItem}
+                            hidden
                         >
                             <Input disabled />
                         </Form.Item>
@@ -187,7 +183,6 @@ const Prescription = () => {
                                 ))}
                             </Select>
                         </Form.Item>
-
 
                         <Form.Item
                             name="note"
