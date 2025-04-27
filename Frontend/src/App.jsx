@@ -66,10 +66,11 @@ import AdminPrescription from "./component/AdminPrescription.jsx";
 import  SearchMedicineInBranch from "./component/SearchMedicineInBranch.jsx";
 import SplitPage from "./pages/split.jsx";
 
-//import Stat from "./component/Stat";
-//import TopMedicine from "./component/TopMedicine";
-//import BranchOrder from "./component/BranchOrder";
-//import Profit from "./component/Profit"; 
+import Reportgen from "./pages/Reportgen.jsx";
+import TopMedicine from "./component/TopMedicine.jsx";
+import Profit from "./component/Profit.jsx"
+import BranchOrder from "./component/BranchOrder.jsx"
+import Stat from "./component/Stat.jsx";
 
 
 function App() {
@@ -88,11 +89,11 @@ function App() {
         {/* <Route path="/SplitScreenDashboard" element={<SplitScreenDashboard />} /> not used */}
         <Route path="/SplitPage" element={<SplitPage />} />
        
-       {/* <Route path="/Reportgen" element={<Reportgen />} />
-        <Route path="/Reportgen" element={<Stat />} />
-        <Route path="/Reportgen" element={<TopMedicine />} />
-        <Route path="/Reportgen" element={<BranchOrder />} />
-        <Route path="/Reportgen" element={<Profit />} /> */}
+        <Route path="/ReportGen" element={<Reportgen />} />
+        <Route path="/TopMedicine" element={<TopMedicine />} />
+        <Route path="/Profit" element={<Profit />} />
+        <Route path="/Stat" element={<Stat/>} />
+        <Route path="/BranchOrder" element={<BranchOrder/>} />
 
       </Routes>
     </Router>

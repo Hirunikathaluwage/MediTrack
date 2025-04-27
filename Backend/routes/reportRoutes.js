@@ -1,16 +1,10 @@
-/*import express from 'express'
+const express = require('express');
 const router = express.Router();
+const reportController = require('../controllers/reportController');
 
-import { } from '../controllers/prescriptionController.js';
-import {upload} from '../controllers/prescriptionController.js';
-import { reviewPrescription } from '../controllers/prescriptionController.js';
-import { deletePrescription } from '../controllers/prescriptionController.js';
-import { getPrescription } from '../controllers/prescriptionController.js';
+router.get('/registrations', reportController.getRegistrations);
+router.get('/profit', reportController.getProfitReport);
+router.get('/top-medicines', reportController.getTopMedicines);
+router.get('/branch-orders', reportController.getBranchOrders);
 
-router.post("/", upload.single("image"), uploadPrescription);
-router.put("/:id/review", reviewPrescription);
-router.get("/:id", getPrescription);
-router.delete("/:id", deletePrescription);
-
-
-export default router; */
+module.exports = router;

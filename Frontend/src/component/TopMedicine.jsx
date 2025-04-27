@@ -30,7 +30,11 @@ const TopMedicine = ({ chartData }) => {
   };
 
   return (
-    <Card title="Top Selling Medicines" extra={<Button onClick={downloadReport}>Download Report</Button>} style={{ marginBottom: 24 }}>
+    <Card
+      title="Top Selling Medicines"
+      extra={<Button onClick={downloadReport}>Download Report</Button>}
+      style={{ marginBottom: 24 }}
+    >
       <Bar data={chartData} height={150} />
     </Card>
   );
