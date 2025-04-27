@@ -10,6 +10,7 @@ import {
   Tag,
   Button,
   Tooltip,
+  Typography,
   Collapse,
   Space,
   Modal,
@@ -41,7 +42,6 @@ const SplitPagefinal = () => {
   const [loadingImage, setLoadingImage] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [prescriptionToDelete, setPrescriptionToDelete] = useState(null);
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -55,12 +55,6 @@ const SplitPagefinal = () => {
       fetchPrescriptions();
     }
   }, [branchId]);
-
-  useEffect(() => {
-    const handleResize = () => setWindowHeight(window.innerHeight);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const fetchPrescriptions = async () => {
     try {
@@ -206,9 +200,6 @@ const SplitPagefinal = () => {
       prescription.status === "Pending"
   );
 
-  const tableHeight = (windowHeight - 64 - 120) / 2; 
-  // 64 = Header height, 120 = margins + padding adjustments
-
   const adminColumns = [
     { title: "User ID", dataIndex: "userId", key: "userId" },
     {
@@ -234,12 +225,23 @@ const SplitPagefinal = () => {
       render: (_, record) => (
         <Space>
           <Tooltip title="View Details">
-            <Button icon={<EditOutlined />} type="primary" onClick={(e) => { e.stopPropagation(); handleViewPrescription(record); }}>
+            <Button
+              icon={<EditOutlined />}
+              type="primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewPrescription(record);
+              }}
+            >
               View
             </Button>
           </Tooltip>
           <Tooltip title="Delete Prescription">
-            <Button danger icon={<DeleteOutlined />} onClick={(e) => openDeleteModal(record, e)}>
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              onClick={(e) => openDeleteModal(record, e)}
+            >
               Delete
             </Button>
           </Tooltip>
@@ -269,22 +271,20 @@ const SplitPagefinal = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {/* Sidebar */}
       <Sider trigger={null} collapsible collapsed={collapsed} style={{ background: "#001529" }}>
         <div className="text-center text-white font-bold text-lg py-6 tracking-wide">MediTrack</div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
           <Menu.Item key="1" icon={<ShoppingCartOutlined />} onClick={() => navigate("/pharmacy")}>
             Prescriptions
           </Menu.Item>
-          <Menu.Item key="2" icon={<FileSearchOutlined />} onClick={() => navigate("/reports")}>
+          <Menu.Item key="3" icon={<FileSearchOutlined />} onClick={() => navigate("/reports")}>
             Reports
           </Menu.Item>
         </Menu>
       </Sider>
 
       <Layout>
-        {/* Header */}
-        <Header style={{ background: "#f0f2f5", padding: "0 24px", display: "flex", alignItems: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+        <Header style={{ background: "#f0f2f5", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
           <div className="flex items-center gap-4">
             <ShoppingCartOutlined style={{ fontSize: 28, color: "#722ED1" }} />
             <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "#333" }}>
@@ -293,11 +293,9 @@ const SplitPagefinal = () => {
           </div>
         </Header>
 
-        {/* Content */}
         <Content className="m-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-            {/* Left Side - All Prescriptions */}
-            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-semibold mb-4 text-indigo-500">All Prescriptions</h3>
               <Search
                 placeholder="Search by User ID"
@@ -310,15 +308,13 @@ const SplitPagefinal = () => {
               <Table
                 dataSource={filteredAdminData}
                 columns={adminColumns}
-                pagination={false}
-                scroll={{ y: tableHeight }}
-                size="middle"
+                pagination={{ pageSize: 5 }}
                 rowKey="_id"
+                size="middle"
               />
             </div>
 
-            {/* Right Side - Pending Approvals */}
-            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-full">
+            <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-semibold mb-4 text-indigo-500">Pending Approvals</h3>
               <Search
                 placeholder="Search by Status"
@@ -331,28 +327,109 @@ const SplitPagefinal = () => {
               <Table
                 dataSource={filteredPendingPrescriptions}
                 columns={pendingColumns}
-                pagination={false}
-                scroll={{ y: tableHeight }}
+                pagination={{ pageSize: 5 }}
+                rowKey="_id"
                 expandable={{
                   expandedRowRender: (record) => <MedicineCollapse medicines={record.medicines || []} />,
                   rowExpandable: (record) => record.medicines?.length > 0,
                 }}
                 size="middle"
-                rowKey="_id"
               />
             </div>
           </div>
         </Content>
       </Layout>
+
+      {/* View Modal */}
+      <Modal
+        title="Prescription Details"
+        open={viewModalVisible}
+        onCancel={() => {
+          setViewModalVisible(false);
+          setSelectedPrescription(null);
+          setImageBase64(null);
+        }}
+        footer={null}
+        width={750}
+      >
+        {selectedPrescription && (
+          <div className="space-y-4">
+            {loadingImage ? (
+              <div className="flex justify-center py-6">
+                <Spin size="large" />
+              </div>
+            ) : imageBase64 ? (
+              <div className="flex justify-center">
+                <img
+                  src={`data:image/jpeg;base64,${imageBase64}`}
+                  alt="Prescription"
+                  style={{
+                    maxHeight: "400px",
+                    width: "auto",
+                    borderRadius: "8px",
+                    marginBottom: "1rem",
+                  }}
+                />
+              </div>
+            ) : null}
+            <p><strong>Prescription ID:</strong> {selectedPrescription._id}</p>
+            <p><strong>Status:</strong> {selectedPrescription.status}</p>
+            <p><strong>Note:</strong> {selectedPrescription.note || "No notes provided."}</p>
+
+            <Collapse defaultActiveKey={["1"]}>
+              <Panel header="Medicines in Prescription" key="1">
+                <Table
+                  dataSource={selectedPrescription.medicines?.map((med, index) => ({
+                    key: index,
+                    name: med.medicineId?.name || "Unknown",
+                    quantity: med.quantity,
+                  })) || []}
+                  columns={[
+                    { title: "Medicine Name", dataIndex: "name", key: "name" },
+                    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+                  ]}
+                  pagination={false}
+                  size="small"
+                />
+              </Panel>
+            </Collapse>
+          </div>
+        )}
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        title="Delete Prescription"
+        open={deleteModalVisible}
+        onCancel={() => {
+          setDeleteModalVisible(false);
+          setPrescriptionToDelete(null);
+        }}
+        onOk={confirmDeletePrescription}
+        okText="Delete"
+        okType="danger"
+        cancelText="Cancel"
+        width={600}
+      >
+        {prescriptionToDelete && (
+          <div className="space-y-4">
+            <p><strong>Prescription ID:</strong> {prescriptionToDelete._id}</p>
+            <p><strong>Status:</strong> {prescriptionToDelete.status}</p>
+            <p><strong>Note:</strong> {prescriptionToDelete.note || "No notes provided."}</p>
+            <p className="text-red-500 font-semibold mt-4">
+              Are you sure you want to delete this prescription? This action cannot be undone.
+            </p>
+          </div>
+        )}
+      </Modal>
     </Layout>
   );
 };
 
 export default SplitPagefinal;
 
-// Medicine Collapse Table
 const MedicineCollapse = ({ medicines }) => (
-  <Collapse>
+  <Collapse className="bg-white rounded-md">
     <Panel header="Medicines" key="1">
       <Table
         dataSource={medicines.map((med, index) => ({
