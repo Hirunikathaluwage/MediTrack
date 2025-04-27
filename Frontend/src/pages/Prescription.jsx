@@ -74,7 +74,7 @@ const Prescription = () => {
 
             const prescriptionId = res.data.prescriptionId;
             message.success("Prescription submitted successfully!");
-            navigate(`/approved-medicines?id=${prescriptionId}&branch=${values.branch}`);
+            navigate(`/approved-medicines?id=${prescriptionId}&branch=${values.branchId}`);
         } catch (error) {
             message.error("Failed to submit prescription.");
         }
@@ -137,6 +137,7 @@ const Prescription = () => {
                             label="User ID"
                             rules={[{ required: true, message: "Please enter your User ID!" }]}
                             {...customStyles.formItem}
+                            hidden
                         >
                             <Input disabled />
                         </Form.Item>

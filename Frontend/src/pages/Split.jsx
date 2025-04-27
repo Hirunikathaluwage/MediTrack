@@ -90,7 +90,7 @@ const SplitPagefinal = () => {
 
         setTimeout(() => {
           fetchPrescriptions();
-        }, 1500);
+        }, 1200);
       } else {
         notification.error({
           message: "Failed",
@@ -142,9 +142,7 @@ const SplitPagefinal = () => {
   };
 
   const filteredAdminData = adminSearchQuery
-    ? filteredData.filter((item) =>
-        item.userId?.toLowerCase().includes(adminSearchQuery.toLowerCase())
-      )
+    ? filteredData.filter((item) => item.userId?.toLowerCase().includes(adminSearchQuery.toLowerCase()))
     : filteredData;
 
   const filteredPendingPrescriptions = prescriptions.filter(
@@ -155,20 +153,30 @@ const SplitPagefinal = () => {
 
   const adminColumns = [
     { title: "User ID", dataIndex: "userId", key: "userId" },
-    { title: "Branch", key: "branchId", render: (_, record) => (
-        <Tag color="blue">{record.branchId?.branchName || "Unknown Branch"}</Tag>
+    {
+      title: "Branch",
+      key: "branchId",
+      render: (_, record) => (
+        <Tag color="processing">{record.branchId?.branchName || "Unknown Branch"}</Tag>
       ),
     },
-    { title: "Status", dataIndex: "status", key: "status", render: (status) => (
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => (
         <Tag color={status === "Completed" ? "green" : status === "Pending" ? "orange" : "red"}>{status}</Tag>
       ),
     },
-    { title: "Actions", key: "actions", render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="View this prescription">
-            <Button icon={<EditOutlined />} onClick={(e) => {e.stopPropagation(); handleViewPrescription(record);}}>View</Button>
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space>
+          <Tooltip title="View Details">
+            <Button icon={<EditOutlined />} type="primary" onClick={(e) => {e.stopPropagation(); handleViewPrescription(record);}}>View</Button>
           </Tooltip>
-          <Tooltip title="Delete this prescription">
+          <Tooltip title="Delete Prescription">
             <Button danger icon={<DeleteOutlined />} />
           </Tooltip>
         </Space>
@@ -179,8 +187,11 @@ const SplitPagefinal = () => {
   const pendingColumns = [
     { title: "Prescription ID", dataIndex: "_id", key: "_id" },
     { title: "Status", dataIndex: "status", key: "status" },
-    { title: "Actions", key: "actions", render: (_, record) => (
-        <Space size="small">
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space>
           <Button type="primary" icon={<CheckOutlined />} onClick={(e) => handleApproveClick(record._id, e)}>Approve</Button>
           <Button danger icon={<CloseOutlined />} onClick={(e) => handleRejectClick(record._id, e)}>Reject</Button>
         </Space>
@@ -190,8 +201,8 @@ const SplitPagefinal = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
-        <div className="text-white text-center py-4 font-bold text-lg">MediTrack</div>
+      <Sider trigger={null} collapsible collapsed={collapsed} style={{ background: "#001529" }}>
+        <div className="text-center text-white font-bold text-lg py-6 tracking-wide">MediTrack</div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
           <Menu.Item key="1" icon={<ShoppingCartOutlined />}>Prescriptions</Menu.Item>
           <Menu.Item key="2" icon={<FileSearchOutlined />}>Verify Stock</Menu.Item>
@@ -200,27 +211,59 @@ const SplitPagefinal = () => {
       </Sider>
 
       <Layout>
-        <Header style={{ background: "#fff", paddingLeft: 24 }}>
-          <h2 className="text-xl font-semibold text-indigo-700">Pharmacy Management System</h2>
-        </Header>
+      <Header style={{ background: "#f0f2f5", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+  <div className="flex items-center gap-4">
+    <ShoppingCartOutlined style={{ fontSize: 28, color: "#722ED1" }} />
+    <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "#333" }}>
+      MediTrack Admin Dashboard
+    </h1>
+  </div>
 
-        <Content className="m-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-1/2 p-4 bg-gradient-to-br from-white via-purple-50 to-indigo-100 rounded-lg">
-              <Search placeholder="Search by User ID..." value={adminSearchQuery} onChange={(e) => setAdminSearchQuery(e.target.value)} className="mb-4" allowClear />
-              <Table dataSource={filteredAdminData} columns={adminColumns} pagination={{ pageSize: 5 }} rowKey="_id" size="small" />
+</Header>
+
+        <Content className="m-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Panel */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-lg font-semibold mb-4 text-indigo-500">All Prescriptions</h3>
+              <Search
+                placeholder="Search by User ID"
+                value={adminSearchQuery}
+                onChange={(e) => setAdminSearchQuery(e.target.value)}
+                className="mb-4"
+                allowClear
+                enterButton
+              />
+              <Table
+                dataSource={filteredAdminData}
+                columns={adminColumns}
+                pagination={{ pageSize: 5 }}
+                rowKey="_id"
+                size="middle"
+              />
             </div>
 
-            <div className="w-full md:w-1/2 p-4 bg-gray-50 rounded-lg">
-              <Search placeholder="Search by Status" value={pendingSearchQuery} onChange={(e) => setPendingSearchQuery(e.target.value)} className="mb-4" allowClear />
+            {/* Right Panel */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-lg font-semibold mb-4 text-indigo-500">Pending Approvals</h3>
+              <Search
+                placeholder="Search by Status"
+                value={pendingSearchQuery}
+                onChange={(e) => setPendingSearchQuery(e.target.value)}
+                className="mb-4"
+                allowClear
+                enterButton
+              />
               <Table
                 dataSource={filteredPendingPrescriptions}
                 columns={pendingColumns}
                 pagination={{ pageSize: 5 }}
                 rowKey="_id"
-                expandable={{ expandedRowRender: (record) => <MedicineCollapse medicines={record.medicines || []} />, rowExpandable: (record) => record.medicines?.length > 0, expandRowByClick: false }}
-                onRow={() => ({ onClick: (event) => { if (event.target.closest("button") || event.target.closest(".ant-btn")) event.stopPropagation(); }})}
-                size="small"
+                expandable={{
+                  expandedRowRender: (record) => <MedicineCollapse medicines={record.medicines || []} />,
+                  rowExpandable: (record) => record.medicines?.length > 0,
+                }}
+                size="middle"
               />
             </div>
           </div>
@@ -230,31 +273,58 @@ const SplitPagefinal = () => {
       <Modal
         title="Prescription Details"
         open={viewModalVisible}
-        onCancel={() => {setViewModalVisible(false);setSelectedPrescription(null);setImageBase64(null);}}
+        onCancel={() => {
+          setViewModalVisible(false);
+          setSelectedPrescription(null);
+          setImageBase64(null);
+        }}
         footer={null}
-        width={700}
+        width={750}
       >
         {selectedPrescription && (
           <div className="space-y-4">
             {loadingImage ? (
-              <div className="flex justify-center py-6"><Spin size="large" /></div>
+              <div className="flex justify-center py-6">
+                <Spin size="large" />
+              </div>
             ) : imageBase64 ? (
               <div className="flex justify-center">
-                <img src={`data:image/jpeg;base64,${imageBase64}`} alt="Prescription" style={{ maxHeight: "400px", width: "auto", borderRadius: "8px", marginBottom: "1rem" }} />
+                <img
+                  src={`data:image/jpeg;base64,${imageBase64}`}
+                  alt="Prescription"
+                  style={{
+                    maxHeight: "400px",
+                    width: "auto",
+                    borderRadius: "8px",
+                    marginBottom: "1rem",
+                  }}
+                />
               </div>
             ) : null}
             <p><strong>Prescription ID:</strong> {selectedPrescription._id}</p>
             <p><strong>Status:</strong> {selectedPrescription.status}</p>
-            <p><strong>Note:</strong> {selectedPrescription.note || "No note provided."}</p>
+            <p><strong>Note:</strong> {selectedPrescription.note || "No notes provided."}</p>
+
             <Collapse defaultActiveKey={["1"]}>
-              <Panel header="Medicines" key="1">
-                <Table dataSource={selectedPrescription.medicines?.map((med, index) => ({key: index,name: med.medicineId?.name || "Unknown",quantity: med.quantity,})) || []} columns={[{ title: "Medicine Name", dataIndex: "name", key: "name" },{ title: "Quantity", dataIndex: "quantity", key: "quantity" }]} pagination={false} size="small" />
+              <Panel header="Medicines in Prescription" key="1">
+                <Table
+                  dataSource={selectedPrescription.medicines?.map((med, index) => ({
+                    key: index,
+                    name: med.medicineId?.name || "Unknown",
+                    quantity: med.quantity,
+                  })) || []}
+                  columns={[
+                    { title: "Medicine Name", dataIndex: "name", key: "name" },
+                    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+                  ]}
+                  pagination={false}
+                  size="small"
+                />
               </Panel>
             </Collapse>
           </div>
         )}
       </Modal>
-
     </Layout>
   );
 };
@@ -262,11 +332,18 @@ const SplitPagefinal = () => {
 export default SplitPagefinal;
 
 const MedicineCollapse = ({ medicines }) => (
-  <Collapse defaultActiveKey={["1"]} className="bg-white">
-    <Panel header="Medicines in Prescription" key="1">
+  <Collapse className="bg-white rounded-md">
+    <Panel header="Medicines" key="1">
       <Table
-        dataSource={medicines.map((med, index) => ({ key: index, name: med.medicineId?.name || "Unknown", quantity: med.quantity }))}
-        columns={[{ title: "Medicine Name", dataIndex: "name", key: "name" },{ title: "Quantity", dataIndex: "quantity", key: "quantity" }]}
+        dataSource={medicines.map((med, index) => ({
+          key: index,
+          name: med.medicineId?.name || "Unknown",
+          quantity: med.quantity,
+        }))}
+        columns={[
+          { title: "Medicine Name", dataIndex: "name", key: "name" },
+          { title: "Quantity", dataIndex: "quantity", key: "quantity" },
+        ]}
         pagination={false}
         size="small"
       />

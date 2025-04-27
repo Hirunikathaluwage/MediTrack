@@ -35,14 +35,19 @@ import cors from "cors";
 import branchRoutes from "./routes/branchRoutes.js"; 
 import PrescriptionRoute from './routes/PrescriptionRoute.js';
 import adminPrescriptionRoutes from './routes/AdminPresRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.ORIGIN || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 
+app.use('/api/customers', customerRoutes);
 app.use("/branches", branchRoutes);
 app.use("/prescription", PrescriptionRoute);
 app.use('/adminprescription', adminPrescriptionRoutes);
