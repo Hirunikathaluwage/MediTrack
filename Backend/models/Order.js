@@ -38,13 +38,13 @@ const orderSchema = new mongoose.Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ['Pending', 'Completed'],
+        enum: ['Pending', 'Completed', 'Failed'],
         default: 'Pending'
     },
-    deliveryStatus: {
+    status: {
         type: String,
-        enum: ['Pending', 'Shipped', 'Delivered'],
-        default: 'Pending'
+        enum: ['Requested', 'Approved', 'Completed', 'Cancelled'],
+        default: 'Requested'
     },
     createdAt: {
         type: Date,

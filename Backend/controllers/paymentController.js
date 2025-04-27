@@ -1,5 +1,6 @@
 import Payment from '../models/Payment.js';
 import Medicine from '../models/Medicine.js';
+import Order from '../models/Order.js';
 
 // Create new payment
 export const createPayment = async (req, res) => {
@@ -53,16 +54,79 @@ export const getAllPayments = async (req, res) => {
 };
 
 // Update verification status (admin)
-export const updateVerificationStatus = async (req, res) => {
+export const updatePaymentStatus = async (req, res) => {
     try {
-        const { status } = req.body;
-        const payment = await Payment.findByIdAndUpdate(
-            req.params.paymentId,
-            { verificationStatus: status },
-            { new: true }
-        );
-        res.json(payment);
+        const { paymentId } = req.params;
+        const { status } = req.body; // status = "approved" or "rejected"
+
+        const payment = await Payment.findById(paymentId);
+        if (!payment) {
+            return res.status(404).json({ message: "Payment not found" });
+        }
+
+        payment.verificationStatus = status;
+        await payment.save();
+
+        // 3. Update the payment status in the corresponding order
+        const order = await Order.findById(payment.orderId);
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        // Update order payment status to "paid" if approved, or "failed" if rejected
+        order.paymentStatus = status === "approved" ? "Completed" : "Failed";
+        await order.save();
+
+        res.status(200).json({ message: `Payment ${status} successfully.` });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error(error);
+        res.status(500).json({ message: "Failed to update payment status" });
+    }
+};
+
+
+
+export const verifyPaymentSlip = async (req, res) => {
+    const { orderId } = req.params;
+    const { verificationStatus } = req.body;
+
+    try {
+        const payment = await Payment.findOne({ orderId });
+
+        if (!payment) {
+            return res.status(404).json({ message: "Payment not found" });
+        }
+
+        if (payment.paymentMethod === "slip") {
+            await Payment.updateOne({ orderId }, { paymentStatus: verificationStatus });
+
+            // If payment is verified as completed, set the order to "Completed"
+            if (verificationStatus === "Completed") {
+                await Order.findByIdAndUpdate(orderId, { status: "Completed" });
+            } else {
+                // If payment is rejected, set the order to "Cancelled"
+                await Order.findByIdAndUpdate(orderId, { status: "Cancelled" });
+            }
+
+            return res.status(200).json({ message: "Payment verified successfully" });
+        }
+
+        return res.status(400).json({ message: "Payment method is not 'slip'" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
+export const getSlipPayments = async (req, res) => {
+    try {
+        const payments = await Payment.find({ paymentMethod: "slip" })
+            .populate("userId", "name") // if you want user name inside
+            .sort({ date: -1 }); // optional: latest first
+
+        res.status(200).json(payments);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch slip payments" });
     }
 };
