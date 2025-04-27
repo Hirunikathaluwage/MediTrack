@@ -2,69 +2,56 @@
 
 import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors'; // Import CORS
+
+import mongoose from 'mongoose';
+import cors from 'cors';
+import path from 'path';
+
+import cartRoutes from './routes/cartRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import prescriptionRoutes from "./routes/prescriptionRoutes.js";
+import branchRoutes from "./routes/branchRoutes.js";
+import reservationRoutes from "./routes/reservationRoutes.js"
+import { fileURLToPath } from 'url';
+
 import { connectDB } from './dbconnect.js';
-
 import medicineroute from './routes/MedicineRoute.js';
-import branchroute from './routes/BranchRoute.js';
 import branchstockroute from './routes/BranchStockRoute.js';
-import PrescriptionRoute from './routes/PrescriptionRoute.js';
-
-// import express from 'express';
-// import dotenv from 'dotenv';
-// import cors from 'cors'; // Import CORS
-// import { connectDB } from './dbconnect.js';
 
 
-import medicineroute from './routes/MedicineRoute.js';
-import branchroute from './routes/BranchRoute.js';
-import branchstockroute from './routes/BranchStockRoute.js';
-import PrescriptionRoute from './routes/PrescriptionRoute.js';
-
-// dotenv.config();
-
-
-// Enable CORS for all requests
+const app = express();
 app.use(cors());
-
 app.use(express.json());
 
-app.use("/api/medicines", medicineroute);
-app.use("/api/branch", branchroute);
-app.use("/api/branchstock", branchstockroute);
-app.use("/api/prescription", PrescriptionRoute);
+// Get the directory name from import.meta.url
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.get("/", (req, res) => {
-    res.send("API is running...");
-});
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// const app = express();
-
-// // Enable CORS for all requests
-// app.use(cors());
-
-
-// app.use(express.json());
-
-
-app.listen(5080, () => {
-    connectDB();
-    console.log("MediTrack Server started at http://localhost:5080");
-});
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/reserve', reservationRoutes);
 
 app.use("/api/medicines", medicineroute);
 app.use("/api/branch", branchroute);
 app.use("/api/branchstock", branchstockroute);
 app.use("/api/prescription", PrescriptionRoute);
 
-// app.get("/", (req, res) => {
-//     res.send("API is running...");
-// });
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => {
+    console.log('MongoDB connected');
+    app.listen(5080, () => console.log('Server running on port 5080'));
+}).catch((err) => console.log(err));
 
-// console.log(process.env.MONGO_URI);
 
-// app.listen(5080, () => {
-//     connectDB();
-//     console.log("MediTrack Server started at http://localhost:5080");
-// });
+
+
+
+
+
 

@@ -1,4 +1,5 @@
 
+
 import { BrowserRouter as Router, Route, Routes, NavLink, Navigate } from "react-router-dom";
 import { Layout, Menu, Typography } from "antd";
 import "./App.css";
@@ -12,9 +13,23 @@ import AddMedicineToInventory from "./AddMedicine.jsx";
 import ManageMedicines from "./ManageMedicines.jsx";
 import CreateMedicine from "./CreateMedicine.jsx";
 import ManageBranches from "./ManageBranches.jsx";
+  
+  
+import React, { useEffect } from 'react';
+import CartPage from './pages/CartPage';
+import PaymentPage from './pages/PaymentPage';
+import OrderConfirmation from './pages/OrderConfirmation';
+import OrderHistory from './pages/OrderHistory';
+import ReserveConfirmation from './pages/ReserveConfirmation';
+import DashboardLayout from './pages/AdminOrderDashboard';
+import VerifyPayments from './pages/VerifyPaymentsPage'
+import ApprovedMedicines from './pages/ApprovedMedicines'
+import Prescription from './pages/Prescription'
+import ManageReservationsPage from './pages/ManageReservationsPage';
 
 // Customer Section
 import SearchMedicineWithBranch from "./SearchMedicineWithBranch.jsx";
+
 
 // Hiruni’s pages
 import Approval from "./component/Approval.jsx";
@@ -27,6 +42,7 @@ const { Title } = Typography;
 
 function App() {
   return (
+
     <Router>
       <Layout style={{ minHeight: "100vh" }}>
         <Sider theme="dark">
@@ -73,6 +89,17 @@ function App() {
               <Route path="/admin-prescription" element={<AdminPrescription />} />
               <Route path="/split-page" element={<SplitPage />} />
 
+                {/* Nilakshi */}
+                <Route path="/" element={<Prescription />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/payment/:orderId" element={<PaymentPage />} />
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          <Route path="/order-history" element={<OrderHistory />} />
+          <Route path="/reserve-confirmation" element={<ReserveConfirmation />} />
+          <Route path="/dashboard" element={<DashboardLayout />} />
+          <Route path="/verify-payments" element={<VerifyPayments />} />
+          <Route path="/manage-reservations" element={<ManageReservationsPage />} />
+            
               {/* Catch-all: redirect unknown URLs back to home */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
@@ -82,6 +109,7 @@ function App() {
     </Router>
 
   );
+
 }
 
 export default App;

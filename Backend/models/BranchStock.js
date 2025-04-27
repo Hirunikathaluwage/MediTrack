@@ -1,5 +1,5 @@
 
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const BranchStockSchema = new mongoose.Schema({
     
@@ -7,7 +7,6 @@ const BranchStockSchema = new mongoose.Schema({
     medicineId: { type: mongoose.Schema.Types.ObjectId, ref: "Medicine" },
 
     stock: {type: Number,required : true,},
-    // location: {type : String,required : true,},
     expiryDate: {type : Date,required : true,},
     price: {type : Number,required : true,},
 });
@@ -15,5 +14,4 @@ const BranchStockSchema = new mongoose.Schema({
 export const BranchStock = mongoose.model("BranchStock", BranchStockSchema);
 
 export default BranchStock;
-
 

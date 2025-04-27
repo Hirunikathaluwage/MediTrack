@@ -3,6 +3,12 @@ node_modules/
 Frontend/node_modules/
 Backend/node_modules/
 
+frontend/node_modules/
 Backend/.env
-Backend/uploads
+Frontend/.env
+uploads/
+../.vscode/
+
+
+
 

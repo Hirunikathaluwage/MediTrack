@@ -1,4 +1,4 @@
-// controllers/prescriptionController.js
+
 import express from "express";
 import multer from "multer";
 import mongoose from "mongoose";
@@ -6,7 +6,9 @@ import Prescription from "../models/Prescription.js";
 import Medicine from "../models/Medicine.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
+
 import path from "path";
+
 import dotenv from "dotenv";
 import BranchStock from "../models/BranchStock.js";
 
@@ -57,17 +59,20 @@ async function extractMedicinesFromImage(imagePath) {
                     role: "user",
                     parts: [
                         { inlineData: { data: base64Image, mimeType: "image/jpeg" } },
+
                         { text:` Extract the medicine names from this prescription image. Return only a JSON. `}
+
                     ]
                 }
             ],
             tools: [{ function_declarations: [functionDefinition] }]
         });
 
+
         // Try functionCall first
         const functionCall = response.response?.candidates?.[0]?.content?.parts?.[0]?.functionCall;
         if (functionCall?.args?.medicines) {
-            console.log("Extracted from functionCall ✅");
+            console.log("Extracted from functionCall ");
             return functionCall.args.medicines;
         }
 
@@ -79,8 +84,9 @@ async function extractMedicinesFromImage(imagePath) {
         if (!jsonStringMatch) return [];
 
         const jsonObject = JSON.parse(jsonStringMatch[0]);
-        console.log("Extracted from text fallback ✅");
+        console.log("Extracted from text fallback ");
         return jsonObject.medicines || [];
+
 
     } catch (error) {
         console.error("Gemini AI Processing Error:", error);
@@ -137,6 +143,7 @@ export const uploadPrescription = async (req, res) => {
     }
 };
 
+
 export const getImageAsBase64 = async (req, res) => {
     try {
         const { imagePath } = req.query;
@@ -165,6 +172,7 @@ export const getImageAsBase64 = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
 
 export const reviewPrescription = async (req, res) => {
     try {
@@ -283,4 +291,9 @@ export const getApprovedMedicines = async (req, res) => {
         console.error("Get approved medicines error:", error);
         res.status(500).json({ success: false, error: error.message });
     }
+
 };
+
+
+
+
