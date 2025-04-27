@@ -12,8 +12,9 @@ const OrderHistory = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const userId = localStorage.getItem("userId"); // or wherever you store it
+                const userId = "680b51cc9304025f19b2d7d1";
                 const response = await axios.get(`http://localhost:5080/api/orders/user/${userId}`);
+                console.log("Fetched Orders:", response.data);
                 setOrders(response.data);
             } catch (error) {
                 console.error("Failed to fetch orders:", error);
@@ -60,17 +61,18 @@ const OrderHistory = () => {
                                     border: '1px solid rgba(0, 128, 128, 0.2)',
                                     boxShadow: '0 6px 15px rgba(0, 128, 128, 0.1)'
                                 }}
-                                title={
+                                title={(
                                     <div className="flex items-center justify-between">
                                         <span className="text-lg font-semibold" style={{ color: '#0c8599' }}>
                                             <ShoppingOutlined className="mr-2" />
-                                            Order ID: {order.id}
+                                            Order ID: {order._id}
                                         </span>
                                         <Tag color="#0e9f6e" style={{ borderRadius: '12px', padding: '2px 10px' }}>
-                                            {order.date}
+                                            {new Date(order.createdAt).toLocaleDateString()}
                                         </Tag>
                                     </div>
-                                }
+                                )}
+
                             >
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     <div className="p-3 rounded-lg" style={{
@@ -128,7 +130,7 @@ const OrderHistory = () => {
                                             <List.Item style={{ padding: '12px 0' }}>
                                                 <div className="flex justify-between w-full items-center">
                                                     <div>
-                                                        <Text style={{ fontSize: '15px' }}>{item.name}</Text>
+                                                        <Text style={{ fontSize: '15px' }}>{item.medicineId}</Text> {/* showing ID for now */}
                                                         <Tag style={{
                                                             marginLeft: '8px',
                                                             backgroundColor: 'rgba(14, 159, 110, 0.1)',

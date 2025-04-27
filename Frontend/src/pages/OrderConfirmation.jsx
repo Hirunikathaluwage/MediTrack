@@ -132,21 +132,29 @@ const OrderConfirmation = () => {
                             >
                                 View Order History
                             </Button>
+
                             <Button
                                 size="large"
-                                icon={<HomeOutlined />}
-                                onClick={() => navigate('/')}
+                                icon={deliveryOption === 'home' ? <CarOutlined /> : <HomeOutlined />}
+                                onClick={() => {
+                                    if (deliveryOption === 'home') {
+                                        navigate('/delivery-form');
+                                    } else {
+                                        navigate('/');
+                                    }
+                                }}
                                 style={{
                                     height: '44px',
                                     borderRadius: '8px',
-                                    border: '1px solid #0c8599',
-                                    color: '#0c8599',
+                                    border: deliveryOption === 'home' ? '1px solid #0e9f6e' : '1px solid #0c8599',
+                                    color: deliveryOption === 'home' ? '#0e9f6e' : '#0c8599',
                                     fontWeight: 'medium',
                                 }}
                                 className="hover:shadow-md transition-all duration-300"
                             >
-                                Go to Home
+                                {deliveryOption === 'home' ? 'Go to Delivery' : 'Go to Home'}
                             </Button>
+
                         </Space>
                     </div>
                 </Card>

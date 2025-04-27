@@ -27,12 +27,13 @@ const Approval = () => {
     const navigate = useNavigate();
 
     const pollingRef = useRef(null);
+    const userId = "680b51cc9304025f19b2d7d1";
 
     useEffect(() => {
-        localStorage.removeItem("cart"); // clear old cart
+        localStorage.removeItem("cart");
 
-        setCartItems([]); // reset cart state
-        setReservedItems([]); // optional: reset reserves too
+        setCartItems([]);
+        setReservedItems([]);
 
         if (prescriptionId) {
             startPollingStatus();
@@ -47,8 +48,8 @@ const Approval = () => {
     }, [prescriptionId]);
 
     const startPollingStatus = () => {
-        fetchMedicines(); // Initial fetch
-        pollingRef.current = setInterval(fetchMedicines, 5000); // Poll every 5s
+        fetchMedicines();
+        pollingRef.current = setInterval(fetchMedicines, 5000);
     };
 
     const fetchMedicines = async () => {
@@ -56,8 +57,6 @@ const Approval = () => {
             const res = await axios.get(`http://localhost:5080/prescription/approval/${prescriptionId}?branch=${branch}`);
 
             const data = res.data;
-
-            // console.log("Polling result:", data);
 
             if (data.success && Array.isArray(data.medicines)) {
                 console.log("Verified medicines:", data.medicines);
@@ -94,7 +93,7 @@ const Approval = () => {
 
         try {
             const response = await axios.post('http://localhost:5080/api/cart', {
-                userId: "680b51cc9304025f19b2d7d1",
+                userId: userId,
                 items: [
                     {
                         medicineId: medicine.id,
@@ -127,20 +126,61 @@ const Approval = () => {
 
     const reserve = (medicine) => {
         if (!reservedItems.some(item => item.id === medicine.id)) {
-            const updatedReserved = [...reservedItems, { ...medicine, quantity: 1 }];
+            const updatedReserved = [...reservedItems, {
+                id: medicine.id,
+                name: medicine.name,
+                price: medicine.price,
+                availability: medicine.availability,
+                description: medicine.description || "",
+                genericName: medicine.genericName || "",
+                unit: medicine.unit || "",
+                quantity: 1
+            }];
             setReservedItems(updatedReserved);
             message.success(`${medicine.name} reserved.`);
         }
     };
 
+    const goToReserve = async (updatedReservedItems) => {
+        if (updatedReservedItems.length === 0) {
+            message.info("No reserved items.");
+            return;
+        }
 
-    const goToReserve = () => {
-        navigate('/reserve-confirmation', { state: reservedItems });
+        try {
+            const response = await axios.post('http://localhost:5080/api/reserve', {
+                userId: userId,
+                items: updatedReservedItems.map(item => ({
+                    medicineId: item.id,  // <-- ensure medicineId is passed correctly
+                    quantity: item.quantity || 1
+                }))
+            });
+
+            if (response.data.success) {
+                const reservationId = response.data.reservationId;
+                message.success("Reservation created successfully!");
+                const updatedReservedItemsWithId = updatedReservedItems.map(item => ({
+                    ...item,
+                    reservationId: reservationId
+                }));
+                console.log(updatedReservedItemsWithId);
+                setReservedItems(updatedReservedItemsWithId);
+                navigate('/reserve-confirmation', { state: updatedReservedItemsWithId });
+            } else {
+                message.error(response.data.message || "Failed to create reservation");
+            }
+        } catch (error) {
+            console.error("Error creating reservation:", error);
+            message.error("An unexpected error occurred while reserving.");
+        }
     };
+
+
+
+
 
     const goToCart = async () => {
         try {
-            // Take all available medicines, assign quantity 1
             const itemsToAdd = medicines
                 .filter(med => med.availability)
                 .map(med => ({
@@ -156,12 +196,11 @@ const Approval = () => {
             }
 
             const response = await axios.post('http://localhost:5080/api/cart', {
-                userId: "680b51cc9304025f19b2d7d1",
+                userId: userId,
                 items: itemsToAdd
             });
 
             if (response.data) {
-                // store in localStorage for UI sync
                 const updatedCart = response.data.items.map(item => ({
                     id: item.medicineId,
                     quantity: item.quantity,
@@ -326,7 +365,7 @@ const Approval = () => {
                             <Button
                                 type="default"
                                 size="large"
-                                onClick={goToReserve}
+                                onClick={() => goToReserve(reservedItems)}
                                 style={{ borderColor: "#0c8599", color: "#0c8599" }}
                             >
                                 Go to Reserve ({reservedItems.length})

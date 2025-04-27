@@ -1,42 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Tag, Button, Image, message } from "antd";
-
-const dummyPayments = [
-    {
-        _id: "1",
-        user: { name: "Kasun Perera" },
-        amount: 1500,
-        paymentMethod: "slip",
-        slipImage: "https://via.placeholder.com/100", // Use actual image URL in real case
-        verificationStatus: "pending",
-    },
-    {
-        _id: "2",
-        user: { name: "Nimali Silva" },
-        amount: 2200,
-        paymentMethod: "slip",
-        slipImage: "https://via.placeholder.com/100",
-        verificationStatus: "pending",
-    },
-];
+import axios from "axios";
 
 export default function VerifyPaymentsPage() {
-    const [payments, setPayments] = useState(dummyPayments);
+    const [payments, setPayments] = useState([]);
 
-    const handleApprove = (paymentId) => {
-        const updatedPayments = payments.map((payment) =>
-            payment._id === paymentId ? { ...payment, verificationStatus: "approved" } : payment
-        );
-        setPayments(updatedPayments);
-        message.success("Payment approved.");
+    useEffect(() => {
+        fetchPayments();
+    }, []);
+
+    const fetchPayments = async () => {
+        try {
+            const res = await axios.get("http://localhost:5080/api/payments/slips");
+            setPayments(res.data);
+
+        } catch (error) {
+            console.error(error);
+            message.error("Failed to load payments.");
+        }
     };
 
-    const handleReject = (paymentId) => {
-        const updatedPayments = payments.map((payment) =>
-            payment._id === paymentId ? { ...payment, verificationStatus: "rejected" } : payment
-        );
-        setPayments(updatedPayments);
-        message.success("Payment rejected.");
+    const handleApprove = async (paymentId) => {
+        try {
+            await axios.put(`http://localhost:5080/api/payments/update-status/${paymentId}`, {
+                status: "approved",
+            });
+            message.success("Payment approved.");
+
+            // Refresh list
+            const res = await axios.get("http://localhost:5080/api/payments/slips");
+            setPayments(res.data);
+        } catch (error) {
+            console.error(error);
+            message.error("Failed to approve payment.");
+        }
+    };
+
+    const handleReject = async (paymentId) => {
+        try {
+            await axios.put(`http://localhost:5080/api/payments/update-status/${paymentId}`, {
+                status: "rejected",
+            });
+            message.success("Payment rejected.");
+
+            // Refresh list
+            const res = await axios.get("http://localhost:5080/api/payments/slips");
+            setPayments(res.data);
+        } catch (error) {
+            console.error(error);
+            message.error("Failed to reject payment.");
+        }
     };
 
     return (
@@ -44,15 +57,22 @@ export default function VerifyPaymentsPage() {
             <h2 className="text-2xl font-semibold mb-4">Verify Uploaded Payment Slips</h2>
 
             <Table dataSource={payments} rowKey="_id" pagination={{ pageSize: 5 }}>
-                <Table.Column title="User" dataIndex="user" key="user" render={(user) => user?.name} />
+                <Table.Column title="User" dataIndex="userId" key="user" render={(user) => user?.name} />
                 <Table.Column title="Amount" dataIndex="amount" key="amount" render={(amount) => `Rs. ${amount}`} />
                 <Table.Column title="Method" dataIndex="paymentMethod" key="paymentMethod" />
                 <Table.Column
                     title="Slip Image"
                     dataIndex="slipImage"
                     key="slipImage"
-                    render={(src) => <Image width={100} src={src} alt="Payment Slip" />}
+                    render={(filename) => (
+                        <Image
+                            width={100}
+                            src={`http://localhost:5080/uploads/slips/${filename}`}
+                            alt="Payment Slip"
+                        />
+                    )}
                 />
+
                 <Table.Column
                     title="Verification"
                     dataIndex="verificationStatus"

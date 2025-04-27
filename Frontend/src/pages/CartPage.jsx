@@ -13,30 +13,27 @@ const { Title, Text } = Typography;
 
 const CartPage = () => {
     const navigate = useNavigate();
-    const userId = "680b51cc9304025f19b2d7d1"; // Replace with actual user ID logic
+    const userId = "680b51cc9304025f19b2d7d1";
 
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const location = useLocation();
 
-    // Get the prescriptionId and branchId from query parameters
     const queryParams = new URLSearchParams(location.search);
     const prescriptionId = queryParams.get('id');
     const branchId = queryParams.get('branch');
 
-    // You can now use these values on this page
     console.log(prescriptionId, branchId);
 
-    // Fetch cart from backend
     useEffect(() => {
         const fetchCart = async () => {
             try {
                 setLoading(true);
                 const res = await axios.get(`http://localhost:5080/api/cart`, { params: { userId } });
-                console.log(res.data); // Log the entire response
+                console.log(res.data);
                 setCartItems(res.data.items || []);
-                console.log("Cart Items:", res.data.items); // Verify items are set correctly
+                console.log("Cart Items:", res.data.items);
             } catch (error) {
                 console.error("Error fetching cart:", error);
                 message.error("Failed to load cart");
@@ -48,8 +45,6 @@ const CartPage = () => {
         fetchCart();
     }, []);
 
-
-    // Update quantity in backend
     const updateQuantity = async (itemId, quantity) => {
         try {
             await axios.put(`http://localhost:5080/api/cart/item/${itemId}`, { quantity });
@@ -88,8 +83,8 @@ const CartPage = () => {
 
             const deliveryOption = 'pending';
 
-            // Get branchId from URL (or state if it's being stored somewhere else)
-            const branchId = new URLSearchParams(window.location.search).get('branch');  // Assuming it's passed as a query param
+            // Get branchId from URL 
+            const branchId = new URLSearchParams(window.location.search).get('branch');
 
             if (!branchId) {
                 message.error('Branch ID is required');
@@ -154,7 +149,7 @@ const CartPage = () => {
                     <>
                         {cartItems.map((item) => (
                             <Card
-                                key={item._id} // Use _id here instead of medicineId for the unique key
+                                key={item._id}
                                 className="mb-4"
                                 style={{ borderRadius: '8px' }}
                                 title={

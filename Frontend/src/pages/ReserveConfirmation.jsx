@@ -1,13 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Card, Button, Typography, Divider, List, Space, Row, Col } from 'antd';
+import { Card, Button, Typography, Divider, List, Space, Row, Col, InputNumber, message } from 'antd';
+import axios from 'axios';
 
 const { Title, Text } = Typography;
 
 const ReserveConfirmation = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const reservedItems = location.state?.reservedItems || []; // Changed to support multiple reserved items
+    const initialReservedItems = location.state || [];
+    const [reservationConfirmed, setReservationConfirmed] = useState(false);
+
+    const [reservedItems, setReservedItems] = useState(initialReservedItems);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Handle quantity change
+    const handleQuantityChange = (index, value) => {
+        const updatedItems = [...reservedItems];
+        updatedItems[index].quantity = value;
+        setReservedItems(updatedItems);
+    };
+
+    const handleSubmit = async () => {
+        console.log("Submitting reservation...");
+        console.log("Reserved Items:", reservedItems);
+        setIsSubmitting(true);
+
+        // Check if reservationId exists for each item
+        if (!reservedItems[0]?.reservationId) {
+            message.error('Reservation ID is missing. Please try again.');
+            setIsSubmitting(false);
+            return;
+        }
+
+        try {
+            const reservationId = reservedItems[0].reservationId;
+
+            if (!reservedItems[0]?.reservationId) {
+                message.error('Reservation ID is missing. Please try again.');
+                setIsSubmitting(false);
+                return;
+            }
+
+            const response = await axios.put(`http://localhost:5080/api/reserve/update/${reservationId}`, {
+                items: reservedItems.map(item => ({
+                    medicineId: item.id,
+                    quantity: item.quantity
+                }))
+            });
+            console.log("API Response:", response.data);
+            if (response.data.success) {
+                message.success('Reservation updated successfully! We will notify you once the items are back in stock.');
+                setReservationConfirmed(true);
+            } else {
+                message.error(response.data.message || 'Failed to update reservation');
+            }
+        } catch (error) {
+            message.error('Error updating reservation');
+            console.error(error);
+        }
+
+        setIsSubmitting(false);
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-100 flex justify-center items-center p-8">
@@ -31,7 +86,7 @@ const ReserveConfirmation = () => {
                                 size="large"
                                 bordered
                                 dataSource={reservedItems}
-                                renderItem={(item) => (
+                                renderItem={(item, index) => (
                                     <List.Item
                                         style={{
                                             border: '1px solid #EAEAEA',
@@ -44,12 +99,19 @@ const ReserveConfirmation = () => {
                                             {item.name}
                                         </Text>{' '}
                                         - <Text className="text-gray-600">{item.quantity} units</Text>
+
+                                        <InputNumber
+                                            min={1}
+                                            defaultValue={item.quantity}
+                                            onChange={(value) => handleQuantityChange(index, value)}
+                                            style={{ marginLeft: '10px' }}
+                                        />
                                     </List.Item>
                                 )}
                             />
                             <Space direction="vertical" className="mt-4 text-center w-full">
                                 <Text className="text-gray-600">
-                                    We will notify you once these items are back in stock. Thank you for your patience!
+                                    You can adjust the quantity of each item before confirming.
                                 </Text>
                             </Space>
                         </>
@@ -61,21 +123,39 @@ const ReserveConfirmation = () => {
 
                     <Row justify="center" className="mt-6">
                         <Col span={24}>
-                            <Button
-                                type="primary"
-                                size="large"
-                                block
-                                onClick={() => navigate('/')}
-                                style={{
-                                    backgroundColor: '#4CAF50',
-                                    borderColor: '#4CAF50',
-                                    fontSize: '16px',
-                                }}
-                            >
-                                Back to Home
-                            </Button>
+                            {reservationConfirmed ? (
+                                <Button
+                                    type="default"
+                                    size="large"
+                                    block
+                                    onClick={() => navigate('/')}
+                                    style={{
+                                        fontSize: '16px',
+                                        borderColor: '#4CAF50',
+                                        color: '#4CAF50',
+                                    }}
+                                >
+                                    Back to Medicines
+                                </Button>
+                            ) : (
+                                <Button
+                                    type="primary"
+                                    size="large"
+                                    block
+                                    onClick={handleSubmit}
+                                    disabled={isSubmitting}
+                                    style={{
+                                        backgroundColor: '#4CAF50',
+                                        borderColor: '#4CAF50',
+                                        fontSize: '16px',
+                                    }}
+                                >
+                                    {isSubmitting ? 'Updating...' : 'Confirm Reservation'}
+                                </Button>
+                            )}
                         </Col>
                     </Row>
+
                 </Card>
             </div>
         </div>

@@ -9,12 +9,12 @@ const URL = "http://localhost:5080/payment";
 const { Title, Text } = Typography;
 
 const PaymentPage = () => {
-    const { orderId } = useParams(); // Get orderId from URL
+    const { orderId } = useParams();
     const navigate = useNavigate();
     const [paymentOption, setPaymentOption] = useState(null);
     const [deliveryOption, setDeliveryOption] = useState('home');
-    const [totalAmount, setTotalAmount] = useState(0); // Store totalAmount in state
-    const [cartItems, setCartItems] = useState([]); // Store cartItems
+    const [totalAmount, setTotalAmount] = useState(0);
+    const [cartItems, setCartItems] = useState([]);
     const [baseAmount, setBaseAmount] = useState(0);
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewURL, setPreviewURL] = useState(null);
@@ -23,7 +23,7 @@ const PaymentPage = () => {
     const [paymentMethod, setPaymentMethod] = useState("");
     const [slipImage, setSlipImage] = useState(null);
 
-    const userId = "67ddfc9755c1bec1fb5cf57f";
+    const userId = "680b51cc9304025f19b2d7d1";
 
     const beforeUpload = (file) => {
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
@@ -40,7 +40,6 @@ const PaymentPage = () => {
                 const order = response.data;
                 setCartItems(order.items || []);
                 setBaseAmount(order.totalAmount || 0);
-                // setTotalAmount(amount);
 
                 setDeliveryOption(order.deliveryOption || 'home');
             } catch (error) {
@@ -50,30 +49,6 @@ const PaymentPage = () => {
 
         fetchOrderDetails();
     }, [orderId]);
-
-    /*
-    useEffect(() => {
-        const fetchOrderAndAdjustTotal = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5080/api/orders/${orderId}`);
-                if (response.status === 200) {
-                    const order = response.data;
-                    setCartItems(order.items || []);
-
-                    let amount = order.totalAmount || 0;
-                    if (deliveryOption === 'home') {
-                        amount += 5;
-                    }
-                    setTotalAmount(amount);
-                }
-            } catch (error) {
-                console.error('Error updating total amount based on delivery option:', error);
-            }
-        };
-
-        fetchOrderAndAdjustTotal();
-    }, [deliveryOption, orderId]);
-*/
 
     // Update total amount dynamically based on delivery option
     useEffect(() => {
@@ -87,7 +62,7 @@ const PaymentPage = () => {
 
         if (paymentOption === 'slip') {
             message.error('Payment slip has already been uploaded.');
-            return; // Prevent further uploads if already uploaded
+            return;
         }
 
         try {
@@ -134,60 +109,47 @@ const PaymentPage = () => {
         }
 
         try {
-            // Log the payment data being sent
-            console.log("Payment Data: ", {
-                paymentMethod: paymentOption,
-                amount: totalAmount,
-                verificationStatus: paymentOption === 'slip' ? 'pending' : 'approved',
-                userId,
-                orderId
+            // If already uploaded slip, skip creating payment again
+            if (paymentOption !== 'slip') {
+                const paymentData = {
+                    paymentMethod: paymentOption,
+                    amount: totalAmount,
+                    verificationStatus: paymentOption === 'slip' ? 'pending' : 'approved',
+                    userId,
+                    orderId
+                };
+
+                const paymentResponse = await axios.post('http://localhost:5080/api/payments', paymentData);
+
+                if (paymentResponse.status !== 200) {
+                    message.error('Error submitting the payment.');
+                    return;
+                }
+            }
+
+            const orderUpdateResponse = await axios.put(`http://localhost:5080/api/orders/${orderId}`, {
+                deliveryOption,
             });
 
-            // Prepare payment data
-            const paymentData = {
-                paymentMethod: paymentOption,
-                amount: totalAmount,
-                verificationStatus: paymentOption === 'slip' ? 'pending' : 'approved',
-                userId,
-                orderId
-            };
-
-            // Make the POST request to the payment API
-            const paymentResponse = await axios.post('http://localhost:5080/api/payments', paymentData);
-
-            // Log the payment response
-            console.log('Payment Response:', paymentResponse);
-
-            if (paymentResponse.status === 200) {
-                message.success('Payment submitted successfully.');
-
-                const orderUpdateResponse = await axios.put(`http://localhost:5080/api/orders/${orderId}`, {
-                    deliveryOption,
+            if (orderUpdateResponse.status === 200) {
+                message.success('Payment submitted and delivery option updated successfully!');
+                navigate('/order-confirmation', {
+                    state: {
+                        cartItems,
+                        paymentOption,
+                        deliveryOption,
+                        totalAmount,
+                        orderId
+                    }
                 });
-
-                if (orderUpdateResponse.status === 200) {
-                    message.success('Payment submitted and delivery option updated successfully!');
-                    navigate('/order-confirmation', {
-                        state: {
-                            cartItems,
-                            paymentOption,
-                            deliveryOption,
-                            totalAmount,
-                            orderId
-                        }
-                    });
-                } else {
-                    message.error('Payment submitted, but failed to update delivery option.');
-                }
             } else {
-                message.error('Error submitting the payment.');
+                message.error('Payment submitted, but failed to update delivery option.');
             }
         } catch (error) {
             console.error("Error submitting payment:", error);
             message.error('An error occurred while submitting the payment.');
         }
     };
-
 
     return (
         <div className="min-h-screen flex justify-center items-start py-10 px-4" style={{
@@ -247,7 +209,7 @@ const PaymentPage = () => {
                             value={deliveryOption}
                             onChange={(e) => {
                                 setDeliveryOption(e.target.value);
-                                setPaymentOption(null); // reset payment selection on delivery change
+                                setPaymentOption(null);
                             }}
                         >
                             <Space direction="vertical" className="w-full">
@@ -307,43 +269,41 @@ const PaymentPage = () => {
                             </Button>
 
                             {deliveryOption === 'pickup' && (
-
                                 <Upload
                                     customRequest={({ file, onSuccess, onError }) => {
-                                        if (paymentOption === 'slip') return; // Prevent if already uploaded
-
-                                        handleUploadSlip(file).then(() => {
-                                            onSuccess("ok");
-                                            setFileList([{ uid: file.uid, name: file.name, status: 'done' }]);
-                                        }).catch(onError);
+                                        handleUploadSlip(file)
+                                            .then(() => {
+                                                onSuccess("ok");
+                                            })
+                                            .catch((err) => {
+                                                console.error(err);
+                                                onError(err);
+                                            });
                                     }}
-                                    fileList={fileList}
+                                    showUploadList={false}
                                     beforeUpload={beforeUpload}
-                                    showUploadList={false} // hide file preview list
-                                    disabled={paymentOption === 'slip'} // Disable after successful upload
                                 >
-
                                     <Button
-                                        block
                                         icon={<UploadOutlined />}
-                                        disabled={paymentOption === 'slip'}
+                                        block
                                         style={{
                                             height: '50px',
                                             borderRadius: '8px',
+                                            border: paymentOption === 'slip' ? 'none' : '1px solid #0c8599',
+                                            color: paymentOption === 'slip' ? 'white' : '#0c8599',
                                             background: paymentOption === 'slip'
-                                                ? 'linear-gradient(90deg, #0e9f6e, #0c8599)'
+                                                ? 'linear-gradient(90deg, #0c8599, #0e9f6e)'
                                                 : 'transparent',
-                                            color: paymentOption === 'slip' ? 'white' : '#0e9f6e',
-                                            border: paymentOption === 'slip' ? 'none' : '1px solid #0e9f6e',
                                             fontWeight: 'medium',
+                                            marginTop: '8px'
                                         }}
+                                        disabled={paymentOption === 'slip'}
+                                        className="hover:shadow-md transition-all duration-300"
                                     >
-                                        {paymentOption === 'slip' ? 'Uploaded' : 'Upload Payment Slip'}
+                                        Upload Payment Slip
                                     </Button>
                                 </Upload>
-
                             )}
-
 
                         </Space>
                     </div>
