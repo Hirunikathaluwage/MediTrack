@@ -8,9 +8,8 @@ export const createPayment = async (req, res) => {
         const { paymentMethod, amount, verificationStatus, userId, orderId } = req.body;
         let slipImage = null;
 
-        // If slip image is uploaded
         if (req.file) {
-            slipImage = req.file.filename; // Or req.file.path, depending on your multer config
+            slipImage = req.file.filename;
         }
 
         const newPayment = new Payment({
@@ -57,7 +56,7 @@ export const getAllPayments = async (req, res) => {
 export const updatePaymentStatus = async (req, res) => {
     try {
         const { paymentId } = req.params;
-        const { status } = req.body; // status = "approved" or "rejected"
+        const { status } = req.body;
 
         const payment = await Payment.findById(paymentId);
         if (!payment) {
@@ -67,13 +66,11 @@ export const updatePaymentStatus = async (req, res) => {
         payment.verificationStatus = status;
         await payment.save();
 
-        // 3. Update the payment status in the corresponding order
         const order = await Order.findById(payment.orderId);
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
         }
 
-        // Update order payment status to "paid" if approved, or "failed" if rejected
         order.paymentStatus = status === "approved" ? "Completed" : "Failed";
         await order.save();
 
@@ -100,11 +97,9 @@ export const verifyPaymentSlip = async (req, res) => {
         if (payment.paymentMethod === "slip") {
             await Payment.updateOne({ orderId }, { paymentStatus: verificationStatus });
 
-            // If payment is verified as completed, set the order to "Completed"
             if (verificationStatus === "Completed") {
                 await Order.findByIdAndUpdate(orderId, { status: "Completed" });
             } else {
-                // If payment is rejected, set the order to "Cancelled"
                 await Order.findByIdAndUpdate(orderId, { status: "Cancelled" });
             }
 
@@ -121,8 +116,8 @@ export const verifyPaymentSlip = async (req, res) => {
 export const getSlipPayments = async (req, res) => {
     try {
         const payments = await Payment.find({ paymentMethod: "slip" })
-            .populate("userId", "name") // if you want user name inside
-            .sort({ date: -1 }); // optional: latest first
+            .populate("userId", "name")
+            .sort({ date: -1 });
 
         res.status(200).json(payments);
     } catch (error) {

@@ -4,7 +4,6 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 
-// import medicineRoutes from './routes/medicineRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
@@ -25,7 +24,6 @@ const __dirname = path.dirname(__filename);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// app.use('/api/medicines', medicineRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
@@ -33,7 +31,7 @@ app.use("/prescription", prescriptionRoutes);
 app.use('/api/reserve', reservationRoutes);
 app.use("/branches", branchRoutes);
 
-// MongoDB Connection
+
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,

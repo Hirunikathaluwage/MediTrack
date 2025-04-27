@@ -1,4 +1,3 @@
-// routes/branchRoutes.js
 import express from "express";
 import { getAllBranches } from "../controllers/branchController.js";
 

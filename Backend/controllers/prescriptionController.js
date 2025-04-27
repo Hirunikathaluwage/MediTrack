@@ -1,4 +1,3 @@
-// controllers/prescriptionController.js
 import express from "express";
 import multer from "multer";
 import mongoose from "mongoose";
@@ -30,46 +29,6 @@ function encodeImageToBase64(imagePath) {
     const imageBuffer = fs.readFileSync(imagePath);
     return imageBuffer.toString("base64");
 }
-
-// async function extractMedicinesFromImage(imagePath) {
-//     try {
-//         const base64Image = encodeImageToBase64(imagePath);
-
-//         const functionDefinition = {
-//             name: "extract_medicines",
-//             description: "Extract medicine names from a prescription image.",
-//             parameters: {
-//                 type: "object",
-//                 properties: {
-//                     medicines: {
-//                         type: "array",
-//                         items: { type: "string" }
-//                     }
-//                 },
-//                 required: ["medicines"]
-//             }
-//         };
-
-//         const response = await model.generateContent({
-//             contents: [
-//                 {
-//                     role: "user",
-//                     parts: [
-//                         { inlineData: { data: base64Image, mimeType: "image/jpeg" } },
-//                         { text: `Extract the medicine names from this prescription image.\nReturn only the JSON object in the format specified in the function below.` }
-//                     ]
-//                 }
-//             ],
-//             tools: [{ function_declarations: [functionDefinition] }]
-//         });
-
-//         const functionCall = response.response?.candidates?.[0]?.content?.parts?.[0]?.functionCall;
-//         return functionCall?.args?.medicines || [];
-//     } catch (error) {
-//         console.error("Gemini AI Processing Error:", error);
-//         return [];
-//     }
-// }
 
 async function extractMedicinesFromImage(imagePath) {
     try {

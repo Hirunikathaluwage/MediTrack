@@ -36,24 +36,20 @@ export const updateReservation = async (req, res) => {
             return res.status(400).json({ success: false, message: "No items provided to update." });
         }
 
-        // Find the reservation
         const reservation = await Reservation.findById(reservationId);
         if (!reservation) {
             return res.status(404).json({ success: false, message: "Reservation not found." });
         }
 
-        // Update quantities for existing items
         items.forEach(item => {
             const existingItem = reservation.items.find(reservedItem => reservedItem.medicineId.toString() === item.medicineId.toString());
             if (existingItem) {
-                existingItem.quantity = item.quantity; // Update quantity of the existing item
+                existingItem.quantity = item.quantity;
             } else {
-                // If item does not exist in the reservation, you can choose to add it or handle it differently
                 reservation.items.push(item);
             }
         });
 
-        // Save updated reservation
         await reservation.save();
 
         res.status(200).json({ success: true, message: "Reservation updated successfully.", reservation });
@@ -67,14 +63,14 @@ export const updateReservation = async (req, res) => {
 // Get all reservations for a user
 export const getUserReservations = async (req, res) => {
     try {
-        const { userId } = req.query;  // Get userId from query params
+        const { userId } = req.query;
 
         if (!userId) {
             return res.status(400).json({ success: false, message: "User ID is required." });
         }
 
         const reservations = await Reservation.find({ userId })
-            .populate('items.medicineId');  // Populate the medicine details for each item
+            .populate('items.medicineId');
 
         res.status(200).json({ success: true, reservations });
     } catch (error) {
@@ -86,7 +82,7 @@ export const getUserReservations = async (req, res) => {
 export const updateReservationStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body; // 'available' or 'notified'
+        const { status } = req.body;
 
         if (!status) {
             return res.status(400).json({ success: false, message: "Status is required." });
@@ -97,10 +93,9 @@ export const updateReservationStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Reservation not found' });
         }
 
-        // Update reservation's main status
+
         reservation.status = status;
 
-        // ALSO update each item's status
         reservation.items.forEach(item => {
             item.status = status;
         });
@@ -116,7 +111,7 @@ export const updateReservationStatus = async (req, res) => {
 
 
 
-// Delete a reservation (optional)
+// Delete a reservation 
 export const deleteReservation = async (req, res) => {
     try {
         const { id } = req.params;
@@ -134,7 +129,7 @@ export const deleteReservation = async (req, res) => {
 // Get all reservations
 export const getAllReservations = async (req, res) => {
     try {
-        const reservations = await Reservation.find().populate('items.medicineId');  // Populate medicine details
+        const reservations = await Reservation.find().populate('items.medicineId');
 
         res.status(200).json({ success: true, reservations });
     } catch (error) {
