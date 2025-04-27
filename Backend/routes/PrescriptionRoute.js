@@ -5,6 +5,7 @@ const router = express.Router();
 
 import {
     uploadPrescription,
+    getImageAsBase64,
     reviewPrescription,
     deletePrescription,
     getPrescription,
@@ -14,6 +15,8 @@ import {
 
 // Upload a prescription with OCR and medicine matching
 router.post('/', upload.single('image'), uploadPrescription);
+
+router.get('/image/base64', getImageAsBase64);
 
 // Get a prescription by ID
 router.get('/:id', getPrescription);

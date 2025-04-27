@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Table, Input, Button, Typography, Space, Collapse } from "antd";
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { Table, Input, Button, Typography, Space, Collapse, Modal, notification } from "antd";
+import { CheckOutlined, CloseOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { useLocation } from "react-router-dom";
 
 const { Title } = Typography;
 const { Panel } = Collapse;
+const { confirm } = Modal;
 
 function SearchMedicineInBranch() {
   const [prescriptions, setPrescriptions] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const branchId = "67d690256c54c8fbf5a1eff3"; // your branch ID
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const branchId = searchParams.get("branchId");
 
   useEffect(() => {
     fetch(`http://localhost:5080/adminprescription/prescription/${branchId}`)
@@ -36,9 +40,7 @@ function SearchMedicineInBranch() {
         `http://localhost:5080/adminprescription/prescription/${prescriptionId}/status`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status }),
         }
       );
@@ -46,7 +48,12 @@ function SearchMedicineInBranch() {
       const data = await response.json();
 
       if (data.success) {
-        alert(`Prescription ${status} successfully!`);
+        notification.success({
+          message: `Success`,
+          description: `Prescription has been ${status.toLowerCase()} successfully.`,
+          placement: "topRight",
+          duration: 2, // show for 2 seconds
+        });
         setPrescriptions((prev) =>
           prev.map((prescription) =>
             prescription._id === prescriptionId
@@ -55,12 +62,36 @@ function SearchMedicineInBranch() {
           )
         );
       } else {
-        alert(`Failed to update prescription status: ${data.message}`);
+        notification.error({
+          message: `Failed`,
+          description: data.message || "Something went wrong!",
+          placement: "topRight",
+          duration: 2,
+        });
       }
     } catch (error) {
-      alert("Error updating prescription status.");
-      console.error("Error:", error);
+      console.error("Error updating prescription status.", error);
+      notification.error({
+        message: `Error`,
+        description: "Error updating prescription status.",
+        placement: "topRight",
+        duration: 2,
+      });
     }
+  };
+
+  const showConfirm = (prescriptionId, status) => {
+    confirm({
+      title: `Are you sure you want to ${status.toLowerCase()} this prescription?`,
+      icon: <ExclamationCircleOutlined />,
+      okText: "Yes",
+      cancelText: "No",
+      centered: true,
+      maskClosable: true,
+      onOk: () => {
+        return handleStatusUpdate(prescriptionId, status); // returning Promise shows loading spinner!
+      },
+    });
   };
 
   const columns = [
@@ -88,7 +119,7 @@ function SearchMedicineInBranch() {
             type="primary"
             className="bg-green-500 hover:bg-green-600 border-green-500 hover:border-green-600"
             icon={<CheckOutlined />}
-            onClick={() => handleStatusUpdate(record._id, "Verified")}
+            onClick={() => showConfirm(record._id, "Verified")}
           >
             Approve
           </Button>
@@ -96,7 +127,7 @@ function SearchMedicineInBranch() {
             danger
             className="bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600 text-white"
             icon={<CloseOutlined />}
-            onClick={() => handleStatusUpdate(record._id, "Rejected")}
+            onClick={() => showConfirm(record._id, "Rejected")}
           >
             Reject
           </Button>
@@ -112,7 +143,7 @@ function SearchMedicineInBranch() {
       </Title>
 
       <Input
-        placeholder="Search for prescription status..."
+        placeholder="Search by status (e.g., Pending)"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="mb-6 shadow-sm"
@@ -126,10 +157,7 @@ function SearchMedicineInBranch() {
             columns={columns}
             rowKey="_id"
             className="overflow-x-auto"
-            pagination={{
-              pageSize: 5,
-              className: "px-4",
-            }}
+            pagination={{ pageSize: 5 }}
             expandable={{
               expandedRowRender: (record) => (
                 <div className="px-4 py-2 bg-gray-50">
@@ -137,42 +165,31 @@ function SearchMedicineInBranch() {
                     <Panel
                       header={
                         <span className="font-medium text-blue-600">
-                          Prescription Medicines
+                          Medicines in this Prescription
                         </span>
                       }
                       key="1"
                     >
                       <Table
-                        dataSource={record.medicines.map((med) => ({
-                          key: med.medicineId,
-                          name: med.name,
-                          quantity: med.quantity,
-                        }))}
+                        dataSource={
+                          record.medicines?.map((med, index) => ({
+                            key: med._id || index,
+                            name: med.medicineId?.name || "Unknown",
+                            quantity: med.quantity,
+                          })) || []
+                        }
                         columns={[
-                          {
-                            title: "Medicine Name",
-                            dataIndex: "name",
-                            key: "name",
-                          },
-                          {
-                            title: "Quantity",
-                            dataIndex: "quantity",
-                            key: "quantity",
-                            render: (quantity) => (
-                              <span className="font-medium">{quantity}</span>
-                            ),
-                          },
+                          { title: "Medicine Name", dataIndex: "name", key: "name" },
+                          { title: "Quantity", dataIndex: "quantity", key: "quantity" },
                         ]}
                         pagination={false}
-                        className="mt-2"
                         size="small"
                       />
                     </Panel>
                   </Collapse>
                 </div>
               ),
-              rowExpandable: (record) =>
-                record.medicines && record.medicines.length > 0,
+              rowExpandable: (record) => record.medicines && record.medicines.length > 0,
               expandRowByClick: true,
             }}
           />
