@@ -1,30 +1,40 @@
-import React, { useState } from 'react';
-import { Card, Table } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Table, Spin, message } from 'antd';
+import axios from 'axios';
 
 const Profit = () => {
-  const [dataSource] = useState([
-    { key: '1', branch: 'Branch 1', revenue: 12000, cost: 7000, profit: 5000 },
-    { key: '2', branch: 'Branch 2', revenue: 9000, cost: 6000, profit: 3000 },
-    { key: '3', branch: 'Branch 3', revenue: 15000, cost: 8000, profit: 7000 },
-  ]);
+  const [dataSource, setDataSource] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const columns = [
     { title: 'Branch', dataIndex: 'branch', key: 'branch' },
-    { title: 'Total Revenue ($)', dataIndex: 'revenue', key: 'revenue' },
-    { title: 'Total Cost ($)', dataIndex: 'cost', key: 'cost' },
-    { title: 'Profit ($)', dataIndex: 'profit', key: 'profit' },
+    { title: 'Revenue', dataIndex: 'revenue', key: 'revenue' },
+    { title: 'Cost', dataIndex: 'cost', key: 'cost' },
+    { title: 'Profit', dataIndex: 'profit', key: 'profit' },
   ];
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get('http://localhost:5080/api/reports/profit');
+        setDataSource(res.data.map((item, idx) => ({ ...item, key: idx })));
+      } catch (err) {
+        console.error(err);
+        message.error('Failed to load profit report');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
-    <Card
-      title="Branch-wise Profit Report"
-      style={{ marginBottom: 24 }}
-    >
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        pagination={false}
-      />
+    <Card title="Branch Profit" style={{ height: '100%', padding: '8px' }}>
+      {loading ? (
+        <Spin size="small" />
+      ) : (
+        <Table dataSource={dataSource} columns={columns} size="small" pagination={false} />
+      )}
     </Card>
   );
 };

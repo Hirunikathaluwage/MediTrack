@@ -1,66 +1,47 @@
-// BranchOrder.jsx
 import React, { useEffect, useState } from 'react';
-import { Card, Button } from 'antd';
+import { Card, Button, Spin, message } from 'antd';
 import { Pie } from 'react-chartjs-2';
-import { fetchBranchOrders } from '../services/reportService';
+import axios from 'axios';
 import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
   Legend,
-  CategoryScale,
-  LinearScale,
 } from 'chart.js';
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale);
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const BranchOrder = () => {
-  const [chartData, setChartData] = useState({
-    labels: [],
-    datasets: [],
-  });
+  const [chartData, setChartData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetchBranchOrders();
-        const { branches, orders } = res.data;
-
+        const res = await axios.get('http://localhost:5080/api/reports/branch-orders');
+        const { labels, orders } = res.data;
         setChartData({
-          labels: branches,
-          datasets: [
-            {
-              label: 'Orders per Branch',
-              data: orders,
-              backgroundColor: [
-                'rgba(153, 102, 255, 0.6)',
-                'rgba(255, 159, 64, 0.6)',
-                'rgba(54, 162, 235, 0.6)',
-                'rgba(255, 99, 132, 0.6)',
-              ],
-              borderWidth: 1,
-            },
-          ],
+          labels,
+          datasets: [{ label: 'Branch Orders', data: orders, backgroundColor: ['#8e44ad', '#3498db', '#e67e22', '#e74c3c'] }],
         });
-      } catch (error) {
-        console.error('Error fetching branch orders:', error);
+      } catch (err) {
+        console.error(err);
+        message.error('Failed to load branch orders');
+      } finally {
+        setLoading(false);
       }
     };
-
-    loadData();
+    fetchData();
   }, []);
 
   const downloadReport = () => {
-    const csvData = [
-      ['Branch', 'Orders'],
-      ...chartData.labels.map((label, index) => [label, chartData.datasets[0].data[index]])
-    ];
-
-    const csvContent = "data:text/csv;charset=utf-8," + csvData.map(row => row.join(',')).join('\n');
-
+    if (!chartData) return;
+    const csvContent = 'data:text/csv;charset=utf-8,' +
+      ['Branch,Orders', ...chartData.labels.map((label, idx) => `${label},${chartData.datasets[0].data[idx]}`)].join('\n');
     const link = document.createElement('a');
+    const today = new Date().toISOString().split('T')[0];
     link.href = encodeURI(csvContent);
-    link.download = 'branch_orders_report.csv';
+    link.download = `branch_orders_${today}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -68,11 +49,15 @@ const BranchOrder = () => {
 
   return (
     <Card
-      title="Branch-wise Orders"
-      extra={<Button onClick={downloadReport}>Download Report</Button>}
-      style={{ marginBottom: 24 }}
+      title="Branch Orders"
+      extra={<Button size="small" onClick={downloadReport} disabled={!chartData}>Download</Button>}
+      style={{ height: '100%', padding: '8px' }}
     >
-      <Pie data={chartData} height={150} />
+      {loading ? (
+        <Spin size="small" />
+      ) : chartData ? (
+        <Pie data={chartData} options={{ maintainAspectRatio: false }} height={200} />
+      ) : 'No data'}
     </Card>
   );
 };

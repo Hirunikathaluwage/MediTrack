@@ -99,9 +99,9 @@ function App() {
         <Route path="/adminPrescription" element={<AdminPrescription />} />
         <Route path="/SearchMedicineInBranch" element={<SearchMedicineInBranch />} />
         {/* <Route path="/SplitScreenDashboard" element={<SplitScreenDashboard />} /> not used */}
-        <Route path="/SplitPage" element={<SplitPage />} />
+        <Route path="/pharmacy" element={<SplitPage />} />
        
-        <Route path="/ReportGen" element={<Reportgen />} />
+        <Route path="/reports" element={<Reportgen />} />
         <Route path="/TopMedicine" element={<TopMedicine />} />
         <Route path="/Profit" element={<Profit />} />
         <Route path="/Stat" element={<Stat/>} />

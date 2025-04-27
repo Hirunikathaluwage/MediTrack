@@ -40,5 +40,5 @@ const userSchema = new mongoose.Schema({
     verificationTokenExpiresAt: Date,
 }, { timestamps: true })
 
-const User  = mongoose.model('User', userSchema);
+const User  = mongoose.model('User-second', userSchema);
 export default User;

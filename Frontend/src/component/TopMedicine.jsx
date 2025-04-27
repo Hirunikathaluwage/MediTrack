@@ -1,29 +1,49 @@
-import React from 'react';
-import { Card, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Button, Spin, message } from 'antd';
 import { Bar } from 'react-chartjs-2';
+import axios from 'axios';
 import {
   Chart as ChartJS,
   BarElement,
   Tooltip,
   Legend,
   CategoryScale,
-  LinearScale
+  LinearScale,
 } from 'chart.js';
 
 ChartJS.register(BarElement, Tooltip, Legend, CategoryScale, LinearScale);
 
-const TopMedicine = ({ chartData }) => {
+const TopMedicine = () => {
+  const [chartData, setChartData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get('http://localhost:5080/api/reports/top-medicines');
+        const { labels, sales } = res.data;
+        setChartData({
+          labels,
+          datasets: [{ label: 'Top Medicines', data: sales, backgroundColor: 'rgba(75,192,192,0.6)' }],
+        });
+      } catch (err) {
+        console.error(err);
+        message.error('Failed to load top medicines');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   const downloadReport = () => {
-    const csvData = [
-      ['Medicine', 'Sales'],
-      ...chartData.labels.map((label, index) => [label, chartData.datasets[0].data[index]])
-    ];
-
-    const csvContent = "data:text/csv;charset=utf-8," + csvData.map(row => row.join(',')).join('\n');
-
+    if (!chartData) return;
+    const csvContent = 'data:text/csv;charset=utf-8,' +
+      ['Medicine,Sales', ...chartData.labels.map((label, idx) => `${label},${chartData.datasets[0].data[idx]}`)].join('\n');
     const link = document.createElement('a');
+    const today = new Date().toISOString().split('T')[0];
     link.href = encodeURI(csvContent);
-    link.download = 'top_medicines_report.csv';
+    link.download = `top_medicines_${today}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -31,11 +51,15 @@ const TopMedicine = ({ chartData }) => {
 
   return (
     <Card
-      title="Top Selling Medicines"
-      extra={<Button onClick={downloadReport}>Download Report</Button>}
-      style={{ marginBottom: 24 }}
+      title="Top Medicines"
+      extra={<Button size="small" onClick={downloadReport} disabled={!chartData}>Download</Button>}
+      style={{ height: '100%', padding: '8px' }}
     >
-      <Bar data={chartData} height={150} />
+      {loading ? (
+        <Spin size="small" />
+      ) : chartData ? (
+        <Bar data={chartData} options={{ maintainAspectRatio: false }} height={200} />
+      ) : 'No data'}
     </Card>
   );
 };

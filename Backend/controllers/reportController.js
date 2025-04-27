@@ -1,7 +1,5 @@
-import User from '../models/User.js';
+import User from '../models/users.model.js';
 import Order from '../models/Order.js';
-import Medicine from '../models/Medicine.js';
-import Branch from '../models/Branch.js';
 
 const getRegistrations = async (req, res) => {
   try {

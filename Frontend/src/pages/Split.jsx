@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Layout,
   Menu,
@@ -10,7 +10,6 @@ import {
   Tag,
   Button,
   Tooltip,
-  Typography,
   Collapse,
   Space,
   Modal,
@@ -20,7 +19,6 @@ import {
 import {
   ShoppingCartOutlined,
   FileSearchOutlined,
-  LogoutOutlined,
   EditOutlined,
   DeleteOutlined,
   CheckOutlined,
@@ -41,15 +39,28 @@ const SplitPagefinal = () => {
   const [selectedPrescription, setSelectedPrescription] = useState(null);
   const [imageBase64, setImageBase64] = useState(null);
   const [loadingImage, setLoadingImage] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [prescriptionToDelete, setPrescriptionToDelete] = useState(null);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
   const location = useLocation();
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const branchId = searchParams.get("branchId");
 
   useEffect(() => {
-    if (!branchId) return;
-    fetchPrescriptions();
+    if (!branchId) {
+      navigate("/pharmacy?branchId=67da723648033b625d6b0f8c", { replace: true });
+    } else {
+      fetchPrescriptions();
+    }
   }, [branchId]);
+
+  useEffect(() => {
+    const handleResize = () => setWindowHeight(window.innerHeight);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchPrescriptions = async () => {
     try {
@@ -87,10 +98,7 @@ const SplitPagefinal = () => {
           placement: "topRight",
           duration: 2,
         });
-
-        setTimeout(() => {
-          fetchPrescriptions();
-        }, 1200);
+        setTimeout(fetchPrescriptions, 1200);
       } else {
         notification.error({
           message: "Failed",
@@ -128,7 +136,9 @@ const SplitPagefinal = () => {
     if (record.imageUrl) {
       try {
         setLoadingImage(true);
-        const res = await fetch(`http://localhost:5080/prescription/image/base64?imagePath=${encodeURIComponent(record.imageUrl)}`);
+        const res = await fetch(
+          `http://localhost:5080/prescription/image/base64?imagePath=${encodeURIComponent(record.imageUrl)}`
+        );
         const data = await res.json();
         if (data.success) {
           setImageBase64(data.base64);
@@ -141,6 +151,51 @@ const SplitPagefinal = () => {
     }
   };
 
+  const openDeleteModal = (prescription, e) => {
+    e.stopPropagation();
+    setPrescriptionToDelete(prescription);
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDeletePrescription = async () => {
+    if (!prescriptionToDelete) return;
+    try {
+      const response = await fetch(`http://localhost:5080/prescription/${prescriptionToDelete._id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Network error!");
+
+      const data = await response.json();
+      if (data.success) {
+        notification.success({
+          message: "Deleted",
+          description: "Prescription deleted successfully.",
+          placement: "topRight",
+          duration: 2,
+        });
+        setDeleteModalVisible(false);
+        setPrescriptionToDelete(null);
+        fetchPrescriptions();
+      } else {
+        notification.error({
+          message: "Failed",
+          description: data.message || "Something went wrong.",
+          placement: "topRight",
+          duration: 2,
+        });
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      notification.error({
+        message: "Error",
+        description: "Server communication failed.",
+        placement: "topRight",
+        duration: 2,
+      });
+    }
+  };
+
   const filteredAdminData = adminSearchQuery
     ? filteredData.filter((item) => item.userId?.toLowerCase().includes(adminSearchQuery.toLowerCase()))
     : filteredData;
@@ -150,6 +205,9 @@ const SplitPagefinal = () => {
       prescription.status?.toLowerCase().includes(pendingSearchQuery.toLowerCase()) &&
       prescription.status === "Pending"
   );
+
+  const tableHeight = (windowHeight - 64 - 120) / 2; 
+  // 64 = Header height, 120 = margins + padding adjustments
 
   const adminColumns = [
     { title: "User ID", dataIndex: "userId", key: "userId" },
@@ -165,7 +223,9 @@ const SplitPagefinal = () => {
       dataIndex: "status",
       key: "status",
       render: (status) => (
-        <Tag color={status === "Completed" ? "green" : status === "Pending" ? "orange" : "red"}>{status}</Tag>
+        <Tag color={status === "Completed" ? "green" : status === "Pending" ? "orange" : "red"}>
+          {status}
+        </Tag>
       ),
     },
     {
@@ -174,10 +234,14 @@ const SplitPagefinal = () => {
       render: (_, record) => (
         <Space>
           <Tooltip title="View Details">
-            <Button icon={<EditOutlined />} type="primary" onClick={(e) => {e.stopPropagation(); handleViewPrescription(record);}}>View</Button>
+            <Button icon={<EditOutlined />} type="primary" onClick={(e) => { e.stopPropagation(); handleViewPrescription(record); }}>
+              View
+            </Button>
           </Tooltip>
           <Tooltip title="Delete Prescription">
-            <Button danger icon={<DeleteOutlined />} />
+            <Button danger icon={<DeleteOutlined />} onClick={(e) => openDeleteModal(record, e)}>
+              Delete
+            </Button>
           </Tooltip>
         </Space>
       ),
@@ -192,8 +256,12 @@ const SplitPagefinal = () => {
       key: "actions",
       render: (_, record) => (
         <Space>
-          <Button type="primary" icon={<CheckOutlined />} onClick={(e) => handleApproveClick(record._id, e)}>Approve</Button>
-          <Button danger icon={<CloseOutlined />} onClick={(e) => handleRejectClick(record._id, e)}>Reject</Button>
+          <Button type="primary" icon={<CheckOutlined />} onClick={(e) => handleApproveClick(record._id, e)}>
+            Approve
+          </Button>
+          <Button danger icon={<CloseOutlined />} onClick={(e) => handleRejectClick(record._id, e)}>
+            Reject
+          </Button>
         </Space>
       ),
     },
@@ -201,30 +269,35 @@ const SplitPagefinal = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
+      {/* Sidebar */}
       <Sider trigger={null} collapsible collapsed={collapsed} style={{ background: "#001529" }}>
         <div className="text-center text-white font-bold text-lg py-6 tracking-wide">MediTrack</div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
-          <Menu.Item key="1" icon={<ShoppingCartOutlined />}>Prescriptions</Menu.Item>
-          <Menu.Item key="2" icon={<FileSearchOutlined />}>Verify Stock</Menu.Item>
-          <Menu.Item key="3" icon={<LogoutOutlined />}>Logout</Menu.Item>
+          <Menu.Item key="1" icon={<ShoppingCartOutlined />} onClick={() => navigate("/pharmacy")}>
+            Prescriptions
+          </Menu.Item>
+          <Menu.Item key="2" icon={<FileSearchOutlined />} onClick={() => navigate("/reports")}>
+            Reports
+          </Menu.Item>
         </Menu>
       </Sider>
 
       <Layout>
-      <Header style={{ background: "#f0f2f5", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-  <div className="flex items-center gap-4">
-    <ShoppingCartOutlined style={{ fontSize: 28, color: "#722ED1" }} />
-    <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "#333" }}>
-      MediTrack Admin Dashboard
-    </h1>
-  </div>
+        {/* Header */}
+        <Header style={{ background: "#f0f2f5", padding: "0 24px", display: "flex", alignItems: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+          <div className="flex items-center gap-4">
+            <ShoppingCartOutlined style={{ fontSize: 28, color: "#722ED1" }} />
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "#333" }}>
+              MediTrack Admin Dashboard
+            </h1>
+          </div>
+        </Header>
 
-</Header>
-
+        {/* Content */}
         <Content className="m-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Panel */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+            {/* Left Side - All Prescriptions */}
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-full">
               <h3 className="text-lg font-semibold mb-4 text-indigo-500">All Prescriptions</h3>
               <Search
                 placeholder="Search by User ID"
@@ -237,14 +310,15 @@ const SplitPagefinal = () => {
               <Table
                 dataSource={filteredAdminData}
                 columns={adminColumns}
-                pagination={{ pageSize: 5 }}
-                rowKey="_id"
+                pagination={false}
+                scroll={{ y: tableHeight }}
                 size="middle"
+                rowKey="_id"
               />
             </div>
 
-            {/* Right Panel */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
+            {/* Right Side - Pending Approvals */}
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-full">
               <h3 className="text-lg font-semibold mb-4 text-indigo-500">Pending Approvals</h3>
               <Search
                 placeholder="Search by Status"
@@ -257,82 +331,28 @@ const SplitPagefinal = () => {
               <Table
                 dataSource={filteredPendingPrescriptions}
                 columns={pendingColumns}
-                pagination={{ pageSize: 5 }}
-                rowKey="_id"
+                pagination={false}
+                scroll={{ y: tableHeight }}
                 expandable={{
                   expandedRowRender: (record) => <MedicineCollapse medicines={record.medicines || []} />,
                   rowExpandable: (record) => record.medicines?.length > 0,
                 }}
                 size="middle"
+                rowKey="_id"
               />
             </div>
           </div>
         </Content>
       </Layout>
-
-      <Modal
-        title="Prescription Details"
-        open={viewModalVisible}
-        onCancel={() => {
-          setViewModalVisible(false);
-          setSelectedPrescription(null);
-          setImageBase64(null);
-        }}
-        footer={null}
-        width={750}
-      >
-        {selectedPrescription && (
-          <div className="space-y-4">
-            {loadingImage ? (
-              <div className="flex justify-center py-6">
-                <Spin size="large" />
-              </div>
-            ) : imageBase64 ? (
-              <div className="flex justify-center">
-                <img
-                  src={`data:image/jpeg;base64,${imageBase64}`}
-                  alt="Prescription"
-                  style={{
-                    maxHeight: "400px",
-                    width: "auto",
-                    borderRadius: "8px",
-                    marginBottom: "1rem",
-                  }}
-                />
-              </div>
-            ) : null}
-            <p><strong>Prescription ID:</strong> {selectedPrescription._id}</p>
-            <p><strong>Status:</strong> {selectedPrescription.status}</p>
-            <p><strong>Note:</strong> {selectedPrescription.note || "No notes provided."}</p>
-
-            <Collapse defaultActiveKey={["1"]}>
-              <Panel header="Medicines in Prescription" key="1">
-                <Table
-                  dataSource={selectedPrescription.medicines?.map((med, index) => ({
-                    key: index,
-                    name: med.medicineId?.name || "Unknown",
-                    quantity: med.quantity,
-                  })) || []}
-                  columns={[
-                    { title: "Medicine Name", dataIndex: "name", key: "name" },
-                    { title: "Quantity", dataIndex: "quantity", key: "quantity" },
-                  ]}
-                  pagination={false}
-                  size="small"
-                />
-              </Panel>
-            </Collapse>
-          </div>
-        )}
-      </Modal>
     </Layout>
   );
 };
 
 export default SplitPagefinal;
 
+// Medicine Collapse Table
 const MedicineCollapse = ({ medicines }) => (
-  <Collapse className="bg-white rounded-md">
+  <Collapse>
     <Panel header="Medicines" key="1">
       <Table
         dataSource={medicines.map((med, index) => ({
