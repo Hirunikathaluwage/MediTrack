@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const BranchSchema = new mongoose.Schema({
@@ -8,4 +9,6 @@ const BranchSchema = new mongoose.Schema({
 
 export const Branch = mongoose.model("Branch", BranchSchema);
 
+
 export default Branch;
+

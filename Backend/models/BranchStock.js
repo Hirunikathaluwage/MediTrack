@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const BranchStockSchema = new mongoose.Schema({
@@ -12,4 +13,7 @@ const BranchStockSchema = new mongoose.Schema({
 });
 
 export const BranchStock = mongoose.model("BranchStock", BranchStockSchema);
+
 export default BranchStock;
+
+

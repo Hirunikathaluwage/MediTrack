@@ -1,3 +1,4 @@
+
 import express from "express";
 import { getPrescription,updatePrescriptionStatus } from "../controllers/prescription.controller.js";
 
@@ -9,6 +10,3 @@ router.put("/:id/status", updatePrescriptionStatus);
 
 
 export default router;
-
-
-

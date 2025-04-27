@@ -1,6 +1,8 @@
 
 node_modules/
+Frontend/node_modules/
 Backend/node_modules/
-frontend/node_modules/
-helper.txt
-.env
+
+Backend/.env
+Backend/uploads
+

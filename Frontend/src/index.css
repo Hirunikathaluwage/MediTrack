@@ -1,4 +1,18 @@
-@import "tailwindcss";
+
+
+ @import "tailwindcss";
+.form-container {
+    
+    border: 2px solid hsl(0, 5%, 88%);
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    margin: auto;
+    background-color: #f8f4f4;
+    margin-top: 200px;
+}
+
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
@@ -27,11 +41,16 @@ button:focus-visible {
   :root {
     color: #213547;
     background-color: #ffffff;
+
   }
-  a:hover {
-    color: #747bff;
+  
+  .custom-form {
+    display: flex;
+    flex-direction: column;
   }
-  button {
-    background-color: #f9f9f9;
+  
+  .input-box {
+    width: 100%;
+    margin-bottom: 15px;
   }
 }
