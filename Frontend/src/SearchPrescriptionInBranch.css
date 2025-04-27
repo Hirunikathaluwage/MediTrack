@@ -1,0 +1,136 @@
+/* SearchMedicineInBranch.css */
+
+/* Container for the entire search page */
+.search-container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9; /* Light background for better contrast */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Title of the page */
+.title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Styling for the search input */
+.search-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+/* Container for the table */
+.table-container {
+  overflow-x: auto;
+}
+
+/* Table styling */
+.medicine-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.medicine-table th,
+.medicine-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.medicine-table th {
+  background-color: #007BFF; /* Blue header for better visibility */
+  color: #fff;
+}
+
+.medicine-table td {
+  background-color: #ffffff; /* White background for rows */
+}
+
+.medicine-table tr:nth-child(even) {
+  background-color: #f8f9fa; /* Light gray for alternate rows */
+}
+
+.medicine-table tr:hover {
+  background-color: #e9ecef; /* Slightly darker gray on hover */
+}
+
+/* No results found message */
+.no-results {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #6c757d; /* Neutral gray for no results */
+}
+
+/* Button styling */
+.update-btn,
+.delete-btn,
+.expand-btn {
+  padding: 8px 16px;
+  font-size: 1rem;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.update-btn {
+  background-color: #28a745; /* Green for update */
+  margin-right: 10px;
+}
+
+.update-btn:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.delete-btn {
+  background-color: #dc3545; /* Red for delete */
+}
+
+.delete-btn:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+.expand-btn {
+  background-color: #007BFF; /* Blue for expand */
+  margin-top: 10px;
+}
+
+.expand-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Add some margin to the action buttons */
+.update-btn, .delete-btn, .expand-btn {
+  margin-top: 10px;
+}
+
+/* Row Expansion (details view) */
+.expand-row {
+  background-color: #f9f9f9;
+  display: none; /* Hidden by default */
+  text-align: left;
+}
+
+.expand-row td {
+  padding-left: 20px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.expand-row.active {
+  display: table-row; /* Show when active */
+}

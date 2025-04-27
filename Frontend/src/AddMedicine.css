@@ -1,0 +1,49 @@
+.container {
+    max-width: auto;
+    margin: auto;
+    padding: 40px;
+    background-color: #b8ebf4;
+    border-radius: 50px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  h1 {
+    color: #333;
+  }
+  
+  .message {
+    color: green;
+    font-size: 14px;
+  }
+  
+  .medicine-form {
+    display: flex;
+    flex-direction: column;
+    margin-left: 50px;
+  }
+  
+  .medicine-form input,
+  .medicine-form button {
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .medicine-form input {
+    background: white;
+  }
+  
+  .medicine-form button {
+    background-color: #4a90e2;
+    color: white;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .medicine-form button:hover {
+    background-color: #357ab8;
+  }
+  

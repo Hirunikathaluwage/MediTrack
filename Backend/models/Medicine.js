@@ -19,10 +19,13 @@ const medicineSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true,
+
+        type : String,
+        required : true,
     },
 
-
     qty: {
+
         type: String,
         required: true,
     },
@@ -35,4 +38,8 @@ const medicineSchema = new mongoose.Schema({
 
 export const Medicine = mongoose.model("Medicine", medicineSchema);
 
+
 export default Medicine;
+
+
+

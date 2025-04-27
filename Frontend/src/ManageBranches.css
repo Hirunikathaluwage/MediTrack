@@ -1,0 +1,83 @@
+/* Container styling */
+.manage-branches-container {
+  padding: 24px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Title styling */
+.manage-branches-container h2 {
+  margin-bottom: 24px;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Search input styling */
+.manage-branches-container input {
+  margin-bottom: 16px;
+  padding: 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+/* Table styling */
+.ant-table {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: bold;
+  text-align: center;
+  font-size: 14px;
+}
+
+.ant-table-tbody > tr > td {
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Button spacing */
+.ant-space-item button {
+  margin-right: 8px;
+}
+
+/* Popconfirm styling */
+.ant-popover-message-title {
+  font-weight: bold;
+  color: #ff4d4f;
+}
+
+/* Save and Cancel button styling */
+.ant-btn-primary {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+
+.ant-btn-danger {
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .manage-branches-container {
+    padding: 16px;
+  }
+
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    font-size: 12px;
+  }
+}

@@ -27,6 +27,7 @@ const Approval = () => {
     const navigate = useNavigate();
 
     const pollingRef = useRef(null);
+
     const userId = "680b51cc9304025f19b2d7d1";
 
     useEffect(() => {
@@ -34,6 +35,7 @@ const Approval = () => {
 
         setCartItems([]);
         setReservedItems([]);
+
 
         if (prescriptionId) {
             startPollingStatus();
@@ -48,8 +50,9 @@ const Approval = () => {
     }, [prescriptionId]);
 
     const startPollingStatus = () => {
-        fetchMedicines();
-        pollingRef.current = setInterval(fetchMedicines, 5000);
+
+        fetchMedicines(); // Initial fetch
+        pollingRef.current = setInterval(fetchMedicines, 5000); // Poll every 5s
     };
 
     const fetchMedicines = async () => {
@@ -93,7 +96,9 @@ const Approval = () => {
 
         try {
             const response = await axios.post('http://localhost:5080/api/cart', {
+
                 userId: userId,
+
                 items: [
                     {
                         medicineId: medicine.id,
@@ -126,6 +131,7 @@ const Approval = () => {
 
     const reserve = (medicine) => {
         if (!reservedItems.some(item => item.id === medicine.id)) {
+
             const updatedReserved = [...reservedItems, {
                 id: medicine.id,
                 name: medicine.name,
@@ -136,10 +142,12 @@ const Approval = () => {
                 unit: medicine.unit || "",
                 quantity: 1
             }];
+
             setReservedItems(updatedReserved);
             message.success(`${medicine.name} reserved.`);
         }
     };
+
 
     const goToReserve = async (updatedReservedItems) => {
         if (updatedReservedItems.length === 0) {
@@ -179,6 +187,10 @@ const Approval = () => {
 
 
 
+  
+
+
+
     const goToCart = async () => {
         try {
             const itemsToAdd = medicines
@@ -196,11 +208,15 @@ const Approval = () => {
             }
 
             const response = await axios.post('http://localhost:5080/api/cart', {
+
                 userId: userId,
+
+
                 items: itemsToAdd
             });
 
             if (response.data) {
+
                 const updatedCart = response.data.items.map(item => ({
                     id: item.medicineId,
                     quantity: item.quantity,
@@ -365,7 +381,9 @@ const Approval = () => {
                             <Button
                                 type="default"
                                 size="large"
+
                                 onClick={() => goToReserve(reservedItems)}
+
                                 style={{ borderColor: "#0c8599", color: "#0c8599" }}
                             >
                                 Go to Reserve ({reservedItems.length})

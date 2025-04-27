@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 
 // Subdocument schema for each item in the order
@@ -55,3 +56,4 @@ const orderSchema = new mongoose.Schema({
 const Order = mongoose.model('Order', orderSchema);
 
 export default Order;
+
