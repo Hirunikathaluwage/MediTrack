@@ -2,10 +2,13 @@
 
 import express from 'express';
 import dotenv from 'dotenv';
-
-import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import mongoose from 'mongoose';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { createServer } from 'http';  // ✅ Added
+import { Server } from 'socket.io';   // ✅ Added
 
 import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
@@ -13,12 +16,27 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import prescriptionRoutes from "./routes/prescriptionRoutes.js";
 import branchRoutes from "./routes/branchRoutes.js";
 import reservationRoutes from "./routes/reservationRoutes.js"
-import { fileURLToPath } from 'url';
 
-import { connectDB } from './dbconnect.js';
 import medicineroute from './routes/MedicineRoute.js';
 import branchstockroute from './routes/BranchStockRoute.js';
 
+import connectDB from './config/db.js';
+import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+
+// ✅ NEW: Import SLA Scheduler
+import { scheduleSLAAlert } from './utils/slaChecker.js';
+
+// Routes
+import customerRoutes from './routes/customerRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import inquiryRoutes from './routes/inquiryRoutes.js';
+
+// ✅ Load .env variables
+dotenv.config();
+console.log('🟢 Starting MediTrack server...');
+
+// ✅ Connect to MongoDB
+connectDB();
 
 const app = express();
 app.use(cors());
@@ -34,11 +52,13 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reserve', reservationRoutes);
-
 app.use("/api/medicines", medicineroute);
-app.use("/api/branch", branchroute);
+app.use("/api/branch", branchRoutes);
 app.use("/api/branchstock", branchstockroute);
-app.use("/api/prescription", PrescriptionRoute);
+app.use("/api/prescription", prescriptionRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/admins', adminRoutes);
+app.use('/api/inquiries', inquiryRoutes);
 
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -50,8 +70,44 @@ mongoose.connect(process.env.MONGO_URI, {
 
 
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.use(cors({
+  origin: process.env.ORIGIN || 'http://localhost:5173',
+  credentials: true
+}));
 
 
+app.use(notFound);
+app.use(errorHandler);
+
+scheduleSLAAlert();
+
+// ✅ Create HTTP Server
+const PORT = process.env.PORT || 5000;
+const httpServer = createServer(app);
 
 
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.ORIGIN || 'http://localhost:5173',
+    credentials: true
+  }
+});
 
+
+io.on('connection', (socket) => {
+  console.log('🟢 New Client Connected:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('🔴 Client Disconnected:', socket.id);
+  });
+});
+
+export { io };
+
+httpServer.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});

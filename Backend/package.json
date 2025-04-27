@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "type": "module",
   "keywords": [],
@@ -20,12 +21,19 @@
     "express": "^4.21.2",
     "mongoose": "^8.13.2",
     "multer": "^1.4.5-lts.2",
-    "nodemailer": "^6.10.0"
-
-
-
     "@google-cloud/vision": "^4.3.3",
-
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "dayjs": "^1.11.13",
+    "google-translate-api-x": "^10.7.2",
+    "jsonwebtoken": "^9.0.2",
+    "natural": "^8.0.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.10.1",
+    "recharts": "^2.15.3",
+    "socket.io": "^4.8.1",
+    "twilio": "^5.5.2"
   },
   "devDependencies": {
     "eslint": "^9.23.0",
