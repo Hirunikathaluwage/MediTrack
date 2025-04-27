@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Layout,
   Menu,
@@ -12,6 +13,9 @@ import {
   Typography,
   Collapse,
   Space,
+  Modal,
+  Spin,
+  notification,
 } from "antd";
 import {
   ShoppingCartOutlined,
@@ -25,352 +29,247 @@ import {
 
 const { Header, Sider, Content } = Layout;
 const { Search } = Input;
-const { Title } = Typography;
 const { Panel } = Collapse;
-
-const prescriptionData = [
-  {
-    key: "1",
-    userId: "U123",
-    branch: "Galle",
-    status: "Pending",
-    phoneNumber: "0771234567",
-    prescriptionNote: "Take with food",
-  },
-  {
-    key: "2",
-    userId: "U124",
-    branch: "Kandy",
-    status: "Completed",
-    phoneNumber: "0779876543",
-    prescriptionNote: "Before bedtime",
-  },
-  {
-    key: "3",
-    userId: "U125",
-    branch: "Colombo",
-    status: "Cancelled",
-    phoneNumber: "0712345678",
-    prescriptionNote: "Twice daily",
-  },
-];
 
 const SplitPagefinal = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [prescriptions, setPrescriptions] = useState([]);
   const [adminSearchQuery, setAdminSearchQuery] = useState("");
   const [pendingSearchQuery, setPendingSearchQuery] = useState("");
-  const [medicines, setMedicines] = useState([]);
-  const [filteredData, setFilteredData] = useState(prescriptionData);
+  const [filteredData, setFilteredData] = useState([]);
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [selectedPrescription, setSelectedPrescription] = useState(null);
+  const [imageBase64, setImageBase64] = useState(null);
+  const [loadingImage, setLoadingImage] = useState(false);
 
-  const branchId = "67d690256c54c8fbf5a1eff3";
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const branchId = searchParams.get("branchId");
 
   useEffect(() => {
-    // For the right side component - fetch data from API in a real implementation
-    fetch(`http://localhost:5080/adminprescription/prescription/${branchId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.success && Array.isArray(data.prescriptions)) {
-          setPrescriptions(data.prescriptions);
-        } else {
-          // Use mock data for demo
-          setPrescriptions([]);
-        }
-      })
-      .catch(() => setPrescriptions([]));
+    if (!branchId) return;
+    fetchPrescriptions();
+  }, [branchId]);
 
-    fetch("http://localhost:5080/adminpresciption/prescriptions/:id/medicines")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.success && Array.isArray(data.data)) {
-          setMedicines(data.data);
-        } else {
-          setMedicines([]);
-        }
-      })
-      .catch(() => setMedicines([]));
-
-    // For the left side component - use the mock data
-    if (adminSearchQuery) {
-      const filtered = prescriptionData.filter(item => 
-        item.userId.toLowerCase().includes(adminSearchQuery.toLowerCase())
-      );
-      setFilteredData(filtered);
-    } else {
-      setFilteredData(prescriptionData);
+  const fetchPrescriptions = async () => {
+    try {
+      const res = await fetch(`http://localhost:5080/adminprescription/prescription/${branchId}`);
+      const data = await res.json();
+      if (data?.success && Array.isArray(data.prescriptions)) {
+        setPrescriptions(data.prescriptions);
+        setFilteredData(data.prescriptions);
+      } else {
+        setPrescriptions([]);
+        setFilteredData([]);
+      }
+    } catch (err) {
+      console.error("Error loading prescriptions:", err);
+      setPrescriptions([]);
+      setFilteredData([]);
     }
-  }, [branchId, adminSearchQuery]);
+  };
 
-  // Left side columns
+  const handleStatusUpdate = async (prescriptionId, status) => {
+    try {
+      const response = await fetch(`http://localhost:5080/adminprescription/prescription/${prescriptionId}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) throw new Error("Network error!");
+
+      const data = await response.json();
+      if (data.success) {
+        notification.success({
+          message: "Success",
+          description: `Prescription ${status.toLowerCase()} successfully.`,
+          placement: "topRight",
+          duration: 2,
+        });
+
+        setTimeout(() => {
+          fetchPrescriptions();
+        }, 1500);
+      } else {
+        notification.error({
+          message: "Failed",
+          description: data.message || "Something went wrong.",
+          placement: "topRight",
+          duration: 2,
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      notification.error({
+        message: "Error",
+        description: "Server communication failed.",
+        placement: "topRight",
+        duration: 2,
+      });
+    }
+  };
+
+  const handleApproveClick = (prescriptionId, e) => {
+    e.stopPropagation();
+    handleStatusUpdate(prescriptionId, "Verified");
+  };
+
+  const handleRejectClick = (prescriptionId, e) => {
+    e.stopPropagation();
+    handleStatusUpdate(prescriptionId, "Rejected");
+  };
+
+  const handleViewPrescription = async (record) => {
+    setSelectedPrescription(record);
+    setViewModalVisible(true);
+    setImageBase64(null);
+
+    if (record.imageUrl) {
+      try {
+        setLoadingImage(true);
+        const res = await fetch(`http://localhost:5080/prescription/image/base64?imagePath=${encodeURIComponent(record.imageUrl)}`);
+        const data = await res.json();
+        if (data.success) {
+          setImageBase64(data.base64);
+        }
+      } catch (err) {
+        console.error("Error fetching base64 image:", err);
+      } finally {
+        setLoadingImage(false);
+      }
+    }
+  };
+
+  const filteredAdminData = adminSearchQuery
+    ? filteredData.filter((item) =>
+        item.userId?.toLowerCase().includes(adminSearchQuery.toLowerCase())
+      )
+    : filteredData;
+
+  const filteredPendingPrescriptions = prescriptions.filter(
+    (prescription) =>
+      prescription.status?.toLowerCase().includes(pendingSearchQuery.toLowerCase()) &&
+      prescription.status === "Pending"
+  );
+
   const adminColumns = [
-    {
-      title: <span className="text-purple-700 font-semibold">User ID</span>,
-      dataIndex: "userId",
-      key: "userId",
+    { title: "User ID", dataIndex: "userId", key: "userId" },
+    { title: "Branch", key: "branchId", render: (_, record) => (
+        <Tag color="blue">{record.branchId?.branchName || "Unknown Branch"}</Tag>
+      ),
     },
-    {
-      title: <span className="text-purple-700 font-semibold">Branch</span>,
-      dataIndex: "branch",
-      key: "branch",
-      render: (text) => {
-        const colorMap = {
-          Galle: "green",
-          Kandy: "blue",
-          Colombo: "volcano",
-        };
-        return <Tag color={colorMap[text]} className="font-medium">{text}</Tag>;
-      },
+    { title: "Status", dataIndex: "status", key: "status", render: (status) => (
+        <Tag color={status === "Completed" ? "green" : status === "Pending" ? "orange" : "red"}>{status}</Tag>
+      ),
     },
-    {
-      title: <span className="text-purple-700 font-semibold">Status</span>,
-      dataIndex: "status",
-      key: "status",
-      render: (text) => {
-        const color =
-          text === "Completed"
-            ? "green"
-            : text === "Pending"
-            ? "orange"
-            : "red";
-        return <Tag color={color}>{text}</Tag>;
-      },
-    },
-    {
-      title: <span className="text-purple-700 font-semibold">Actions</span>,
-      key: "actions",
-      render: (_, record) => (
-        <div className="flex gap-2">
+    { title: "Actions", key: "actions", render: (_, record) => (
+        <Space size="small">
           <Tooltip title="View this prescription">
-            <Button
-              icon={<EditOutlined />}
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-none hover:from-indigo-600 hover:to-purple-600"
-            >
-              View
-            </Button>
+            <Button icon={<EditOutlined />} onClick={(e) => {e.stopPropagation(); handleViewPrescription(record);}}>View</Button>
           </Tooltip>
           <Tooltip title="Delete this prescription">
             <Button danger icon={<DeleteOutlined />} />
           </Tooltip>
-        </div>
-      ),
-    },
-  ];
-
-  // Right side columns
-  const pendingColumns = [
-    {
-      title: "Prescription ID",
-      dataIndex: "_id",
-      key: "_id",
-      render: (text) => <span className="text-sm font-medium">{text || "PRES-123"}</span>,
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => (
-        <span className="px-2 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800">
-          {status || "Pending"}
-        </span>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space size="small">
-          <Button
-            type="primary"
-            className="bg-green-500 hover:bg-green-600 border-green-500 hover:border-green-600"
-            icon={<CheckOutlined />}
-            onClick={() => handleStatusUpdate(record._id || "1", "Verified")}
-          >
-            Approve
-          </Button>
-          <Button
-            danger
-            className="bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600 text-white"
-            icon={<CloseOutlined />}
-            onClick={() => handleStatusUpdate(record._id || "1", "Rejected")}
-          >
-            Reject
-          </Button>
         </Space>
       ),
     },
   ];
 
-  const handleStatusUpdate = async (prescriptionId, status) => {
-    try {
-      // In a real implementation, this would make an API call
-      console.log(`Updating prescription ${prescriptionId} to ${status}`);
-      
-      // Mock update for demo
-      alert(`Prescription ${status} successfully!`);
-      
-      // Update state to reflect the change
-      setPrescriptions((prev) =>
-        prev.map((prescription) =>
-          prescription._id === prescriptionId
-            ? { ...prescription, status }
-            : prescription
-        )
-      );
-    } catch (error) {
-      alert("Error updating prescription status.");
-      console.error("Error:", error);
-    }
-  };
-
-  const filteredPrescriptions = prescriptions.length > 0 
-    ? prescriptions.filter(
-        (prescription) =>
-          prescription.status?.toLowerCase().includes(pendingSearchQuery.toLowerCase()) &&
-          prescription.status === "Pending"
-      )
-    : [];
-
-  // If no prescriptions from API, use mock data for demo
-  const pendingPrescriptionsData = filteredPrescriptions.length > 0 
-    ? filteredPrescriptions 
-    : prescriptionData.filter(item => item.status === "Pending");
+  const pendingColumns = [
+    { title: "Prescription ID", dataIndex: "_id", key: "_id" },
+    { title: "Status", dataIndex: "status", key: "status" },
+    { title: "Actions", key: "actions", render: (_, record) => (
+        <Space size="small">
+          <Button type="primary" icon={<CheckOutlined />} onClick={(e) => handleApproveClick(record._id, e)}>Approve</Button>
+          <Button danger icon={<CloseOutlined />} onClick={(e) => handleRejectClick(record._id, e)}>Reject</Button>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {/* Sidebar */}
       <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
-        <div className="text-white text-center py-4 font-bold text-lg tracking-wide">
-          MediTrack
-        </div>
+        <div className="text-white text-center py-4 font-bold text-lg">MediTrack</div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
-          <Menu.Item key="1" icon={<ShoppingCartOutlined />}>
-            Prescriptions
-          </Menu.Item>
-          <Menu.Item key="2" icon={<FileSearchOutlined />}>
-            Verify Stock
-          </Menu.Item>
-          <Menu.Item key="3" icon={<LogoutOutlined />}>
-            Logout
-          </Menu.Item>
+          <Menu.Item key="1" icon={<ShoppingCartOutlined />}>Prescriptions</Menu.Item>
+          <Menu.Item key="2" icon={<FileSearchOutlined />}>Verify Stock</Menu.Item>
+          <Menu.Item key="3" icon={<LogoutOutlined />}>Logout</Menu.Item>
         </Menu>
       </Sider>
 
-      {/* Main Content */}
       <Layout>
         <Header style={{ background: "#fff", paddingLeft: 24 }}>
-          <h2 className="text-xl font-semibold text-indigo-700">
-            Pharmacy Management System
-          </h2>
+          <h2 className="text-xl font-semibold text-indigo-700">Pharmacy Management System</h2>
         </Header>
-        
+
         <Content className="m-4">
           <div className="flex flex-col md:flex-row gap-4">
-            {/* Left Side - Admin Prescription Management */}
-            <div className="w-full md:w-1/2 p-4 bg-gradient-to-br from-white via-purple-50 to-indigo-100 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4 text-indigo-800">
-                Admin Prescription Management
-              </h3>
-
-              {/* Search */}
-              <Search
-                placeholder="Search by User ID..."
-                value={adminSearchQuery}
-                onChange={(e) => setAdminSearchQuery(e.target.value)}
-                className="mb-4 w-full"
-                allowClear
-              />
-
-              {/* Table */}
-              <Table
-                dataSource={filteredData}
-                columns={adminColumns}
-                pagination={{ pageSize: 3 }}
-                className="rounded-lg overflow-hidden bg-white shadow-sm"
-                size="small"
-              />
+            <div className="w-full md:w-1/2 p-4 bg-gradient-to-br from-white via-purple-50 to-indigo-100 rounded-lg">
+              <Search placeholder="Search by User ID..." value={adminSearchQuery} onChange={(e) => setAdminSearchQuery(e.target.value)} className="mb-4" allowClear />
+              <Table dataSource={filteredAdminData} columns={adminColumns} pagination={{ pageSize: 5 }} rowKey="_id" size="small" />
             </div>
 
-            {/* Right Side - Pending Prescriptions */}
-            <div className="w-full md:w-1/2 p-4 bg-gray-50 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold mb-4 text-gray-800">
-                Pending Prescriptions
-              </h3>
-
-              {/* Search */}
-              <Input
-                placeholder="Search for prescription status..."
-                value={pendingSearchQuery}
-                onChange={(e) => setPendingSearchQuery(e.target.value)}
-                className="mb-4 shadow-sm"
-                prefix={<span className="text-gray-400">🔍</span>}
+            <div className="w-full md:w-1/2 p-4 bg-gray-50 rounded-lg">
+              <Search placeholder="Search by Status" value={pendingSearchQuery} onChange={(e) => setPendingSearchQuery(e.target.value)} className="mb-4" allowClear />
+              <Table
+                dataSource={filteredPendingPrescriptions}
+                columns={pendingColumns}
+                pagination={{ pageSize: 5 }}
+                rowKey="_id"
+                expandable={{ expandedRowRender: (record) => <MedicineCollapse medicines={record.medicines || []} />, rowExpandable: (record) => record.medicines?.length > 0, expandRowByClick: false }}
+                onRow={() => ({ onClick: (event) => { if (event.target.closest("button") || event.target.closest(".ant-btn")) event.stopPropagation(); }})}
+                size="small"
               />
-
-              {pendingPrescriptionsData.length > 0 ? (
-                <div className="bg-white rounded-lg shadow-sm">
-                  <Table
-                    dataSource={pendingPrescriptionsData}
-                    columns={pendingColumns}
-                    rowKey={(record) => record._id || record.key}
-                    className="overflow-x-auto"
-                    pagination={{ pageSize: 3 }}
-                    size="small"
-                    expandable={{
-                      expandedRowRender: (record) => (
-                        <div className="px-4 py-2 bg-gray-50">
-                          <Collapse defaultActiveKey={["1"]} className="bg-white">
-                            <Panel 
-                              header={
-                                <span className="font-medium text-blue-600">
-                                  Prescription Medicines
-                                </span>
-                              } 
-                              key="1"
-                            >
-                              {/* Mock medicine data for demo */}
-                              <Table
-                                dataSource={[
-                                  { key: '1', name: 'Paracetamol', quantity: 10 },
-                                  { key: '2', name: 'Amoxicillin', quantity: 5 }
-                                ]}
-                                columns={[
-                                  {
-                                    title: "Medicine Name",
-                                    dataIndex: "name",
-                                    key: "name",
-                                  },
-                                  {
-                                    title: "Quantity",
-                                    dataIndex: "quantity",
-                                    key: "quantity",
-                                    render: (quantity) => (
-                                      <span className="font-medium">{quantity}</span>
-                                    ),
-                                  },
-                                ]}
-                                pagination={false}
-                                className="mt-2"
-                                size="small"
-                              />
-                            </Panel>
-                          </Collapse>
-                        </div>
-                      ),
-                      rowExpandable: () => true,
-                      expandRowByClick: true,
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-                  <p className="text-gray-500 text-lg">No pending prescriptions found</p>
-                </div>
-              )}
             </div>
           </div>
         </Content>
       </Layout>
+
+      <Modal
+        title="Prescription Details"
+        open={viewModalVisible}
+        onCancel={() => {setViewModalVisible(false);setSelectedPrescription(null);setImageBase64(null);}}
+        footer={null}
+        width={700}
+      >
+        {selectedPrescription && (
+          <div className="space-y-4">
+            {loadingImage ? (
+              <div className="flex justify-center py-6"><Spin size="large" /></div>
+            ) : imageBase64 ? (
+              <div className="flex justify-center">
+                <img src={`data:image/jpeg;base64,${imageBase64}`} alt="Prescription" style={{ maxHeight: "400px", width: "auto", borderRadius: "8px", marginBottom: "1rem" }} />
+              </div>
+            ) : null}
+            <p><strong>Prescription ID:</strong> {selectedPrescription._id}</p>
+            <p><strong>Status:</strong> {selectedPrescription.status}</p>
+            <p><strong>Note:</strong> {selectedPrescription.note || "No note provided."}</p>
+            <Collapse defaultActiveKey={["1"]}>
+              <Panel header="Medicines" key="1">
+                <Table dataSource={selectedPrescription.medicines?.map((med, index) => ({key: index,name: med.medicineId?.name || "Unknown",quantity: med.quantity,})) || []} columns={[{ title: "Medicine Name", dataIndex: "name", key: "name" },{ title: "Quantity", dataIndex: "quantity", key: "quantity" }]} pagination={false} size="small" />
+              </Panel>
+            </Collapse>
+          </div>
+        )}
+      </Modal>
+
     </Layout>
   );
 };
 
 export default SplitPagefinal;
+
+const MedicineCollapse = ({ medicines }) => (
+  <Collapse defaultActiveKey={["1"]} className="bg-white">
+    <Panel header="Medicines in Prescription" key="1">
+      <Table
+        dataSource={medicines.map((med, index) => ({ key: index, name: med.medicineId?.name || "Unknown", quantity: med.quantity }))}
+        columns={[{ title: "Medicine Name", dataIndex: "name", key: "name" },{ title: "Quantity", dataIndex: "quantity", key: "quantity" }]}
+        pagination={false}
+        size="small"
+      />
+    </Panel>
+  </Collapse>
+);

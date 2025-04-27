@@ -67,7 +67,7 @@ const Prescription = () => {
         formData.append("age", values.age);
         formData.append("mobile", values.mobile);
         formData.append("note", values.note);
-        formData.append("branch", values.branch);
+        formData.append("branchId", values.branchId);
         formData.append("image", fileList[0].originFileObj);
 
         try {
@@ -174,7 +174,7 @@ const Prescription = () => {
                         </Form.Item>
 
                         <Form.Item
-                            name="branch"
+                            name="branchId"
                             label="Select Branch"
                             rules={[{ required: true, message: "Please select your preferred branch!" }]}
                             {...customStyles.formItem}

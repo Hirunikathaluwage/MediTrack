@@ -7,7 +7,7 @@ export const getPrescriptionsByBranch = async (req, res) => {
   try {
     const { branchId } = req.params;
 
-    const prescriptions = await Prescription.find({ branchId }).populate('medicines.medicineId');
+    const prescriptions = await Prescription.find({ branchId }).populate('medicines.medicineId').populate('branchId');
 
     res.status(200).json({ success: true, prescriptions });
   } catch (error) {

@@ -6,6 +6,7 @@ import Prescription from "../models/Prescription.js";
 import Medicine from "../models/Medicine.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
+import path from "path";
 import dotenv from "dotenv";
 import BranchStock from "../models/BranchStock.js";
 
@@ -133,6 +134,35 @@ export const uploadPrescription = async (req, res) => {
     } catch (error) {
         console.error("Prescription Upload Error:", error);
         res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+export const getImageAsBase64 = async (req, res) => {
+    try {
+        const { imagePath } = req.query;
+
+        if (!imagePath) {
+            return res.status(400).json({ success: false, message: "imagePath is required as query param." });
+        }
+
+        const fullPath = path.join(process.cwd(), imagePath.replace(/^\/+/, '')); // Remove any starting / just in case
+        console.log("Full path to read:", fullPath);
+
+        if (!fs.existsSync(fullPath)) {
+            return res.status(404).json({ success: false, message: "File not found." });
+        }
+
+        const imageBuffer = fs.readFileSync(fullPath);
+        const base64Image = imageBuffer.toString("base64");
+
+        res.status(200).json({
+            success: true,
+            base64: base64Image,
+        });
+
+    } catch (error) {
+        console.error("Error reading image as base64:", error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
