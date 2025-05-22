@@ -23,21 +23,25 @@ const DeliverySchema = new mongoose.Schema({
     type: String,
     default: '',
   },
-  driverId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Driver', // optional reference
+  driverId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Driver', // Correct: this will help populate() when fetching
     default: null,
   },
   driver: {
     type: String,
-    default: '',
+    default: '', // Driver's name (for easy display)
   },
   status: {
     type: String,
-    enum: ['pending', 'in transit', 'delivered'], // Define allowed statuses
-    default: 'pending', // Default status
+    enum: ['pending', 'in transit', 'delivered', 'failed'], // 🛠️ Added 'failed' also
+    default: 'pending',
   },
-  orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order", required: true },
+  orderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Order',
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
