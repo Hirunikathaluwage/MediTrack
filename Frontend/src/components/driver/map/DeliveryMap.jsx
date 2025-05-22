@@ -4,19 +4,23 @@ import 'leaflet/dist/leaflet.css';
 
 const DeliveryMap = ({ delivery }) => {
   useEffect(() => {
-    // Create map instance
+    if (!delivery?.location?.lat || !delivery?.location?.lng) {
+      console.error('No valid location for this delivery.');
+      return;
+    }
+
     const map = L.map('map').setView(
-      [delivery.coordinates.lat, delivery.coordinates.lng],
+      [delivery.location.lat, delivery.location.lng],
       13
     );
 
-    // Add the OpenStreetMap tiles
+    // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
-    // Delivery location marker
+    // Marker for delivery destination
     const deliveryIcon = L.icon({
       iconUrl:
         'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -28,19 +32,17 @@ const DeliveryMap = ({ delivery }) => {
       shadowSize: [41, 41],
     });
 
-    L.marker([delivery.coordinates.lat, delivery.coordinates.lng], {
+    L.marker([delivery.location.lat, delivery.location.lng], {
       icon: deliveryIcon,
     })
       .addTo(map)
-      .bindPopup(
-        `<b>${delivery.customerName}</b><br>${delivery.address}`
-      )
+      .bindPopup(`<b>${delivery.customerName}</b><br>${delivery.address}`)
       .openPopup();
 
-    // Driver current location (simulated)
+    // Driver simulated location (a little away for testing)
     const driverLocation = {
-      lat: delivery.coordinates.lat - 0.01,
-      lng: delivery.coordinates.lng - 0.01,
+      lat: delivery.location.lat - 0.01,
+      lng: delivery.location.lng - 0.01,
     };
 
     const driverIcon = L.icon({
@@ -58,12 +60,12 @@ const DeliveryMap = ({ delivery }) => {
       icon: driverIcon,
     })
       .addTo(map)
-      .bindPopup('Your current location');
+      .bindPopup('Your Current Location');
 
-    // Route line between driver and delivery
+    // Draw route
     const routePoints = [
       [driverLocation.lat, driverLocation.lng],
-      [delivery.coordinates.lat, delivery.coordinates.lng],
+      [delivery.location.lat, delivery.location.lng],
     ];
 
     L.polyline(routePoints, {

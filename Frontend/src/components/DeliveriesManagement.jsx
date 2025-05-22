@@ -15,45 +15,11 @@ const DeliveriesManagement = ({ onViewDelivery = () => {} }) => {
         }
         const deliveriesData = await response.json();
 
-        const deliveriesWithBranch = await Promise.all(
-          deliveriesData.map(async (delivery) => {
-            try {
-              if (!delivery.orderId) {
-                console.error('No orderId for delivery', delivery._id);
-                return { ...delivery, branch: 'N/A' };
-              }
-
-              // Step 1: Fetch Order Details
-              const orderResponse = await fetch(`http://localhost:5080/api/orders/by-order/${delivery.orderId}`);
-              if (!orderResponse.ok) {
-                console.error('Order not found for orderId:', delivery.orderId);
-                return { ...delivery, branch: 'N/A' };
-              }
-              const orderData = await orderResponse.json();
-
-              if (!orderData.branchId) {
-                console.error('No branchId found in order:', delivery.orderId);
-                return { ...delivery, branch: 'N/A' };
-              }
-
-              // Step 2: Fetch Branch Details
-              const branchResponse = await fetch(`http://localhost:5080/api/branches/${orderData.branchId}`);
-              if (!branchResponse.ok) {
-                console.error('Branch not found for branchId:', orderData.branchId);
-                return { ...delivery, branch: 'N/A' };
-              }
-              const branchData = await branchResponse.json();
-
-              return {
-                ...delivery,
-                branch: branchData.branchName || 'N/A',
-              };
-            } catch (error) {
-              console.error('Error fetching branch info for delivery:', error);
-              return { ...delivery, branch: 'N/A' };
-            }
-          })
-        );
+        // Hardcode branch to "gal-asiri" for every delivery
+        const deliveriesWithBranch = deliveriesData.map((delivery) => ({
+          ...delivery,
+          branch: 'gal-asiri',
+        }));
 
         setDeliveries(deliveriesWithBranch);
       } catch (error) {

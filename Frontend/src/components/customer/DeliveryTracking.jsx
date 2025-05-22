@@ -203,25 +203,26 @@ const DeliveryTracking = () => {
               </div>
 
               <h3 className="font-semibold text-gray-800 mb-3">Driver Information</h3>
-              <div className="bg-gray-50 rounded-md p-4">
-                <div className="flex items-center mb-2">
-                  <UserIcon size={18} className="mr-2 text-blue-600" />
-                  <span>{deliveryData.driver?.name || 'N/A'}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                  <PhoneIcon size={18} className="mr-2 text-blue-600" />
-                  <span>{deliveryData.driver?.contact || 'N/A'}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                  <TruckIcon size={18} className="mr-2 text-blue-600" />
-                  <span>Vehicle: {deliveryData.driver?.vehicleNo || 'N/A'}</span>
-                </div>
-                <div className="flex items-center">
-                  <StarIcon size={18} className="mr-2 text-yellow-500" />
-                  <span className="font-medium">{deliveryData.driver?.rating || 'N/A'}</span>
-                  <span className="text-gray-500 text-sm ml-1">/ 5.0</span>
-                </div>
-              </div>
+<div className="bg-gray-50 rounded-md p-4">
+  <div className="flex items-center mb-2">
+    <UserIcon size={18} className="mr-2 text-blue-600" />
+    <span>{deliveryData.driver?.name || 'N/A'}</span>
+  </div>
+  <div className="flex items-center mb-2">
+    <PhoneIcon size={18} className="mr-2 text-blue-600" />
+    <span>{deliveryData.driver?.contact || 'N/A'}</span>
+  </div>
+  <div className="flex items-center mb-2">
+    <TruckIcon size={18} className="mr-2 text-blue-600" />
+    <span>Vehicle: {deliveryData.driver?.vehicleNo || 'N/A'}</span>
+  </div>
+  <div className="flex items-center">
+    <StarIcon size={18} className="mr-2 text-yellow-500" />
+    <span className="font-medium">{deliveryData.driver?.rating || 'N/A'}</span>
+    <span className="text-gray-500 text-sm ml-1">/ 5.0</span>
+  </div>
+</div>
+
             </div>
           </div>
         </div>

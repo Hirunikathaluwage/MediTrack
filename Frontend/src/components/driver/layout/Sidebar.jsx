@@ -16,17 +16,17 @@ const Sidebar = () => {
 
   const navItems = [
     {
-      path: '/dashboard',
+      path: '/driver/dashboard/1', // Use driver id dynamically later
       icon: <LayoutDashboardIcon size={20} />,
       label: 'Dashboard',
     },
     {
-      path: '/history',
+      path: '/driver/history',
       icon: <ClockIcon size={20} />,
       label: 'Delivery History',
     },
     {
-      path: '/profile',
+      path: '/driver/profile',
       icon: <UserIcon size={20} />,
       label: 'Profile',
     },
@@ -73,7 +73,7 @@ const Sidebar = () => {
                 to={item.path}
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center px-4 py-3 rounded-md transition-colors ${
-                  location.pathname === item.path
+                  location.pathname.startsWith(item.path)
                     ? 'bg-blue-50 text-blue-600'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
@@ -84,10 +84,8 @@ const Sidebar = () => {
             ))}
           </nav>
 
-          <div className="p-4 border-t">
-            <div className="text-xs text-gray-500">
-              &copy; {new Date().getFullYear()} DeliverEase
-            </div>
+          <div className="p-4 border-t text-center text-xs text-gray-500">
+            &copy; {new Date().getFullYear()} DeliverEase
           </div>
         </div>
       </aside>

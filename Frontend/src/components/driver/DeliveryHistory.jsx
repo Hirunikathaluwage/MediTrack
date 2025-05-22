@@ -12,10 +12,14 @@ import { mockDeliveryHistory } from '../driver/utils/mockData';
 const DeliveryHistory = () => {
   const [deliveries, setDeliveries] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'delivered' | 'failed'
+  const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
-    setDeliveries(mockDeliveryHistory);
+    // Filter only Amal's delivery history
+    const amalDeliveries = mockDeliveryHistory.filter(
+      (d) => d.driverId === '680e7b54115bce58a4c6bd8f'
+    );
+    setDeliveries(amalDeliveries);
   }, []);
 
   const filteredDeliveries = deliveries
@@ -108,16 +112,13 @@ const DeliveryHistory = () => {
                       {delivery.address}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(delivery.scheduledTime).toLocaleDateString(
-                        'en-US',
-                        {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        }
-                      )}
+                      {new Date(delivery.scheduledTime).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      })}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <StatusBadge status={delivery.status} />

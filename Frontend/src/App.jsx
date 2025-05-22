@@ -14,11 +14,13 @@ import Dashboard from './components/driver/Dashboard';
 import Profile from './components/driver/Profile';
 import DeliveryHistory from './components/driver/DeliveryHistory';
 import DeliveryDetails from './components/driver/DeliveryDetails';
+import Layout from './components/driver/layout/Layout'; // import your Layout
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<RoleSelection />} />
         <Route path="/admin" element={<AppAdmin />} />
         <Route path="/user/delivery" element={<DeliveryForm />} />
@@ -27,12 +29,12 @@ function App() {
         <Route path="/thank-you" element={<ThankYouPage />} />
         <Route path="/driver" element={<Login />} />
         <Route path="/driver/signup" element={<Signup />} />
-        <Route path="/driver/dashboard/:id" element={<Dashboard />} />
-        <Route path="/driver/profile" element={<Profile />} />
-        <Route path="/driver/history" element={<DeliveryHistory />} />
-        <Route path="/driver/details" element={<DeliveryDetails />} />
 
-        {/* Add other routes here as needed */}
+        {/* Driver Protected Routes */}
+        <Route path="/driver/dashboard/:id" element={<Layout><Dashboard /></Layout>} /> {/* ✅ Fixed here */}
+        <Route path="/driver/profile" element={<Layout><Profile /></Layout>} />
+        <Route path="/driver/history" element={<Layout><DeliveryHistory /></Layout>} />
+        <Route path="/driver/delivery/:id" element={<Layout><DeliveryDetails /></Layout>} />
       </Routes>
     </Router>
   );

@@ -165,10 +165,9 @@ const Profile = () => {
                   Vehicle Information
                 </h3>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  <Info label="Vehicle Type" value="Sedan" />
-                  <Info label="License Plate" value="ABC 1234" />
-                  <Info label="Make & Model" value="Toyota Camry" />
-                  <Info label="Year" value="2020" />
+                  <Info label="Vehicle Number" value={driver.vehicleNumber} />
+                  <Info label="Assigned Branch" value={driver.assignedBranch} />
+                  <Info label="Driver ID" value={driver.driverId} />
                 </div>
               </div>
             </div>

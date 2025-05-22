@@ -1,22 +1,33 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { PackageIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const hardcodedEmail = 'amal@gmail.com';
+    const hardcodedPassword = 'amal123';
+    const amalDriverId = '680e7b54115bce58a4c6bd8f'; // ✅ Amal's driver ID
 
     if (!email || !password) {
       setError('Please enter both email and password');
       return;
     }
 
-    onLogin(); // Simulate login
+    if (email === hardcodedEmail && password === hardcodedPassword) {
+      setError('');
+      alert('Login successful!');
+      navigate(`/driver/dashboard/${amalDriverId}`); // ✅ Navigate to the correct URL
+    } else {
+      setError('Invalid email or password');
+    }
   };
 
   return (
@@ -88,25 +99,6 @@ const Login = ({ onLogin }) => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-            <div className="text-sm">
-              <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-                Forgot your password?
-              </a>
-            </div>
-          </div>
-
           <div>
             <button
               type="submit"
@@ -119,7 +111,7 @@ const Login = ({ onLogin }) => {
           <div className="text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link to="/driver/signup" className="font-medium text-blue-600 hover:text-blue-500">
                 Sign up
               </Link>
             </p>

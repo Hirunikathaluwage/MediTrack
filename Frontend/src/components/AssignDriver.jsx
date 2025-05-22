@@ -1,47 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeftIcon, CheckIcon, TruckIcon, MapPinIcon } from 'lucide-react'; // <-- Added MapPinIcon
+import React, { useState } from 'react';
+import { ArrowLeftIcon, CheckIcon, TruckIcon, MapPinIcon } from 'lucide-react';
 
 const AssignDriver = ({ delivery, onBack, onAssignComplete }) => {
   const [selectedDriverId, setSelectedDriverId] = useState(null);
-  const [branchDrivers, setBranchDrivers] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchBranchDrivers = async () => {
-      try {
-        if (!delivery.branch) {
-          console.error('No branch specified for delivery');
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch(`http://localhost:5080/api/drivers/branch/${delivery.branch}`);
-        if (!response.ok) {
-          console.error('Failed to fetch drivers for branch:', delivery.branch);
-          setLoading(false);
-          return;
-        }
-
-        const drivers = await response.json();
-        setBranchDrivers(drivers);
-      } catch (error) {
-        console.error('Error fetching drivers:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBranchDrivers();
-  }, [delivery.branch]);
+  const branchDrivers = [
+    {
+      _id: '680e7b54115bce58a4c6bd8f',
+      firstName: 'Amal',
+      lastName: 'Perera',
+      ongoingDeliveries: [
+        {
+          orderId: 'ORD-001',
+          destination: '51.50902, -0.06420',
+        },
+      ],
+      vehicleNumber: 'BIN-2956',
+    },
+    {
+      _id: '680c751938d41434cde14c1a',
+      firstName: 'Awantha',
+      lastName: 'Imesh',
+      ongoingDeliveries: [],
+      vehicleNumber: 'GF1928',
+    },
+    {
+      _id: '680e7bb8115bce58a4c6bd9a',
+      firstName: 'Susantha',
+      lastName: 'Fernando',
+      ongoingDeliveries: [
+        {
+          orderId: 'ORD-002',
+          destination: '51.50632, -0.12714',
+        },
+      ],
+      vehicleNumber: 'BIU-2645',
+    },
+  ];
 
   const handleAssign = async () => {
     if (!selectedDriverId) return;
-  
+
     const selectedDriver = branchDrivers.find(d => d._id === selectedDriverId);
     if (!selectedDriver) return;
-  
+
     try {
-      // Update Delivery in Backend
       const response = await fetch(`http://localhost:5080/api/deliveries/${delivery._id}/assign-driver`, {
         method: 'PUT',
         headers: {
@@ -52,28 +55,17 @@ const AssignDriver = ({ delivery, onBack, onAssignComplete }) => {
           driverName: `${selectedDriver.firstName} ${selectedDriver.lastName}`,
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to assign driver');
       }
-  
+
       const updatedDelivery = await response.json();
-  
-      // Update frontend
       onAssignComplete(updatedDelivery);
     } catch (error) {
       console.error('Error assigning driver:', error);
     }
   };
-  
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-3xl mx-auto bg-white p-6 rounded-md shadow-md">
@@ -106,6 +98,7 @@ const AssignDriver = ({ delivery, onBack, onAssignComplete }) => {
         <h3 className="text-sm font-medium text-gray-500 uppercase mb-4">
           Available Drivers ({delivery.branch})
         </h3>
+
         <div className="space-y-4">
           {branchDrivers.map((driver) => (
             <div
@@ -117,20 +110,17 @@ const AssignDriver = ({ delivery, onBack, onAssignComplete }) => {
             >
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2">
-                  {/* Locate Button */}
                   <button
-  className="flex items-center text-blue-500 hover:text-blue-700 text-xs border border-blue-500 px-2 py-1 rounded-md"
-  onClick={(e) => {
-    e.stopPropagation(); // Prevent selecting driver
-    window.open('https://plus.codes/map', '_blank'); // <--- open Plus Codes Map in new tab
-  }}
->
-  <MapPinIcon className="h-4 w-4 mr-1" />
-  Locate
-</button>
+                    className="flex items-center text-blue-500 hover:text-blue-700 text-xs border border-blue-500 px-2 py-1 rounded-md"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open('https://plus.codes/map', '_blank');
+                    }}
+                  >
+                    <MapPinIcon className="h-4 w-4 mr-1" />
+                    Locate
+                  </button>
 
-
-                  {/* Driver Info */}
                   <p className="text-base font-medium text-gray-900 flex items-center">
                     <TruckIcon className="h-5 w-5 mr-2 text-blue-600" />
                     {driver.firstName} {driver.lastName}
@@ -140,16 +130,17 @@ const AssignDriver = ({ delivery, onBack, onAssignComplete }) => {
                   </p>
                 </div>
                 <div className="text-sm text-gray-600">
-                  {driver.ongoingDeliveries?.length || 0} ongoing deliveries
+                  {(driver.ongoingDeliveries?.length || 0)} ongoing deliveries
                 </div>
               </div>
 
+              {/* Ongoing deliveries if exist */}
               {driver.ongoingDeliveries && driver.ongoingDeliveries.length > 0 && (
                 <div className="mt-2 text-sm text-gray-600">
                   <p className="font-medium text-gray-500">Current Deliveries:</p>
                   <ul className="list-disc list-inside">
-                    {driver.ongoingDeliveries.map((del) => (
-                      <li key={del._id}>
+                    {driver.ongoingDeliveries.map((del, index) => (
+                      <li key={index}>
                         <span className="font-medium">{del.orderId}</span> → {del.destination}
                       </li>
                     ))}
