@@ -1,5 +1,16 @@
-import Branch from '../models/Branch.js'; // Import the Branch model
+
+import Branch from "../models/Branch.js";
 import Order from '../models/Order.js'; // Import the Order model
+
+export const getAllBranches = async (req, res) => {
+    try {
+        const branches = await Branch.find();
+        res.json(branches);
+    } catch (err) {
+        res.status(500).json({ message: "Failed to fetch branches", error: err.message });
+    }
+};
+
 
 // Get branch details by branchId
 export const getBranchById = async (req, res) => {
