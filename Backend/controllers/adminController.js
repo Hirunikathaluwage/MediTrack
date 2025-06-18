@@ -31,6 +31,7 @@ export const loginAdmin = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+  
 };
 
 // REGISTER
