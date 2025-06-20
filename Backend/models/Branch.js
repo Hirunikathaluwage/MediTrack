@@ -8,4 +8,10 @@ const BranchSchema = new mongoose.Schema({
 
 export const Branch = mongoose.model("Branch", BranchSchema);
 
+<<<<<<< HEAD
 export default Branch;
+=======
+export default Branch;
+
+
+>>>>>>> Imesh

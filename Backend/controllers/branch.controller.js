@@ -57,4 +57,8 @@ export const updateBranch = async (req, res) => {
     }catch(error){
         res.status(500).json({success:false, message: error.message});
     }
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> Imesh

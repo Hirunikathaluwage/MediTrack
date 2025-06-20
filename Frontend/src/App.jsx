@@ -7,7 +7,7 @@ import SearchPrescriptionInBranch from "./SearchPrescriptionInBranch";
 import AddMedicineToInventory from "./AddMedicine";
 import ManageMedicines from "./ManageMedicines";
 import CreateMedicine from "./CreateMedicine";
-import ManageBranches from "./ManageBranches"; // Import the ManageBranches component
+import ManageBranches from "./ManageBranches";
 import "./index.css";
 
 const { Header, Sider, Content } = Layout;
