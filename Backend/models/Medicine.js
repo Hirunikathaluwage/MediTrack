@@ -33,8 +33,6 @@ const medicineSchema = new mongoose.Schema({
 
 });
 
-//module.exports = mongoose.model('Medicine' , medicineSchema, 'medicine ');
-
 export const Medicine = mongoose.model("Medicine", medicineSchema);
 
 export default Medicine;

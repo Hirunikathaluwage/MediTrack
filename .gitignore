@@ -4,3 +4,7 @@ Backend/node_modules/
 frontend/node_modules/
 Backend/.env/
 Backend/uploads
+Backend/.env
+Frontend/.env
+uploads/
+../.vscode/

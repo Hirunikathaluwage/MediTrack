@@ -28,7 +28,16 @@
     "nodemailer": "^6.10.1",
     "recharts": "^2.15.3",
     "socket.io": "^4.8.1",
-    "twilio": "^5.5.2"
+    "twilio": "^5.5.2",
+    "@google/generative-ai": "^0.24.0",
+    "body-parser": "^2.2.0",
+    "cor": "^0.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.13.2",
+    "multer": "^1.4.5-lts.2",
+    "nodemailer": "^6.10.0"
   },
   "devDependencies": {
     "eslint": "^9.23.0",
