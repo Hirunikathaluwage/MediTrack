@@ -1,32 +1,32 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { PackageIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { PackageIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Logindriver = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const hardcodedEmail = 'amal@gmail.com';
-    const hardcodedPassword = 'amal123';
-    const amalDriverId = '680e7b54115bce58a4c6bd8f'; // ✅ Amal's driver ID
+    const hardcodedEmail = "amal@gmail.com";
+    const hardcodedPassword = "amal123";
+    const amalDriverId = "680e7b54115bce58a4c6bd8f";
 
     if (!email || !password) {
-      setError('Please enter both email and password');
+      setError("Please enter both email and password");
       return;
     }
 
     if (email === hardcodedEmail && password === hardcodedPassword) {
-      setError('');
-      alert('Login successful!');
-      navigate(`/driver/dashboard/${amalDriverId}`); // ✅ Navigate to the correct URL
+      setError("");
+      alert("Login successful!");
+      navigate(`/driver/dashboard/${amalDriverId}`);
     } else {
-      setError('Invalid email or password');
+      setError("Invalid email or password");
     }
   };
 
@@ -77,7 +77,7 @@ const Login = () => {
               <input
                 id="password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:ring-blue-500 focus:border-blue-500"
@@ -110,8 +110,11 @@ const Login = () => {
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link to="/driver/signup" className="font-medium text-blue-600 hover:text-blue-500">
+              Don't have an account?{" "}
+              <Link
+                to="/driver/signup"
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
                 Sign up
               </Link>
             </p>
@@ -122,4 +125,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Logindriver;

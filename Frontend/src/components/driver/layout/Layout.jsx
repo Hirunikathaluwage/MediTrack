@@ -1,9 +1,9 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Header from './Header';
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Sidebar from "./Sidebar";
+import Header from "./Header";
 
-const Layout = ({ children }) => {
+const Layoutdriver = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const title = getPageTitle(location.pathname);
@@ -11,7 +11,7 @@ const Layout = ({ children }) => {
   const handleLogout = () => {
     // Clear local storage/session if needed
     // localStorage.removeItem('driverToken');  // if you had any token
-    navigate('/driver'); // redirect back to login
+    navigate("/driver"); // redirect back to login
   };
 
   return (
@@ -26,11 +26,11 @@ const Layout = ({ children }) => {
 };
 
 function getPageTitle(pathname) {
-  if (pathname.startsWith('/driver/dashboard')) return 'Dashboard';
-  if (pathname.startsWith('/driver/profile')) return 'Driver Profile';
-  if (pathname.startsWith('/driver/history')) return 'Delivery History';
-  if (pathname.startsWith('/driver/details')) return 'Delivery Details';
-  return 'Driver Portal';
+  if (pathname.startsWith("/driver/dashboard")) return "Dashboard";
+  if (pathname.startsWith("/driver/profile")) return "Driver Profile";
+  if (pathname.startsWith("/driver/history")) return "Delivery History";
+  if (pathname.startsWith("/driver/details")) return "Delivery Details";
+  return "Driver Portal";
 }
 
-export default Layout;
+export default Layoutdriver;

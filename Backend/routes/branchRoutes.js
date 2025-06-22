@@ -6,7 +6,6 @@ const router = express.Router();
 router.get("/", getAllBranches);
 
 import mongoose from "mongoose";
-import express from "express";
 import Branch from "../models/Branch.js";
 import { createBranch, deleteBranch, getBranch, updateBranch } from "../controllers/branch.controller.js";
 import { getBranchById } from '../controllers/branchController.js';

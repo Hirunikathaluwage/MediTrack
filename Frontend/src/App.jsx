@@ -3,27 +3,23 @@ import {
   Route,
   Routes,
   NavLink,
+  Navigate,
 } from "react-router-dom";
-import { Layout, Menu, Typography, Navigate } from "antd";
+import { Layout, Menu, Typography } from "antd";
 import "./App.css";
 import SearchMedicineInBranch from "./SearchMedicineInBranch";
-import SearchMedicineWithBranch from "./SearchMedicineWithBranch";
+// import SearchMedicineWithBranch from "./SearchMedicineWithBranch";
+
 import SearchPrescriptionInBranch from "./SearchPrescriptionInBranch";
 import AddMedicineToInventory from "./AddMedicine";
 import ManageMedicines from "./ManageMedicines";
 import CreateMedicine from "./CreateMedicine";
 import ManageBranches from "./ManageBranches";
 import "./index.css";
-import React from "react";
 
 // Admin Section
-import Prescription from "./pages/Prescription.jsx";
-import SearchPrescriptionInBranch from "./compon/SearchPrescriptionInBranch.js";
-import SearchMedicineInBranch from "./compon/SearchMedicineInBranch.js";
-import AddMedicineToInventory from "./AddMedicine";
-import ManageMedicines from "./ManageMedicines.jsx";
-import CreateMedicine from "./CreateMedicine.jsx";
-import ManageBranches from "./ManageBranches.jsx";
+// import SearchPrescriptionInBranch from "./compon/SearchPrescriptionInBranch.js";
+// import SearchMedicineInBranch from "./compon/SearchMedicineInBranch.js";
 
 import React, { useEffect } from "react";
 import CartPage from "./pages/CartPage";
@@ -34,7 +30,7 @@ import ReserveConfirmation from "./pages/ReserveConfirmation";
 import DashboardLayout from "./pages/AdminOrderDashboard";
 import VerifyPayments from "./pages/VerifyPaymentsPage";
 import ApprovedMedicines from "./pages/ApprovedMedicines";
-import Prescription from "./pages/Prescription";
+// import Prescription from "./pages/Prescription";
 import ManageReservationsPage from "./pages/ManageReservationsPage";
 import Reportgen from "./pages/Reportgen.jsx";
 import TopMedicine from "./component/TopMedicine.jsx";
@@ -46,13 +42,12 @@ import Register from "./pages/Customer/Register";
 import Dashboard from "./pages/Customer/Dashboard";
 import Prescription from "./pages/Prescription.jsx";
 import MedicineList from "./pages/ApprovedMedicines";
-import Approval from "./component/Approval";
 import AdminPrescription from "./component/AdminPrescription.jsx";
 import SubmitInquiry from "./pages/Inquiry/AddInquiry";
 import ViewInquiries from "./pages/Inquiry/ViewInquiries";
 import SplitPage from "./pages/split.jsx";
 import SearchMedicineWithBranch from "./SearchMedicineWithBranch.jsx";
-import Approval from "./compon/Approval.js";
+import Approval from "./component/Approval.jsx";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
@@ -84,19 +79,19 @@ import DeliveryTracking from "./components/customer/DeliveryTracking";
 import RatingPage from "./components/customer/RatingPage";
 import ThankYouPage from "./components/customer/ThankYouPage";
 
-import Login from "./components/driver/Login";
+import Logindriver from "./components/driver/Login";
 
 import Signup from "./components/driver/Signup";
 
-import Dashboard from "./components/driver/Dashboard";
+import Dashboarddriver from "./components/driver/Dashboard";
 
-import Profile from "./components/driver/Profile";
+import driverProfile from "./components/driver/Profile";
 
 import DeliveryHistory from "./components/driver/DeliveryHistory";
 
 import DeliveryDetails from "./components/driver/DeliveryDetails";
 
-import Layout from "./components/driver/layout/Layout"; // import your Layout
+import Layoutdriver from "./components/driver/layout/Layout"; // import your Layout
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -328,7 +323,7 @@ function App() {
 
               <Route path="/thank-you" element={<ThankYouPage />} />
 
-              <Route path="/driver" element={<Login />} />
+              <Route path="/driver" element={<Logindriver />} />
 
               <Route path="/driver/signup" element={<Signup />} />
 
@@ -337,9 +332,9 @@ function App() {
               <Route
                 path="/driver/dashboard/:id"
                 element={
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
+                  <Layoutdriver>
+                    <Dashboarddriver />
+                  </Layoutdriver>
                 }
               />
 
@@ -347,7 +342,7 @@ function App() {
                 path="/driver/profile"
                 element={
                   <Layout>
-                    <Profile />
+                    <driverProfile />
                   </Layout>
                 }
               />

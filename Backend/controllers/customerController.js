@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { generateToken } from '../utils/generateToken.js';
 import { transporter } from '../utils/emailConfig.js';
-import { generateToken } from '../utils/generateToken.js';
 
 // LOGIN
 export const loginUser = async (req, res, next) => {

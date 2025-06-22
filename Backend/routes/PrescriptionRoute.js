@@ -1,22 +1,4 @@
-<<<<<<< HEAD
-import express from "express";
-import { getPrescription,updatePrescriptionStatus } from "../controllers/prescription.controller.js";
-
-const router = express.Router();
-
-// Get Prescription via branchId
-router.get("/:branchId", getPrescription);
-router.put("/:id/status", updatePrescriptionStatus);
-
-
-export default router;
-
-
-
-=======
-// routes/prescriptionRoutes.js
 import express from 'express';
-
 const router = express.Router();
 
 import {
@@ -28,10 +10,13 @@ import {
     getApprovedMedicines,
     upload
 } from '../controllers/prescriptionController.js';
+ import { getPrescriptions,updatePrescriptionStatus } from "../controllers/prescription.controller.js";
 
+// Get Prescription via branchId
+router.get("/:branchId", getPrescriptions);
+router.put("/:id/status", updatePrescriptionStatus);
 // Upload a prescription with OCR and medicine matching
 router.post('/', upload.single('image'), uploadPrescription);
-
 router.get('/image/base64', getImageAsBase64);
 
 // Get a prescription by ID
@@ -48,4 +33,3 @@ router.get('/approval/:prescriptionId', getApprovedMedicines);
 
 
 export default router;
->>>>>>> e030d7f336e1a0f242b89810cb9aa61465b8c46a

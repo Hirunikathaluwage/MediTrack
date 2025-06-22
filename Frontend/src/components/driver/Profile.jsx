@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   CameraIcon,
   StarIcon,
   TruckIcon,
   CalendarIcon,
   CheckCircleIcon,
-} from 'lucide-react';
-import { mockDriver } from '../driver/utils/mockData';
+} from "lucide-react";
+import { mockDriver } from "../driver/utils/mockData";
 
-const Profile = () => {
+const driverProfile = () => {
   const [driver, setDriver] = useState(mockDriver);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -86,10 +86,10 @@ const Profile = () => {
               <li className="flex items-center text-sm">
                 <CalendarIcon className="h-5 w-5 text-gray-400 mr-2" />
                 <span className="text-gray-600">
-                  Joined{' '}
-                  {new Date(driver.joinedDate).toLocaleDateString('en-US', {
-                    month: 'long',
-                    year: 'numeric',
+                  Joined{" "}
+                  {new Date(driver.joinedDate).toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
                   })}
                 </span>
               </li>
@@ -117,7 +117,7 @@ const Profile = () => {
           {isEditing ? (
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                {['firstName', 'lastName', 'email', 'phone'].map((field) => (
+                {["firstName", "lastName", "email", "phone"].map((field) => (
                   <div key={field}>
                     <label
                       htmlFor={field}
@@ -126,7 +126,13 @@ const Profile = () => {
                       {field.charAt(0).toUpperCase() + field.slice(1)}
                     </label>
                     <input
-                      type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+                      type={
+                        field === "email"
+                          ? "email"
+                          : field === "phone"
+                          ? "tel"
+                          : "text"
+                      }
                       name={field}
                       id={field}
                       value={formData[field]}
@@ -185,4 +191,4 @@ const Info = ({ label, value }) => (
   </div>
 );
 
-export default Profile;
+export default driverProfile;

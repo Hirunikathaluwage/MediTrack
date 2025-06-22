@@ -1,29 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { CheckCircleIcon, AlertCircleIcon, TruckIcon, ClockIcon } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import {
+  CheckCircleIcon,
+  AlertCircleIcon,
+  TruckIcon,
+  ClockIcon,
+} from "lucide-react";
 
-const Dashboard = () => {
+const Dashboarddriver = () => {
   const { id: driverId } = useParams(); // 📌 capture :id from URL
   const [deliveries, setDeliveries] = useState([]);
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
     const fetchDriverDeliveries = async () => {
       try {
         const response = await fetch(`http://localhost:5080/api/deliveries`);
         if (!response.ok) {
-          throw new Error('Failed to fetch deliveries');
+          throw new Error("Failed to fetch deliveries");
         }
         const allDeliveries = await response.json();
 
         const driverDeliveries = allDeliveries.filter((d) => {
-          const assignedId = typeof d.driverId === 'string' ? d.driverId : d.driverId?._id;
+          const assignedId =
+            typeof d.driverId === "string" ? d.driverId : d.driverId?._id;
           return assignedId === driverId;
         });
 
         setDeliveries(driverDeliveries);
       } catch (error) {
-        console.error('Error fetching driver deliveries:', error);
+        console.error("Error fetching driver deliveries:", error);
       }
     };
 
@@ -31,8 +37,10 @@ const Dashboard = () => {
   }, [driverId]);
 
   const filteredDeliveries =
-    activeTab === 'all'
-      ? deliveries.filter((d) => d.status === 'pending' || d.status === 'in transit')
+    activeTab === "all"
+      ? deliveries.filter(
+          (d) => d.status === "pending" || d.status === "in transit"
+        )
       : deliveries.filter((d) => d.status === activeTab);
 
   return (
@@ -41,11 +49,11 @@ const Dashboard = () => {
         <div className="p-4 border-b">
           <h2 className="text-lg font-semibold">Your Assigned Deliveries</h2>
           <p className="text-sm text-gray-500">
-            {new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
         </div>
@@ -55,19 +63,19 @@ const Dashboard = () => {
             color="blue"
             icon={<ClockIcon className="h-6 w-6 text-blue-600" />}
             label="Pending"
-            count={deliveries.filter((d) => d.status === 'pending').length}
+            count={deliveries.filter((d) => d.status === "pending").length}
           />
           <SummaryCard
             color="yellow"
             icon={<TruckIcon className="h-6 w-6 text-yellow-600" />}
             label="In Transit"
-            count={deliveries.filter((d) => d.status === 'in transit').length}
+            count={deliveries.filter((d) => d.status === "in transit").length}
           />
           <SummaryCard
             color="green"
             icon={<CheckCircleIcon className="h-6 w-6 text-green-600" />}
             label="Delivered"
-            count={deliveries.filter((d) => d.status === 'delivered').length}
+            count={deliveries.filter((d) => d.status === "delivered").length}
           />
         </div>
       </div>
@@ -75,19 +83,21 @@ const Dashboard = () => {
       <div className="bg-white rounded-lg shadow">
         <div className="border-b">
           <nav className="flex">
-            {['all', 'pending', 'in transit'].map((tab) => (
+            {["all", "pending", "in transit"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-3 text-sm font-medium ${
                   activeTab === tab
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? "border-b-2 border-blue-500 text-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
                 }`}
               >
-                {tab === 'all'
-                  ? 'All Active'
-                  : tab.replace('_', ' ').replace(/^\w/, (c) => c.toUpperCase())}
+                {tab === "all"
+                  ? "All Active"
+                  : tab
+                      .replace("_", " ")
+                      .replace(/^\w/, (c) => c.toUpperCase())}
               </button>
             ))}
           </nav>
@@ -104,7 +114,9 @@ const Dashboard = () => {
                 <div className="p-4">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-sm font-medium">{delivery.receiverName}</h3>
+                      <h3 className="text-sm font-medium">
+                        {delivery.receiverName}
+                      </h3>
                       <p className="text-xs text-gray-500 mt-1">
                         {delivery.location?.address}
                       </p>
@@ -114,11 +126,14 @@ const Dashboard = () => {
                   <div className="mt-2 flex items-center text-xs text-gray-500">
                     <ClockIcon className="h-4 w-4 mr-1" />
                     {delivery.createdAt
-                      ? new Date(delivery.createdAt).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })
-                      : 'N/A'}
+                      ? new Date(delivery.createdAt).toLocaleTimeString(
+                          "en-US",
+                          {
+                            hour: "numeric",
+                            minute: "2-digit",
+                          }
+                        )
+                      : "N/A"}
                   </div>
                 </div>
               </Link>
@@ -132,7 +147,8 @@ const Dashboard = () => {
                 No deliveries found
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                There are no {activeTab === 'all' ? 'active' : activeTab} deliveries assigned.
+                There are no {activeTab === "all" ? "active" : activeTab}{" "}
+                deliveries assigned.
               </p>
             </div>
           )}
@@ -144,20 +160,22 @@ const Dashboard = () => {
 
 const SummaryCard = ({ color, icon, label, count }) => {
   const bgColors = {
-    blue: 'bg-blue-50',
-    yellow: 'bg-yellow-50',
-    green: 'bg-green-50',
+    blue: "bg-blue-50",
+    yellow: "bg-yellow-50",
+    green: "bg-green-50",
   };
 
   const iconBgColors = {
-    blue: 'bg-blue-100',
-    yellow: 'bg-yellow-100',
-    green: 'bg-green-100',
+    blue: "bg-blue-100",
+    yellow: "bg-yellow-100",
+    green: "bg-green-100",
   };
 
   return (
     <div className={`${bgColors[color]} p-4 rounded-lg flex items-center`}>
-      <div className={`${iconBgColors[color]} p-3 rounded-full mr-4`}>{icon}</div>
+      <div className={`${iconBgColors[color]} p-3 rounded-full mr-4`}>
+        {icon}
+      </div>
       <div>
         <h3 className="text-lg font-semibold">{count}</h3>
         <p className="text-sm text-gray-600">{label}</p>
@@ -168,25 +186,25 @@ const SummaryCard = ({ color, icon, label, count }) => {
 
 const StatusBadge = ({ status }) => {
   switch (status) {
-    case 'pending':
+    case "pending":
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
           Pending
         </span>
       );
-    case 'in transit':
+    case "in transit":
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
           In Transit
         </span>
       );
-    case 'delivered':
+    case "delivered":
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
           Delivered
         </span>
       );
-    case 'failed':
+    case "failed":
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
           Failed
@@ -197,4 +215,4 @@ const StatusBadge = ({ status }) => {
   }
 };
 
-export default Dashboard;
+export default Dashboarddriver;

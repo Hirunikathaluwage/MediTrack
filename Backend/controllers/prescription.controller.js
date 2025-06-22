@@ -3,7 +3,7 @@ import  Prescription  from "../models/Prescription.js";
 
 
 
-export const getPrescription = async (req, res) => {
+export const getPrescriptions = async (req, res) => {
     try {
       const { branchId } = req.params;  // Use branchId passed in the request parameters
       const prescriptions = await Prescription.find({ branchId });

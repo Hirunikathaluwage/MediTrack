@@ -4,14 +4,10 @@ import {
   registerUser,
   loginUser,
   logoutUser,
-<<<<<<< HEAD
   getUserProfile,
   updateUserProfile,
   resetPasswordRequest,
   resetPassword
-=======
-  getUserProfile
->>>>>>> e030d7f336e1a0f242b89810cb9aa61465b8c46a
 } from '../controllers/customerController.js';
 import { protectCustomer } from '../middleware/authMiddleware.js';
 
@@ -34,7 +30,6 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/logout', logoutUser);
 
-<<<<<<< HEAD
 //  Protected customer routes
 router.get('/profile', protectCustomer, getUserProfile);
 router.put('/profile', protectCustomer, upload.single('avatar'), updateUserProfile);
@@ -43,6 +38,4 @@ router.put('/profile', protectCustomer, upload.single('avatar'), updateUserProfi
 router.post('/reset-password-request', resetPasswordRequest);
 router.post('/reset-password/:id/:token', resetPassword);
 
-=======
->>>>>>> e030d7f336e1a0f242b89810cb9aa61465b8c46a
 export default router;
