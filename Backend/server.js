@@ -11,32 +11,78 @@ import { Server } from 'socket.io';
 
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-
 import { scheduleSLAAlert } from './utils/slaChecker.js';
-
 import customerRoutes from './routes/customerRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import inquiryRoutes from './routes/inquiryRoutes.js';
-
 import branchRoutes from "./routes/branchRoutes.js"; 
 import PrescriptionRoute from './routes/PrescriptionRoute.js';
 import adminPrescriptionRoutes from './routes/AdminPresRoutes.js';
 import reportRoutes  from './routes/reportRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import prescriptionRoutes from "./routes/prescriptionRoutes.js";
+import reservationRoutes from "./routes/reservationRoutes.js"
+import medicineroute from './routes/MedicineRoute.js';
+import branchstockroute from './routes/BranchStockRoute.js';
+import deliveryRoutes from './routes/deliveryRoutes.js';
+import ratingRoutes from './routes/ratingRoutes.js';
+import driverRoutes from './routes/driverRoutes.js';
+ 
 
-dotenv.config();
-console.log('Starting MediTrack server...');
-
+//  Connect to MongoDB
 connectDB();
+ 
+const app = express();
+app.use(cors());
+app.use(express.json());
+ 
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+ 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+ 
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/reserve', reservationRoutes);
+app.use("/api/medicines", medicineroute);
+app.use("/api/branch", branchRoutes);
+app.use("/api/branchstock", branchstockroute);
+app.use("/api/prescription", prescriptionRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/admins', adminRoutes);
+app.use('/api/inquiries', inquiryRoutes);
+ 
+ 
+app.use('/api/deliveries', deliveryRoutes);
+ 
+app.use('/api/ratings', ratingRoutes);
+ 
+app.use('/api/drivers', driverRoutes);
+ 
+ 
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => {
+    console.log('MongoDB connected');
+    app.listen(5080, () => console.log('Server running on port 5080'));
+}).catch((err) => console.log(err));
+ 
+ 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+ 
 app.use(cors({
   origin: process.env.ORIGIN || 'http://localhost:5173',
   credentials: true
 }));
 
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -90,9 +136,6 @@ app.use("/branches", branchRoutes);
 app.use("/prescription", PrescriptionRoute);
 app.use('/adminprescription', adminPrescriptionRoutes);
 app.use('/api/reports', reportRoutes);
-
-
-
 
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
