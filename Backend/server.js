@@ -18,6 +18,12 @@ import customerRoutes from './routes/customerRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import inquiryRoutes from './routes/inquiryRoutes.js';
 
+import branchRoutes from "./routes/branchRoutes.js"; 
+import PrescriptionRoute from './routes/PrescriptionRoute.js';
+import adminPrescriptionRoutes from './routes/AdminPresRoutes.js';
+import reportRoutes  from './routes/reportRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
+
 dotenv.config();
 console.log('Starting MediTrack server...');
 
@@ -76,4 +82,25 @@ export { io };
 
 httpServer.listen(PORT, () => {
   console.log(` Server running at http://localhost:${PORT}`);
+});
+app.use(express.json());
+
+app.use('/api/customers', customerRoutes);
+app.use("/branches", branchRoutes);
+app.use("/prescription", PrescriptionRoute);
+app.use('/adminprescription', adminPrescriptionRoutes);
+app.use('/api/reports', reportRoutes);
+
+
+
+
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB Connection Error:", err));
+
+app.listen(5080, () => {
+  console.log("Server started at http://localhost:5080");
 });
