@@ -5,7 +5,7 @@ h1 {
   line-height: 1.1;
 }
 
-button {
+/* button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -15,10 +15,16 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+} */
+button {
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  padding: 0.6em 1.2em;
 }
 
 button:hover {
-  border-color: #646cff;
+  color: #646cff;
 }
 
 button:focus,
@@ -40,24 +46,24 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
 .form-container {
-    
-    border: 2px solid hsl(0, 5%, 88%);
-    padding: 20px;
-    border-radius: 10px;
-    width: 400px;
-    margin: auto;
-    background-color: #f8f4f4;
-    margin-top: 200px;
-  }
-  
-  .custom-form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .input-box {
-    width: 100%;
-    margin-bottom: 15px;
-  }
-    
+
+  border: 2px solid hsl(0, 5%, 88%);
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  margin: auto;
+  background-color: #f8f4f4;
+  margin-top: 200px;
+}
+
+.custom-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-box {
+  width: 100%;
+  margin-bottom: 15px;
+}
