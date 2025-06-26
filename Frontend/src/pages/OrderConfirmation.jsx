@@ -138,7 +138,7 @@ const OrderConfirmation = () => {
                                 icon={deliveryOption === 'home' ? <CarOutlined /> : <HomeOutlined />}
                                 onClick={() => {
                                     if (deliveryOption === 'home') {
-                                        navigate('/delivery-form');
+                                        navigate('/user/delivery');
                                     } else {
                                         navigate('/');
                                     }

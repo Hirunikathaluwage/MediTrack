@@ -3,7 +3,7 @@ import axios from "axios";
 import { Button, Form, Input, Upload, message, Select } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import Container from "../assets/Container.png"; // background image
+import Container from "../assets/Container.png";
 
 const { Option } = Select;
 const URL = "http://localhost:5080/prescription";
@@ -12,6 +12,9 @@ const Prescription = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [fileList, setFileList] = useState([]);
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?._id;
+
   const [branches, setBranches] = useState([]);
 
   useEffect(() => {
@@ -59,7 +62,10 @@ const Prescription = () => {
     }
 
     const formData = new FormData();
-    formData.append("userId", "680b51cc9304025f19b2d7d1");
+    // formData.append("userId", "680b51cc9304025f19b2d7d1");
+
+    formData.append("userId", user?._id);
+
     formData.append("name", values.name);
     formData.append("age", values.age);
     formData.append("mobile", values.mobile);
@@ -131,7 +137,7 @@ const Prescription = () => {
             name="prescription_form"
             layout="vertical"
             onFinish={onFinish}
-            initialValues={{ userId: "680b51cc9304025f19b2d7d1" }}
+            initialValues={{ userId }}
             className="space-y-4"
           >
             <Form.Item

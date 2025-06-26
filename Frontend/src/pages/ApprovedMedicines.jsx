@@ -35,6 +35,15 @@ const Approval = () => {
   const navigate = useNavigate();
   const pollingRef = useRef(null);
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?._id;
+
+  if (!userId) {
+    message.error("User not logged in");
+    return;
+  }
+
+
   useEffect(() => {
     localStorage.removeItem("cart");
     setCartItems([]);
@@ -97,7 +106,7 @@ const Approval = () => {
 
     try {
       const response = await axios.post("http://localhost:5080/api/cart", {
-        userId: "680b51cc9304025f19b2d7d1",
+        userId: userId,
         items: [
           {
             medicineId: medicine.id,
@@ -146,7 +155,8 @@ const Approval = () => {
     }
   };
 
-  const goToReserve = async (updatedReservedItems) => {
+  const goToReserve = async () => {
+    const updatedReservedItems = reservedItems;
     if (updatedReservedItems.length === 0) {
       message.info("No reserved items.");
       return;

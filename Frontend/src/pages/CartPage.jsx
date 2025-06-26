@@ -13,7 +13,9 @@ const { Title, Text } = Typography;
 
 const CartPage = () => {
     const navigate = useNavigate();
-    const userId = "680b51cc9304025f19b2d7d1";
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user?._id;
+
 
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(false);
