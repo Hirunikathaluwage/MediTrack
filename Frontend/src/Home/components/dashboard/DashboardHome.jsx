@@ -1,6 +1,6 @@
 import React from 'react';
 
-// 🆕 Import Header and Navigation
+//  Import Header and Navigation
 import Header from '../../components/Header';
 import { Navigation } from '../../components/Navigation';
 
@@ -19,7 +19,7 @@ export function DashboardHome() {
 
   return (
     <section className="py-10 px-6">
-      {/* 🆕 Added Header and Navigation at the top */}
+      {/*  Added Header and Navigation at the top */}
       <Header />
       <Navigation />
 

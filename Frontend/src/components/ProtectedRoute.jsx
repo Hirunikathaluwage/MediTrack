@@ -1,12 +1,12 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-// ✅ Checks if a user is stored in localStorage
+// Checks if a user is stored in localStorage
 const isAuthenticated = () => {
   return !!localStorage.getItem('user');
 };
 
-// ✅ Role-based access check
+//  Role-based access check
 const hasRequiredRole = (user, requiredRole) => {
   if (!requiredRole) return true;
   return user?.role === requiredRole;
