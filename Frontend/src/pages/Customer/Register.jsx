@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,44 +13,44 @@ const Register = () => {
     phoneNumber: '',
     age: ''
   });
-  
+
   const [message, setMessage] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const nextStep = () => {
     setCurrentStep(prev => prev + 1);
   };
-  
+
   const prevStep = () => {
     setCurrentStep(prev => prev - 1);
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
       const res = await registerCustomer(formData);
-      
+
       if (res.user || res.userId) {
         localStorage.setItem('user', JSON.stringify(res.user || res));
-        setMessage('✅ Registration successful! Redirecting...');
+        setMessage('Registration successful! Redirecting...');
         setTimeout(() => navigate('/login'), 2000);
       } else {
-        setMessage(res.message || '⚠️ Registration completed, but no user returned');
+        setMessage(res.message || ' Registration completed, but no user returned');
       }
     } catch (err) {
-      setMessage(err.response?.data?.message || '❌ Registration failed');
+      setMessage(err.response?.data?.message || 'Registration failed');
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -59,23 +59,22 @@ const Register = () => {
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500"></div>
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-200 rounded-full opacity-20"></div>
           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-200 rounded-full opacity-20"></div>
-          
+
           <div className="relative p-8">
             <div className="text-center mb-6">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">MediTrack</h2>
               <p className="text-gray-500 mt-2">Create your account in a few simple steps</p>
             </div>
-            
+
             {/* Progress indicator */}
             <div className="flex justify-between items-center mb-8 px-2">
               {[1, 2, 3].map((step) => (
                 <div key={step} className="flex flex-col items-center">
-                  <div 
-                    className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
-                      currentStep >= step 
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' 
+                  <div
+                    className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${currentStep >= step
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
                         : 'bg-gray-200 text-gray-400'
-                    }`}
+                      }`}
                   >
                     {step}
                   </div>
@@ -85,12 +84,12 @@ const Register = () => {
                 </div>
               ))}
               <div className="absolute top-24 left-10 right-10 h-0.5 bg-gray-200 -z-10"></div>
-              <div 
-                className="absolute top-24 left-10 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 transition-all -z-10" 
+              <div
+                className="absolute top-24 left-10 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 transition-all -z-10"
                 style={{ width: `${(currentStep - 1) * 50}%` }}
               ></div>
             </div>
-            
+
             <form onSubmit={handleSubmit}>
               {/* Step 1: Basic Information */}
               {currentStep === 1 && (
@@ -110,7 +109,7 @@ const Register = () => {
                       <span className="absolute left-3 top-3.5 text-gray-400">👤</span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                     <div className="relative">
@@ -127,7 +126,7 @@ const Register = () => {
                       <span className="absolute left-3 top-3.5 text-gray-400">✉️</span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <div className="relative">
@@ -144,7 +143,7 @@ const Register = () => {
                       <span className="absolute left-3 top-3.5 text-gray-400">🔒</span>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 text-right">
                     <button
                       type="button"
@@ -156,7 +155,7 @@ const Register = () => {
                   </div>
                 </div>
               )}
-              
+
               {/* Step 2: Contact Information */}
               {currentStep === 2 && (
                 <div className="space-y-5 animate-fadeIn">
@@ -174,7 +173,7 @@ const Register = () => {
                       <span className="absolute left-3 top-3.5 text-gray-400">🏠</span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                     <div className="relative">
@@ -189,7 +188,7 @@ const Register = () => {
                       <span className="absolute left-3 top-3.5 text-gray-400">📱</span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">Age</label>
                     <div className="relative">
@@ -206,7 +205,7 @@ const Register = () => {
                       <span className="absolute left-3 top-3.5 text-gray-400">📅</span>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 flex justify-between">
                     <button
                       type="button"
@@ -225,7 +224,7 @@ const Register = () => {
                   </div>
                 </div>
               )}
-              
+
               {/* Step 3: Confirmation */}
               {currentStep === 3 && (
                 <div className="space-y-5 animate-fadeIn">
@@ -234,21 +233,21 @@ const Register = () => {
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <p className="text-gray-500">Name:</p>
                       <p className="text-gray-800 font-medium">{formData.name || '—'}</p>
-                      
+
                       <p className="text-gray-500">Email:</p>
                       <p className="text-gray-800 font-medium">{formData.email || '—'}</p>
-                      
+
                       <p className="text-gray-500">Address:</p>
                       <p className="text-gray-800 font-medium">{formData.address || '—'}</p>
-                      
+
                       <p className="text-gray-500">Phone:</p>
                       <p className="text-gray-800 font-medium">{formData.phoneNumber || '—'}</p>
-                      
+
                       <p className="text-gray-500">Age:</p>
                       <p className="text-gray-800 font-medium">{formData.age || '—'}</p>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 flex justify-between">
                     <button
                       type="button"
@@ -278,19 +277,18 @@ const Register = () => {
                 </div>
               )}
             </form>
-            
+
             {message && (
-              <div className={`mt-6 p-4 rounded-lg text-center animate-fadeIn ${
-                message.includes('success') 
-                  ? 'bg-green-50 text-green-800 border-l-4 border-green-500' 
+              <div className={`mt-6 p-4 rounded-lg text-center animate-fadeIn ${message.includes('success')
+                  ? 'bg-green-50 text-green-800 border-l-4 border-green-500'
                   : 'bg-red-50 text-red-800 border-l-4 border-red-500'
-              }`}>
+                }`}>
                 {message}
               </div>
             )}
           </div>
         </div>
-        
+
         <div className="text-center mt-6 text-gray-500 text-sm">
           Already have an account? <a href="#" className="text-blue-600 hover:underline">Sign in</a>
         </div>
@@ -300,12 +298,3 @@ const Register = () => {
 };
 
 export default Register;
-
-// Add these custom animations to your global CSS or tailwind.config.js
-// @keyframes fadeIn {
-//   from { opacity: 0; transform: translateY(10px); }
-//   to { opacity: 1; transform: translateY(0); }
-// }
-// .animate-fadeIn {
-//   animation: fadeIn 0.3s ease-out forwards;
-// }

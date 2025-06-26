@@ -28,7 +28,7 @@ const Login = () => {
           setMessage(" Admin login successful");
 
           setTimeout(() => {
-            navigate("/admin/panel", { replace: true });
+            navigate("/admin/dashboard-home", { replace: true });
           }, 500);
         } else {
           setMessage(" Invalid admin credentials");
@@ -50,8 +50,11 @@ const Login = () => {
             setMessage(" Customer login successful");
 
             setTimeout(() => {
-              navigate("/customer/home", { replace: true });
-              navigate("/prescription", { replace: true });
+              if (user.role === "admin") {
+                navigate("/admin/dashboard-home", { replace: true });
+              } else {
+                navigate("/customer/home", { replace: true });
+              }
             }, 500);
           } else {
             setMessage(
@@ -93,22 +96,20 @@ const Login = () => {
               <div className="flex rounded-lg overflow-hidden border border-gray-200">
                 <button
                   type="button"
-                  className={`flex-1 py-3 px-4 text-center transition-all ${
-                    userType === "customer"
-                      ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium"
-                      : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                  }`}
+                  className={`flex-1 py-3 px-4 text-center transition-all ${userType === "customer"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    }`}
                   onClick={() => setUserType("customer")}
                 >
                   Customer
                 </button>
                 <button
                   type="button"
-                  className={`flex-1 py-3 px-4 text-center transition-all ${
-                    userType === "admin"
-                      ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium"
-                      : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                  }`}
+                  className={`flex-1 py-3 px-4 text-center transition-all ${userType === "admin"
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    }`}
                   onClick={() => setUserType("admin")}
                 >
                   Administrator
@@ -197,8 +198,7 @@ const Login = () => {
                     Signing in...
                   </>
                 ) : (
-                  `Sign In as ${
-                    userType === "admin" ? "Administrator" : "Customer"
+                  `Sign In as ${userType === "admin" ? "Administrator" : "Customer"
                   }`
                 )}
               </button>
@@ -206,11 +206,10 @@ const Login = () => {
 
             {message && (
               <div
-                className={`mt-6 p-4 rounded-lg text-center animate-fadeIn ${
-                  message.includes()
-                    ? "bg-green-50 text-green-800 border-l-4 border-green-500"
-                    : "bg-red-50 text-red-800 border-l-4 border-red-500"
-                }`}
+                className={`mt-6 p-4 rounded-lg text-center animate-fadeIn ${message.includes()
+                  ? "bg-green-50 text-green-800 border-l-4 border-green-500"
+                  : "bg-red-50 text-red-800 border-l-4 border-red-500"
+                  }`}
               >
                 {message}
               </div>

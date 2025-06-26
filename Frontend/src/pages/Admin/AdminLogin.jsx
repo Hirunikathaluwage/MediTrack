@@ -18,10 +18,10 @@ const AdminLogin = () => {
       };
 
       localStorage.setItem('user', JSON.stringify(adminUser));
-      setMessage('✅ Admin login successful');
-      setTimeout(() => navigate('/admin/panel', { replace: true }), 500);
+      setMessage(' Admin login successful');
+      setTimeout(() => navigate('/admin/dashboard-home', { replace: true }), 500);
     } else {
-      setMessage('❌ Invalid admin credentials');
+      setMessage(' Invalid admin credentials');
     }
   };
 
