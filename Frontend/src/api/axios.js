@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'http://localhost:5080/api',
-  withCredentials: true, // Send cookies (like JWT) with every request
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
   }

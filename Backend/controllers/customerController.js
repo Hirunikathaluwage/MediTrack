@@ -168,7 +168,7 @@ export const resetPasswordRequest = async (req, res, next) => {
     await transporter.sendMail({
       from: `"MediTrack Support" <${process.env.EMAIL_USER}>`,
       to: user.email,
-      subject: '🔐 Password Reset',
+      subject: 'Password Reset',
       html: `
         <p>Hello ${user.name},</p>
         <p>Click the link below to reset your password:</p>

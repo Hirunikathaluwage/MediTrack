@@ -1,6 +1,6 @@
-import api from './axios'; // Axios instance with baseURL & withCredentials enabled
+import api from './axios';
 
-// ✅ Register a new customer
+// Register a new customer
 export const registerCustomer = async (data) => {
   try {
     const res = await api.post('/customers/register', data);
@@ -10,7 +10,7 @@ export const registerCustomer = async (data) => {
   }
 };
 
-// ✅ Login an existing customer
+// Login an existing customer
 export const loginCustomer = async (data) => {
   try {
     const res = await api.post('/customers/login', data);
@@ -20,7 +20,7 @@ export const loginCustomer = async (data) => {
   }
 };
 
-// ✅ Logout the current customer
+// Logout the current customer
 export const logoutCustomer = async () => {
   try {
     const res = await api.post('/customers/logout');
@@ -30,7 +30,7 @@ export const logoutCustomer = async () => {
   }
 };
 
-// ✅ Get current customer profile
+// Get current customer profile
 export const getCustomerProfile = async () => {
   try {
     const res = await api.get('/customers/profile');
@@ -40,12 +40,12 @@ export const getCustomerProfile = async () => {
   }
 };
 
-// ✅ FIXED: Update customer profile with avatar file
+//Update customer profile with avatar file
 export const updateCustomerProfile = async (formData) => {
   try {
     const res = await api.put('/customers/profile', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data' // ✅ REQUIRED for uploading files
+        'Content-Type': 'multipart/form-data'
       }
     });
     return res.data;
@@ -54,7 +54,7 @@ export const updateCustomerProfile = async (formData) => {
   }
 };
 
-// ✅ Request password reset link
+// Request password reset link
 export const requestPasswordReset = async (data) => {
   try {
     const res = await api.post('/customers/reset-password-request', data);
@@ -64,7 +64,7 @@ export const requestPasswordReset = async (data) => {
   }
 };
 
-// ✅ Reset password using user ID and token
+// Reset password using user ID and token
 export const resetPassword = async (userId, token, newPassword) => {
   try {
     const res = await api.post(`/customers/reset-password/${userId}/${token}`, {
