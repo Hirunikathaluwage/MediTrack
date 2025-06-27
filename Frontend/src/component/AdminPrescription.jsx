@@ -76,8 +76,8 @@ const columns = [
         text === "Completed"
           ? "green"
           : text === "Pending"
-          ? "orange"
-          : "red";
+            ? "orange"
+            : "red";
       return <Tag color={color}>{text}</Tag>;
     },
   },

@@ -10,7 +10,7 @@ function SearchMedicineInBranch() {
   const [prescriptions, setPrescriptions] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [medicines, setMedicines] = useState([]);
- 
+
 
   const branchId = "67d690256c54c8fbf5a1eff3";
 
