@@ -447,6 +447,13 @@ import DeliveryDetails from "./components/driver/DeliveryDetails";
 import Layoutdriver from "./components/driver/layout/Layout";
 import { Home } from "lucide-react";
 import InventoryDashboard from "./InventoryAdminApp.jsx"
+import AddMedicineToInventory from "./AddMedicine";
+import SearchMedicineInBranch from "./SearchMedicineInBranch";
+import SearchMedicineWithBranch from "./SearchMedicineWithBranch";
+import SearchPrescriptionInBranch from "./SearchPrescriptionInBranch";
+import CreateMedicine from "./CreateMedicine";
+import ManageMedicines from "./ManageMedicines";
+import ManageBranches from "./ManageBranches";
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -481,7 +488,6 @@ function App() {
             <Route path="/approved-medicines" element={<ApprovedMedicines />} />
             <Route path="/admin-prescription" element={<AdminPrescription />} />
             <Route path="/order-dashboard" element={<DashboardLayout />} />
-            <Route path="/admin/inventory" element={<InventoryDashboard />} />
 
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
@@ -528,7 +534,7 @@ function App() {
                 <ManageInquiries />
               </ProtectedRoute>
             } />
-            <Route path="/admin/dashboard-home" element={
+            <Route path="/admin/dashboard-home/*" element={
               <ProtectedRoute requiredRole="admin">
                 <DashboardHome />
               </ProtectedRoute>
@@ -562,13 +568,30 @@ function App() {
               <Layout><DeliveryDetails /></Layout>
             } />
 
+
+
+            {/* </Route> */}
+            <Route path="/admin/dashboard-home/*" element={
+              <ProtectedRoute requiredRole="admin">
+                <DashboardHome />
+              </ProtectedRoute>
+            } />
+            <Route path="add-stock" element={<AddMedicineToInventory />} />
+            <Route path="pending-prescriptions" element={<SearchPrescriptionInBranch />} />
+            <Route path="manage-stock" element={<SearchMedicineInBranch />} />
+            <Route path="search-medicine-branches" element={<SearchMedicineWithBranch />} />
+            <Route path="create-medicine" element={<CreateMedicine />} />
+            <Route path="manage-medicines" element={<ManageMedicines />} />
+            <Route path="manage-branches" element={<ManageBranches />} />
+
+
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </Content>
 
       </Layout>
-    </Router>
+    </Router >
   );
 }
 
