@@ -10,7 +10,7 @@ const Dashboard = () => {
       .then(res => setStats(res.data))
       .catch(err => {
         console.error(err);
-        alert('❌ Failed to fetch stats');
+        alert(' Failed to fetch stats');
       });
   }, []);
 

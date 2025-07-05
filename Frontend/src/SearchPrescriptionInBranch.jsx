@@ -12,7 +12,7 @@ function SearchMedicineInBranch() {
   const [medicines, setMedicines] = useState([]);
 
 
-  const branchId = "67d690256c54c8fbf5a1eff3";
+  const branchId = "67da723648033b625d6b0f8c";
 
   useEffect(() => {
     fetch(`http://localhost:5080/api/prescription/${branchId}`)

@@ -23,7 +23,7 @@ const checkInquirySLA = async () => {
 
     for (let inquiry of overdueInquiries) {
       await sendEmail({
-        to: "awanthaimesh65@gmail.com",
+        // to: "awanthaimesh65@gmail.com",
         subject: `⚠️ SLA Alert: High-Priority Inquiry`,
         text: `This high-priority inquiry has not been addressed in ${SLA_HOURS} hours:\n\nSubject: ${inquiry.subject}\nID: ${inquiry._id}`,
       });
