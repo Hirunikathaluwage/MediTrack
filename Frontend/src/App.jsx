@@ -455,6 +455,7 @@ import CreateMedicine from "./CreateMedicine";
 import ManageMedicines from "./ManageMedicines";
 import ManageBranches from "./ManageBranches";
 
+
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
@@ -481,7 +482,6 @@ function App() {
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="/order-history" element={<OrderHistory />} />
             <Route path="/reserve-confirmation" element={<ReserveConfirmation />} />
-            <Route path="/dashboard" element={<DashboardLayout />} />
             <Route path="/verify-payments" element={<VerifyPayments />} />
             <Route path="/manage-reservations" element={<SplitPage />} />
             <Route path="/approval" element={<Approval />} />
@@ -583,6 +583,7 @@ function App() {
             <Route path="create-medicine" element={<CreateMedicine />} />
             <Route path="manage-medicines" element={<ManageMedicines />} />
             <Route path="manage-branches" element={<ManageBranches />} />
+
 
 
             {/* Fallback */}

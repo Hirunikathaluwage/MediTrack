@@ -16,6 +16,10 @@ import {
   Activity, Calendar, Filter, Download, FileText
 } from 'lucide-react';
 
+import ViewInquiries from "../../pages/Inquiry/ViewInquiries"
+import ManageInquiries from "../../pages/Admin/ManageInquiries";
+import Notifications from "../../pages/Admin/NotificationPage";
+
 const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
 
 const StatCard = ({ title, value, icon, trend, trendValue, bgColor }) => (
@@ -187,7 +191,7 @@ const AdminDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [reportType, setReportType] = useState('');
-
+  const [activeSection, setActiveSection] = useState('dashboard');
 
   useEffect(() => {
     const socket = io('http://localhost:5080');
@@ -310,12 +314,18 @@ const AdminDashboard = () => {
 
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar Section */}
-      <InqurySidebar />
+      <InqurySidebar
+        activeSection={activeSection}
+        onChangeSection={setActiveSection} />
 
-      <div className="bg-gray-50 min-h-screen">
+      {/* <div className="bg-gray-50 min-h-screen"> */}
+      <div className="flex-1 bg-gray-50 min-h-screen">
+
         {/* Top Navigation */}
         <div className="bg-white shadow-sm">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          {/* <div className="container mx-auto px-4 py-4 flex justify-between items-center"> */}
+          <div className="max-w-screen-xl mx-auto px-4 py-4 flex justify-between items-center">
+
             <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
             {admin && (
               <div className="flex items-center space-x-4">
@@ -329,382 +339,390 @@ const AdminDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-8">
-          {/* Download Report Button */}
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`py-2 px-4 rounded-md ${activeTab === 'overview'
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-                  }`}
-              >
-                Overview
-              </button>
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`py-2 px-4 rounded-md ${activeTab === 'analytics'
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-                  }`}
-              >
-                Analytics
-              </button>
-            </div>
-
-            <div className="flex">
-              <button
-                onClick={() => handleDownloadReport('Inquiry Summary')}
-                className="flex items-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
-              >
-                <Download size={18} className="mr-2" />
-                Download Report
-              </button>
-            </div>
-          </div>
-
-          {activeTab === 'overview' && (
+        {/* <div className="container mx-auto px-4 py-8"> */}
+        <div className="max-w-screen-xl mx-auto px-4 py-8">
+          {activeSection === 'dashboard' && (
             <>
-              {/* Stats Cards */}
-              {stats && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  <StatCard
-                    title="Total Inquiries"
-                    value={stats.totalInquiries}
-                    icon={<Activity size={24} className="text-blue-600" />}
-                    trend="up"
-                    trendValue="12"
-                    bgColor="bg-blue-50"
-                  />
-                  <StatCard
-                    title="Pending"
-                    value={stats.pendingInquiries}
-                    icon={<Clock size={24} className="text-yellow-600" />}
-                    trend="down"
-                    trendValue="5"
-                    bgColor="bg-yellow-50"
-                  />
-                  <StatCard
-                    title="Resolved"
-                    value={stats.resolvedInquiries}
-                    icon={<CheckCircle size={24} className="text-green-600" />}
-                    trend="up"
-                    trendValue="8"
-                    bgColor="bg-green-50"
-                  />
-                  <StatCard
-                    title="Critical"
-                    value={stats.criticalInquiries}
-                    icon={<AlertCircle size={24} className="text-red-600" />}
-                    trend="up"
-                    trendValue="3"
-                    bgColor="bg-red-50"
-                  />
-                </div>
-              )}
-
-              {/* Recent Activity */}
-              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-800">Recent Activity</h2>
+              {/* Download Report Button */}
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex space-x-2">
                   <button
-                    onClick={() => handleDownloadReport('Recent Activity')}
-                    className="flex items-center text-blue-600 hover:text-blue-800 text-sm"
+                    onClick={() => setActiveTab('overview')}
+                    className={`py-2 px-4 rounded-md ${activeTab === 'overview'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
                   >
-                    <Download size={16} className="mr-1" />
-                    Export
+                    Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('analytics')}
+                    className={`py-2 px-4 rounded-md ${activeTab === 'analytics'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                  >
+                    Analytics
                   </button>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#INQ-1234</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Website not loading correctly</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">High</span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 24, 2025</td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#INQ-1233</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Login issues after update</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Medium</span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Resolved</span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 23, 2025</td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#INQ-1232</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Payment processing error</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">High</span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Resolved</span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 22, 2025</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-4 flex justify-center">
-                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                    <a href="#" className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                      <span className="sr-only">Previous</span>
-                      <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </a>
-                    <a href="#" className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>
-                    <a href="#" className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100">2</a>
-                    <a href="#" className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">3</a>
-                    <a href="#" className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                      <span className="sr-only">Next</span>
-                      <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </a>
-                  </nav>
-                </div>
-              </div>
-
-              {/* Weekly Overview */}
-              {analytics && (
-                <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-800">Weekly Overview</h2>
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                      This Week: {analytics.thisWeek}
-                    </span>
-                  </div>
-
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={statusData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis dataKey="name" tick={{ fill: '#6b7280' }} />
-                        <YAxis allowDecimals={false} tick={{ fill: '#6b7280' }} />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: '#fff',
-                            border: 'none',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                          }}
-                        />
-                        <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {activeTab === 'analytics' && (
-            <>
-              {/* Filter Controls */}
-              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <Filter size={20} className="mr-2 text-gray-500" />
-                    <h2 className="text-lg font-semibold text-gray-800">Filter Analytics</h2>
-                  </div>
-
+                <div className="flex">
                   <button
-                    onClick={() => handleDownloadReport('Filtered Analytics')}
-                    className="flex items-center text-blue-600 hover:text-blue-800"
+                    onClick={() => handleDownloadReport('Inquiry Summary')}
+                    className="flex items-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
                   >
-                    <Download size={18} className="mr-1" />
-                    Export Current View
+                    <Download size={18} className="mr-2" />
+                    Download Report
                   </button>
                 </div>
-
-                <div className="flex flex-wrap gap-4">
-                  <div className="w-full md:w-auto">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
-                    <select
-                      value={selectedMonth}
-                      onChange={handleMonthChange}
-                      className="w-full md:w-48 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">All Months</option>
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {new Date(0, i).toLocaleString('default', { month: 'long' })}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="w-full md:w-auto">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-                    <select
-                      value={selectedYear}
-                      onChange={handleYearChange}
-                      className="w-full md:w-48 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">All Years</option>
-                      {Array.from({ length: 5 }, (_, i) => {
-                        const year = new Date().getFullYear() - i;
-                        return (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                </div>
               </div>
 
-              {/* Charts Section */}
-              {analytics ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Priority Breakdown Chart */}
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold text-gray-800">Priority Breakdown</h3>
+              {activeTab === 'overview' && (
+                <>
+                  {/* Stats Cards */}
+                  {stats && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                      <StatCard
+                        title="Total Inquiries"
+                        value={stats.totalInquiries}
+                        icon={<Activity size={24} className="text-blue-600" />}
+                        trend="up"
+                        trendValue="12"
+                        bgColor="bg-blue-50"
+                      />
+                      <StatCard
+                        title="Pending"
+                        value={stats.pendingInquiries}
+                        icon={<Clock size={24} className="text-yellow-600" />}
+                        trend="down"
+                        trendValue="5"
+                        bgColor="bg-yellow-50"
+                      />
+                      <StatCard
+                        title="Resolved"
+                        value={stats.resolvedInquiries}
+                        icon={<CheckCircle size={24} className="text-green-600" />}
+                        trend="up"
+                        trendValue="8"
+                        bgColor="bg-green-50"
+                      />
+                      <StatCard
+                        title="Critical"
+                        value={stats.criticalInquiries}
+                        icon={<AlertCircle size={24} className="text-red-600" />}
+                        trend="up"
+                        trendValue="3"
+                        bgColor="bg-red-50"
+                      />
+                    </div>
+                  )}
+
+                  {/* Recent Activity */}
+                  <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl font-semibold text-gray-800">Recent Activity</h2>
                       <button
-                        onClick={() => handleDownloadReport('Priority Breakdown')}
-                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+                        onClick={() => handleDownloadReport('Recent Activity')}
+                        className="flex items-center text-blue-600 hover:text-blue-800 text-sm"
                       >
                         <Download size={16} className="mr-1" />
                         Export
                       </button>
                     </div>
 
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={priorityData}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={80}
-                            label={(entry) => `${entry.name}: ${entry.value}`}
-                            labelLine={false}
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#INQ-1234</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Website not loading correctly</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">High</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 24, 2025</td>
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#INQ-1233</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Login issues after update</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Medium</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Resolved</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 23, 2025</td>
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#INQ-1232</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Payment processing error</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">High</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Resolved</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 22, 2025</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="mt-4 flex justify-center">
+                      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        <a href="#" className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                          <span className="sr-only">Previous</span>
+                          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </a>
+                        <a href="#" className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>
+                        <a href="#" className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100">2</a>
+                        <a href="#" className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">3</a>
+                        <a href="#" className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                          <span className="sr-only">Next</span>
+                          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </a>
+                      </nav>
+                    </div>
+                  </div>
+
+                  {/* Weekly Overview */}
+                  {analytics && (
+                    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-semibold text-gray-800">Weekly Overview</h2>
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                          This Week: {analytics.thisWeek}
+                        </span>
+                      </div>
+
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={statusData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis dataKey="name" tick={{ fill: '#6b7280' }} />
+                            <YAxis allowDecimals={false} tick={{ fill: '#6b7280' }} />
+                            <Tooltip
+                              contentStyle={{
+                                backgroundColor: '#fff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                              }}
+                            />
+                            <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {activeTab === 'analytics' && (
+                <>
+                  {/* Filter Controls */}
+                  <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center">
+                        <Filter size={20} className="mr-2 text-gray-500" />
+                        <h2 className="text-lg font-semibold text-gray-800">Filter Analytics</h2>
+                      </div>
+
+                      <button
+                        onClick={() => handleDownloadReport('Filtered Analytics')}
+                        className="flex items-center text-blue-600 hover:text-blue-800"
+                      >
+                        <Download size={18} className="mr-1" />
+                        Export Current View
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap gap-4">
+                      <div className="w-full md:w-auto">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                        <select
+                          value={selectedMonth}
+                          onChange={handleMonthChange}
+                          className="w-full md:w-48 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">All Months</option>
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <option key={i + 1} value={i + 1}>
+                              {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="w-full md:w-auto">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                        <select
+                          value={selectedYear}
+                          onChange={handleYearChange}
+                          className="w-full md:w-48 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">All Years</option>
+                          {Array.from({ length: 5 }, (_, i) => {
+                            const year = new Date().getFullYear() - i;
+                            return (
+                              <option key={year} value={year}>
+                                {year}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Charts Section */}
+                  {analytics ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Priority Breakdown Chart */}
+                      <div className="bg-white rounded-lg shadow-md p-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-lg font-semibold text-gray-800">Priority Breakdown</h3>
+                          <button
+                            onClick={() => handleDownloadReport('Priority Breakdown')}
+                            className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
                           >
+                            <Download size={16} className="mr-1" />
+                            Export
+                          </button>
+                        </div>
+
+                        <div className="h-64">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={priorityData}
+                                dataKey="value"
+                                nameKey="name"
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={80}
+                                label={(entry) => `${entry.name}: ${entry.value}`}
+                                labelLine={false}
+                              >
+                                {priorityData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                              </Pie>
+                              <Tooltip
+                                contentStyle={{
+                                  backgroundColor: '#fff',
+                                  border: 'none',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                                }}
+                              />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+
+                        <div className="flex justify-center mt-4">
+                          <div className="flex flex-wrap justify-center gap-4">
                             {priorityData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                              <div key={`legend-${index}`} className="flex items-center">
+                                <div className="w-4 h-4 mr-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                                <span className="text-sm text-gray-600">{entry.name}: {entry.value}</span>
+                              </div>
                             ))}
-                          </Pie>
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: '#fff',
-                              border: 'none',
-                              borderRadius: '8px',
-                              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                            }}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div className="flex justify-center mt-4">
-                      <div className="flex flex-wrap justify-center gap-4">
-                        {priorityData.map((entry, index) => (
-                          <div key={`legend-${index}`} className="flex items-center">
-                            <div className="w-4 h-4 mr-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                            <span className="text-sm text-gray-600">{entry.name}: {entry.value}</span>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Status Breakdown Chart */}
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold text-gray-800">Inquiry Status</h3>
-                      <button
-                        onClick={() => handleDownloadReport('Inquiry Status')}
-                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
-                      >
-                        <Download size={16} className="mr-1" />
-                        Export
-                      </button>
-                    </div>
-
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={statusData}> <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis dataKey="name" tick={{ fill: '#6b7280' }} />
-                          <YAxis allowDecimals={false} tick={{ fill: '#6b7280' }} />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: '#fff',
-                              border: 'none',
-                              borderRadius: '8px',
-                              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                            }}
-                          />
-                          <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                            <Cell fill="#10B981" /> {/* Green for Resolved */}
-                            <Cell fill="#F59E0B" /> {/* Amber for Pending */}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 mt-6">
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <div className="flex justify-between">
-                          <div>
-                            <p className="text-sm text-green-600">Resolved</p>
-                            <h4 className="text-2xl font-bold text-green-700">{analytics.resolved}</h4>
-                          </div>
-                          <CheckCircle size={24} className="text-green-500" />
                         </div>
                       </div>
-                      <div className="bg-yellow-50 p-4 rounded-lg">
-                        <div className="flex justify-between">
-                          <div>
-                            <p className="text-sm text-yellow-600">Pending</p>
-                            <h4 className="text-2xl font-bold text-yellow-700">{analytics.pending}</h4>
+
+                      {/* Status Breakdown Chart */}
+                      <div className="bg-white rounded-lg shadow-md p-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-lg font-semibold text-gray-800">Inquiry Status</h3>
+                          <button
+                            onClick={() => handleDownloadReport('Inquiry Status')}
+                            className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+                          >
+                            <Download size={16} className="mr-1" />
+                            Export
+                          </button>
+                        </div>
+
+                        <div className="h-64">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={statusData}> <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                              <XAxis dataKey="name" tick={{ fill: '#6b7280' }} />
+                              <YAxis allowDecimals={false} tick={{ fill: '#6b7280' }} />
+                              <Tooltip
+                                contentStyle={{
+                                  backgroundColor: '#fff',
+                                  border: 'none',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                                }}
+                              />
+                              <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                                <Cell fill="#10B981" /> {/* Green for Resolved */}
+                                <Cell fill="#F59E0B" /> {/* Amber for Pending */}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mt-6">
+                          <div className="bg-green-50 p-4 rounded-lg">
+                            <div className="flex justify-between">
+                              <div>
+                                <p className="text-sm text-green-600">Resolved</p>
+                                <h4 className="text-2xl font-bold text-green-700">{analytics.resolved}</h4>
+                              </div>
+                              <CheckCircle size={24} className="text-green-500" />
+                            </div>
                           </div>
-                          <Clock size={24} className="text-yellow-500" />
+                          <div className="bg-yellow-50 p-4 rounded-lg">
+                            <div className="flex justify-between">
+                              <div>
+                                <p className="text-sm text-yellow-600">Pending</p>
+                                <h4 className="text-2xl font-bold text-yellow-700">{analytics.pending}</h4>
+                              </div>
+                              <Clock size={24} className="text-yellow-500" />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white rounded-lg shadow-md p-12 flex justify-center">
-                  <div className="flex flex-col items-center text-gray-500">
-                    <div className="animate-spin mb-4">
-                      <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                  ) : (
+                    <div className="bg-white rounded-lg shadow-md p-12 flex justify-center">
+                      <div className="flex flex-col items-center text-gray-500">
+                        <div className="animate-spin mb-4">
+                          <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                        <p className="text-lg">Loading analytics data...</p>
+                      </div>
                     </div>
-                    <p className="text-lg">Loading analytics data...</p>
-                  </div>
-                </div>
+                  )}
+                </>
               )}
             </>
           )}
+          {activeSection === 'view-inquiries' && <ViewInquiries />}
+          {activeSection === 'manage-inquiries' && <ManageInquiries />}
+          {activeSection === 'notifications' && <Notifications />}
         </div>
 
         {/* Download Report Modal */}
