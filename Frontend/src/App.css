@@ -2,19 +2,22 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #eaf8ff; /* Light blue background */
+  background-color: #eaf8ff;
+  /* Light blue background */
   margin: 0;
   padding: 0;
 }
 
 .container {
   display: flex;
-  height: 100vh; /* Full viewport height */
+  height: 100vh;
+  /* Full viewport height */
 }
 
 .sidebar {
   width: 250px;
-  background-color: #2c3e50; /* Dark blue */
+  background-color: #2c3e50;
+  /* Dark blue */
   color: white;
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -46,17 +49,26 @@ body {
 
 .sidebar ul li a:hover,
 .sidebar ul li a.active {
-  background-color: #1abc9c; /* Green highlight */
+  background-color: #1abc9c;
+  /* Green highlight */
 }
 
 .main-content {
-  flex: 1; /* Take up remaining space */
+  flex: 1;
+  /* Take up remaining space */
   padding: 20px;
-  overflow-y: auto; /* Enable scrolling if content overflows */
-  background-color: #eaf8ff; /* Match the background */
+  overflow-y: auto;
+  /* Enable scrolling if content overflows */
+  background-color: #eaf8ff;
+  /* Match the background */
 }
 
 .main-content h1 {
   font-size: 28px;
   margin-bottom: 20px;
+}
+
+.user-navbar a,
+.user-navbar span {
+  color: white !important;
 }

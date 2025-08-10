@@ -388,12 +388,223 @@
 
 
 
+// -----------------------------------------------------------------------------------
+
+// import {
+//   BrowserRouter as Router,
+//   Route,
+//   Routes,
+//   NavLink,
+//   Navigate,
+// } from "react-router-dom";
+// import { Layout, Typography } from "antd";
+// import "./App.css";
+// import "./index.css";
+
+// import React from "react";
+
+// import CartPage from "./pages/CartPage";
+// import PaymentPage from "./pages/PaymentPage";
+// import OrderConfirmation from "./pages/OrderConfirmation";
+// import OrderHistory from "./pages/OrderHistory";
+// import ReserveConfirmation from "./pages/ReserveConfirmation";
+// import DashboardLayout from "./pages/AdminOrderDashboard";
+// import VerifyPayments from "./pages/VerifyPaymentsPage";
+// import ApprovedMedicines from "./pages/ApprovedMedicines";
+// import Prescription from "./pages/Prescription.jsx";
+// import AdminPrescription from "./component/AdminPrescription.jsx";
+// import SubmitInquiry from "./pages/Inquiry/AddInquiry";
+// import ViewInquiries from "./pages/Inquiry/ViewInquiries";
+// import SplitPage from "./pages/split.jsx";
+// import Approval from "./component/Approval.jsx";
+// import Navbar from "./components/Navbar";
+// import ProtectedRoute from "./components/ProtectedRoute";
+// import { ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+// import Profile from "./pages/Customer/Profile";
+// import Login from "./pages/Customer/Login";
+// import Register from "./pages/Customer/Register";
+// import Dashboard from "./pages/Customer/Dashboard";
+// import AdminLogin from "./pages/Admin/AdminLogin";
+// import AdminDashboard from "./pages/Admin/AdminDashboard";
+// import ManageInquiries from "./pages/Admin/ManageInquiries";
+// import NotificationPage from "./pages/Admin/NotificationPage";
+// import { CustomerHome } from "./Home/components/PagesHome/CustomerHome";
+// import { DashboardHome } from "./Home/components/dashboard/DashboardHome";
+// import Unauthorized from "./pages/Unauthorized";
+// import AppAdmin from "./components/AppAdmin";
+// import RoleSelection from "./RoleSelection";
+// import DeliveryForm from "./components/customer/DeliveryForm";
+// import DeliveryTracking from "./components/customer/DeliveryTracking";
+// import RatingPage from "./components/customer/RatingPage";
+// import ThankYouPage from "./components/customer/ThankYouPage";
+// import Logindriver from "./components/driver/Login";
+// import Signup from "./components/driver/Signup";
+// import Dashboarddriver from "./components/driver/Dashboard";
+// import driverProfile from "./components/driver/Profile";
+// import DeliveryHistory from "./components/driver/DeliveryHistory";
+// import DeliveryDetails from "./components/driver/DeliveryDetails";
+// import Layoutdriver from "./components/driver/layout/Layout";
+// import { Home } from "lucide-react";
+// import InventoryDashboard from "./InventoryAdminApp.jsx"
+// import AddMedicineToInventory from "./AddMedicine";
+// import SearchMedicineInBranch from "./SearchMedicineInBranch";
+// import SearchMedicineWithBranch from "./SearchMedicineWithBranch";
+// import SearchPrescriptionInBranch from "./SearchPrescriptionInBranch";
+// import CreateMedicine from "./CreateMedicine";
+// import ManageMedicines from "./ManageMedicines";
+// import ManageBranches from "./ManageBranches";
+
+
+// const { Header, Sider, Content } = Layout;
+// const { Title } = Typography;
+
+// function App() {
+//   return (
+//     <Router>
+//       <Navbar />
+//       <ToastContainer
+//         position="top-right"
+//         autoClose={5000}
+//         hideProgressBar={false}
+//         newestOnTop
+//         closeOnClick
+//         pauseOnFocusLoss
+//         draggable
+//         pauseOnHover
+//       />
+//       <Layout style={{ minHeight: "100vh" }}>
+//         <Content>
+//           <Routes>
+//             <Route path="/" element={<CustomerHome />} />
+//             <Route path="/cart" element={<CartPage />} />
+//             <Route path="/payment/:orderId" element={<PaymentPage />} />
+//             <Route path="/order-confirmation" element={<OrderConfirmation />} />
+//             <Route path="/order-history" element={<OrderHistory />} />
+//             <Route path="/reserve-confirmation" element={<ReserveConfirmation />} />
+//             <Route path="/verify-payments" element={<VerifyPayments />} />
+//             <Route path="/manage-reservations" element={<SplitPage />} />
+//             <Route path="/approval" element={<Approval />} />
+//             <Route path="/approved-medicines" element={<ApprovedMedicines />} />
+//             <Route path="/admin-prescription" element={<AdminPrescription />} />
+//             <Route path="/order-dashboard" element={<DashboardLayout />} />
+
+//             {/* Public Routes */}
+//             <Route path="/login" element={<Login />} />
+//             <Route path="/register" element={<Register />} />
+
+//             {/* Customer Protected Routes */}
+
+//             <Route
+//               path="/prescription"
+//               element={
+//                 <ProtectedRoute>
+//                   <Prescription />
+//                 </ProtectedRoute>
+//               }
+//             />
+
+//             <Route path="/dashboard" element={
+//               <ProtectedRoute><Dashboard /></ProtectedRoute>
+//             } />
+//             <Route path="/profile" element={
+//               <ProtectedRoute><Profile /></ProtectedRoute>
+//             } />
+//             <Route path="/submit-inquiry" element={
+//               <ProtectedRoute><SubmitInquiry /></ProtectedRoute>
+//             } />
+//             <Route path="/view-inquiries" element={
+//               <ProtectedRoute><ViewInquiries /></ProtectedRoute>
+//             } />
+//             <Route path="/customer/home" element={
+//               <ProtectedRoute requiredRole="customer">
+//                 <CustomerHome />
+//               </ProtectedRoute>
+//             } />
+
+//             {/* Admin Protected Routes */}
+//             <Route path="/admin/login" element={<AdminLogin />} />
+//             <Route path="/admin/panel" element={
+//               <ProtectedRoute requiredRole="admin">
+//                 <AdminDashboard />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/admin/manage-inquiries" element={
+//               <ProtectedRoute requiredRole="admin">
+//                 <ManageInquiries />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/admin/dashboard-home/*" element={
+//               <ProtectedRoute requiredRole="admin">
+//                 <DashboardHome />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/admin/notifications" element={
+//               <ProtectedRoute requiredRole="admin">
+//                 <NotificationPage />
+//               </ProtectedRoute>
+//             } />
+
+//             {/* Other Routes */}
+//             <Route path="/unauthorized" element={<Unauthorized />} />
+//             <Route path="/admin" element={<AppAdmin />} />
+//             <Route path="/role-selection" element={<RoleSelection />} />
+//             <Route path="/user/delivery" element={<DeliveryForm />} />
+//             <Route path="/tracking/:deliveryId" element={<DeliveryTracking />} />
+//             <Route path="/rating/:deliveryId" element={<RatingPage />} />
+//             <Route path="/thank-you" element={<ThankYouPage />} />
+//             <Route path="/driver" element={<Logindriver />} />
+//             <Route path="/driver/signup" element={<Signup />} />
+//             <Route path="/driver/dashboard/:id" element={
+//               <Layoutdriver><Dashboarddriver /></Layoutdriver>
+//             } />
+//             <Route path="/driver/profile" element={
+//               <Layout><driverProfile /></Layout>
+//             } />
+//             <Route path="/driver/history" element={
+//               <Layout><DeliveryHistory /></Layout>
+//             } />
+//             <Route path="/driver/delivery/:id" element={
+//               <Layout><DeliveryDetails /></Layout>
+//             } />
+
+
+
+//             {/* </Route> */}
+//             <Route path="/admin/dashboard-home/*" element={
+//               <ProtectedRoute requiredRole="admin">
+//                 <DashboardHome />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="add-stock" element={<AddMedicineToInventory />} />
+//             <Route path="pending-prescriptions" element={<SearchPrescriptionInBranch />} />
+//             <Route path="manage-stock" element={<SearchMedicineInBranch />} />
+//             <Route path="search-medicine-branches" element={<SearchMedicineWithBranch />} />
+//             <Route path="create-medicine" element={<CreateMedicine />} />
+//             <Route path="manage-medicines" element={<ManageMedicines />} />
+//             <Route path="manage-branches" element={<ManageBranches />} />
+
+
+
+//             {/* Fallback */}
+//             <Route path="*" element={<Navigate to="/login" replace />} />
+//           </Routes>
+//         </Content>
+
+//       </Layout>
+//     </Router >
+//   );
+// }
+
+// export default App;
+
+
+// -------------------------------------------------------------------------------
 
 import {
   BrowserRouter as Router,
   Route,
   Routes,
-  NavLink,
   Navigate,
 } from "react-router-dom";
 import { Layout, Typography } from "antd";
@@ -402,35 +613,38 @@ import "./index.css";
 
 import React from "react";
 
-// Pages
+// Layouts
+import UserLayout from "./layouts/UserLayout";
+import AdminLayout from "./layouts/AdminLayout";
+
+// Pages (Customer/User)
 import CartPage from "./pages/CartPage";
 import PaymentPage from "./pages/PaymentPage";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import OrderHistory from "./pages/OrderHistory";
 import ReserveConfirmation from "./pages/ReserveConfirmation";
-import DashboardLayout from "./pages/AdminOrderDashboard";
-import VerifyPayments from "./pages/VerifyPaymentsPage";
-import ApprovedMedicines from "./pages/ApprovedMedicines";
 import Prescription from "./pages/Prescription.jsx";
-import AdminPrescription from "./component/AdminPrescription.jsx";
 import SubmitInquiry from "./pages/Inquiry/AddInquiry";
 import ViewInquiries from "./pages/Inquiry/ViewInquiries";
 import SplitPage from "./pages/split.jsx";
 import Approval from "./component/Approval.jsx";
-import Navbar from "./components/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Profile from "./pages/Customer/Profile";
 import Login from "./pages/Customer/Login";
 import Register from "./pages/Customer/Register";
 import Dashboard from "./pages/Customer/Dashboard";
+import { CustomerHome } from "./Home/components/PagesHome/CustomerHome";
+import ApprovedMedicines from "./pages/ApprovedMedicines";
+
+// Pages (Admin)
 import AdminLogin from "./pages/Admin/AdminLogin";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ManageInquiries from "./pages/Admin/ManageInquiries";
 import NotificationPage from "./pages/Admin/NotificationPage";
-import { CustomerHome } from "./Home/components/PagesHome/CustomerHome";
 import { DashboardHome } from "./Home/components/dashboard/DashboardHome";
+import VerifyPayments from "./pages/VerifyPaymentsPage";
+import AdminPrescription from "./component/AdminPrescription.jsx";
+
+// Other shared pages
 import Unauthorized from "./pages/Unauthorized";
 import AppAdmin from "./components/AppAdmin";
 import RoleSelection from "./RoleSelection";
@@ -445,8 +659,7 @@ import driverProfile from "./components/driver/Profile";
 import DeliveryHistory from "./components/driver/DeliveryHistory";
 import DeliveryDetails from "./components/driver/DeliveryDetails";
 import Layoutdriver from "./components/driver/layout/Layout";
-import { Home } from "lucide-react";
-import InventoryDashboard from "./InventoryAdminApp.jsx"
+import InventoryDashboard from "./InventoryAdminApp.jsx";
 import AddMedicineToInventory from "./AddMedicine";
 import SearchMedicineInBranch from "./SearchMedicineInBranch";
 import SearchMedicineWithBranch from "./SearchMedicineWithBranch";
@@ -455,14 +668,15 @@ import CreateMedicine from "./CreateMedicine";
 import ManageMedicines from "./ManageMedicines";
 import ManageBranches from "./ManageBranches";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const { Header, Sider, Content } = Layout;
-const { Title } = Typography;
+const { Content } = Layout;
 
 function App() {
   return (
     <Router>
-      <Navbar />
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -473,126 +687,74 @@ function App() {
         draggable
         pauseOnHover
       />
+
       <Layout style={{ minHeight: "100vh" }}>
         <Content>
           <Routes>
-            <Route path="/" element={<CustomerHome />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/payment/:orderId" element={<PaymentPage />} />
-            <Route path="/order-confirmation" element={<OrderConfirmation />} />
-            <Route path="/order-history" element={<OrderHistory />} />
-            <Route path="/reserve-confirmation" element={<ReserveConfirmation />} />
-            <Route path="/verify-payments" element={<VerifyPayments />} />
-            <Route path="/manage-reservations" element={<SplitPage />} />
-            <Route path="/approval" element={<Approval />} />
-            <Route path="/approved-medicines" element={<ApprovedMedicines />} />
-            <Route path="/admin-prescription" element={<AdminPrescription />} />
-            <Route path="/order-dashboard" element={<DashboardLayout />} />
 
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            {/* User Routes */}
+            <Route element={<UserLayout />}>
+              <Route path="/" element={<CustomerHome />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/payment/:orderId" element={<PaymentPage />} />
+              <Route path="/order-confirmation" element={<OrderConfirmation />} />
+              <Route path="/order-history" element={<OrderHistory />} />
+              <Route path="/reserve-confirmation" element={<ReserveConfirmation />} />
+              <Route path="/approved-medicines" element={<ApprovedMedicines />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/prescription" element={<ProtectedRoute><Prescription /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/submit-inquiry" element={<ProtectedRoute><SubmitInquiry /></ProtectedRoute>} />
+              <Route path="/view-inquiries" element={<ProtectedRoute><ViewInquiries /></ProtectedRoute>} />
+              <Route path="/customer/home" element={<ProtectedRoute requiredRole="customer"><CustomerHome /></ProtectedRoute>} />
+              <Route path="/manage-reservations" element={<SplitPage />} />
+              <Route path="/approval" element={<Approval />} />
+              <Route path="/user/delivery" element={<DeliveryForm />} />
+              <Route path="/tracking/:deliveryId" element={<DeliveryTracking />} />
+              <Route path="/rating/:deliveryId" element={<RatingPage />} />
+              <Route path="/thank-you" element={<ThankYouPage />} />
+            </Route>
 
-            {/* Customer Protected Routes */}
+            {/* Admin Routes */}
+            <Route element={<AdminLayout />}>
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/panel" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/manage-inquiries" element={<ProtectedRoute requiredRole="admin"><ManageInquiries /></ProtectedRoute>} />
+              <Route path="/admin/dashboard-home/*" element={<ProtectedRoute requiredRole="admin"><DashboardHome /></ProtectedRoute>} />
+              <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><NotificationPage /></ProtectedRoute>} />
+              <Route path="/verify-payments" element={<VerifyPayments />} />
+              <Route path="/admin-prescription" element={<AdminPrescription />} />
+              <Route path="/order-dashboard" element={<ProtectedRoute requiredRole="admin"><InventoryDashboard /></ProtectedRoute>} />
+              <Route path="/add-stock" element={<AddMedicineToInventory />} />
+              <Route path="/pending-prescriptions" element={<SearchPrescriptionInBranch />} />
+              <Route path="/manage-stock" element={<SearchMedicineInBranch />} />
+              <Route path="/search-medicine-branches" element={<SearchMedicineWithBranch />} />
+              <Route path="/create-medicine" element={<CreateMedicine />} />
+              <Route path="/manage-medicines" element={<ManageMedicines />} />
+              <Route path="/manage-branches" element={<ManageBranches />} />
+              <Route path="/admin" element={<AppAdmin />} />
+            </Route>
 
-            <Route
-              path="/prescription"
-              element={
-                <ProtectedRoute>
-                  <Prescription />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route path="/dashboard" element={
-              <ProtectedRoute><Dashboard /></ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute><Profile /></ProtectedRoute>
-            } />
-            <Route path="/submit-inquiry" element={
-              <ProtectedRoute><SubmitInquiry /></ProtectedRoute>
-            } />
-            <Route path="/view-inquiries" element={
-              <ProtectedRoute><ViewInquiries /></ProtectedRoute>
-            } />
-            <Route path="/customer/home" element={
-              <ProtectedRoute requiredRole="customer">
-                <CustomerHome />
-              </ProtectedRoute>
-            } />
-
-            {/* Admin Protected Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/panel" element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/manage-inquiries" element={
-              <ProtectedRoute requiredRole="admin">
-                <ManageInquiries />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/dashboard-home/*" element={
-              <ProtectedRoute requiredRole="admin">
-                <DashboardHome />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/notifications" element={
-              <ProtectedRoute requiredRole="admin">
-                <NotificationPage />
-              </ProtectedRoute>
-            } />
-
-            {/* Other Routes */}
-            <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path="/admin" element={<AppAdmin />} />
-            <Route path="/role-selection" element={<RoleSelection />} />
-            <Route path="/user/delivery" element={<DeliveryForm />} />
-            <Route path="/tracking/:deliveryId" element={<DeliveryTracking />} />
-            <Route path="/rating/:deliveryId" element={<RatingPage />} />
-            <Route path="/thank-you" element={<ThankYouPage />} />
+            {/* Driver Routes */}
             <Route path="/driver" element={<Logindriver />} />
             <Route path="/driver/signup" element={<Signup />} />
-            <Route path="/driver/dashboard/:id" element={
-              <Layoutdriver><Dashboarddriver /></Layoutdriver>
-            } />
-            <Route path="/driver/profile" element={
-              <Layout><driverProfile /></Layout>
-            } />
-            <Route path="/driver/history" element={
-              <Layout><DeliveryHistory /></Layout>
-            } />
-            <Route path="/driver/delivery/:id" element={
-              <Layout><DeliveryDetails /></Layout>
-            } />
+            <Route path="/driver/dashboard/:id" element={<Layoutdriver><Dashboarddriver /></Layoutdriver>} />
+            <Route path="/driver/profile" element={<Layoutdriver><driverProfile /></Layoutdriver>} />
+            <Route path="/driver/history" element={<Layoutdriver><DeliveryHistory /></Layoutdriver>} />
+            <Route path="/driver/delivery/:id" element={<Layoutdriver><DeliveryDetails /></Layoutdriver>} />
 
-
-
-            {/* </Route> */}
-            <Route path="/admin/dashboard-home/*" element={
-              <ProtectedRoute requiredRole="admin">
-                <DashboardHome />
-              </ProtectedRoute>
-            } />
-            <Route path="add-stock" element={<AddMedicineToInventory />} />
-            <Route path="pending-prescriptions" element={<SearchPrescriptionInBranch />} />
-            <Route path="manage-stock" element={<SearchMedicineInBranch />} />
-            <Route path="search-medicine-branches" element={<SearchMedicineWithBranch />} />
-            <Route path="create-medicine" element={<CreateMedicine />} />
-            <Route path="manage-medicines" element={<ManageMedicines />} />
-            <Route path="manage-branches" element={<ManageBranches />} />
-
-
+            {/* Other */}
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/role-selection" element={<RoleSelection />} />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </Content>
-
       </Layout>
-    </Router >
+    </Router>
   );
 }
 

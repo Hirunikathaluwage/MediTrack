@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { User } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Navbar = () => {
   return (
     <div className="w-full">
       {/* Main Navbar */}
-      <nav className="bg-blue-600 text-white shadow-md">
+      <nav className="bg-blue-600 text-white shadow-md user-navbar">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Logo */}
@@ -36,28 +37,36 @@ const Navbar = () => {
                 Prescription
               </button>
 
-              <Link to="/order-confirmation" className="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
+              {/* <Link to="/order-confirmation" className="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
                 Order
               </Link>
               <Link to="/delivery" className="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
                 Delivery
-              </Link>
+              </Link> */}
               <Link to="/submit-inquiry" className="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
                 Inquiry
               </Link>
-              <Link to="/cart" className="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
+              {/* <Link to="/cart" className="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
                 Cart
-              </Link>
+              </Link> */}
               <Link to="/profile" className="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium">
                 Profile
               </Link>
+
+              {/* <button
+                onClick={handleLogout}
+                className="bg-white text-blue-600 font-semibold px-4 py-1 rounded-md hover:bg-gray-100 transition"
+              >
+                Login
+              </button> */}
 
               <button
                 onClick={handleLogout}
                 className="bg-white text-blue-600 font-semibold px-4 py-1 rounded-md hover:bg-gray-100 transition"
               >
-                Login
+                <User size={20} />
               </button>
+
             </div>
 
             {/* Mobile menu button */}
