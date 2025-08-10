@@ -21,7 +21,7 @@ const Prescription = () => {
     const fetchBranches = async () => {
       try {
         const res = await axios.get("http://localhost:5080/branches");
-        setBranches(res.data);
+        setBranches(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (error) {
         message.error("Failed to load branches");
       }
@@ -62,8 +62,6 @@ const Prescription = () => {
     }
 
     const formData = new FormData();
-    // formData.append("userId", "680b51cc9304025f19b2d7d1");
-
     formData.append("userId", user?._id);
 
     formData.append("name", values.name);
@@ -263,3 +261,8 @@ const Prescription = () => {
 };
 
 export default Prescription;
+
+
+
+
+
