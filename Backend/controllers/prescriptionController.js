@@ -57,7 +57,7 @@ async function extractMedicinesFromImage(imagePath) {
                     role: "user",
                     parts: [
                         { inlineData: { data: base64Image, mimeType: "image/jpeg" } },
-                        { text:` Extract the medicine names from this prescription image. Return only a JSON. `}
+                        { text: ` Extract the medicine names from this prescription image. Return only a JSON. ` }
                     ]
                 }
             ],
@@ -287,3 +287,12 @@ export const getApprovedMedicines = async (req, res) => {
 
 
 
+export const getAllPrescriptions = async (req, res) => {
+    try {
+        const prescriptions = await Prescription.find().populate("medicines.medicineId");
+        res.status(200).json({ success: true, data: prescriptions });
+    } catch (error) {
+        console.error("Get all prescriptions error:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
