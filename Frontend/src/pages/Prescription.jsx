@@ -261,8 +261,3 @@ const Prescription = () => {
 };
 
 export default Prescription;
-
-
-
-
-
