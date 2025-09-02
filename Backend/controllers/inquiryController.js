@@ -61,31 +61,30 @@ export const addInquiry = async (req, res) => {
 
     await inquiry.save();
 
-    // ✅ New Part: Send SMS if Product Issue
+    // New Part: Send SMS if Product Issue
     if (category === 'Product Issue' && location) {
       const branch = await Branch.findOne({ location });
       if (branch) {
         const branchPhoneNumber = branch.phoneNumber;
         try {
           await client.messages.create({
-            body: `🔔 New Product Issue Inquiry!\nSubject: ${subject}\nFrom: ${name}`,
+            body: ` New Product Issue Inquiry!\nSubject: ${subject}\nFrom: ${name}`,
             from: twilioPhoneNumber,
             to: branchPhoneNumber
           });
-          console.log(`📩 SMS sent successfully to Branch (${location}) - ${branchPhoneNumber}`);
+          console.log(` SMS sent successfully to Branch (${location}) - ${branchPhoneNumber}`);
         } catch (smsError) {
-          console.error("❌ Failed to send SMS to branch:", smsError.message);
+          console.error(" Failed to send SMS to branch:", smsError.message);
         }
       } else {
-        console.warn(`⚠️ No matching branch found for location: ${location}`);
+        console.warn(` No matching branch found for location: ${location}`);
       }
     }
 
-    // ✅ Real-time event
     io.emit('newInquiry', inquiry);
-    console.log('📢 Real-time New Inquiry event emitted');
+    console.log(' Real-time New Inquiry event emitted');
 
-    // ✅ Auto-Responder
+    
     let autoReplied = false;
     for (const faq of faqMap) {
       for (const keyword of faq.keywords) {
@@ -93,7 +92,7 @@ export const addInquiry = async (req, res) => {
           await transporter.sendMail({
             from: `"MediTrack Support" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: `📩 Auto-Response: ${subject}`,
+            subject: ` Auto-Response: ${subject}`,
             html: `
               <div style="font-family: Arial; padding: 20px;">
                 <p>Hi ${name},</p>
@@ -117,10 +116,10 @@ export const addInquiry = async (req, res) => {
       if (autoReplied) break;
     }
 
-    // ✅ Confirmation Email
+ 
     const confirmationHtml = `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2>📝 Your inquiry has been received!</h2>
+        <h2> Your inquiry has been received!</h2>
         <p>Hi ${name},</p>
         <p>Thank you for reaching out to us regarding <strong>"${subject}"</strong>.</p>
         <p>Our support team will review your inquiry and get back to you shortly.</p>
@@ -139,7 +138,7 @@ export const addInquiry = async (req, res) => {
     await transporter.sendMail({
       from: `"MediTrack Support" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `✅ Inquiry Received: ${subject}`,
+      subject: ` Inquiry Received: ${subject}`,
       html: confirmationHtml,
     });
 
@@ -263,7 +262,7 @@ export const getInquiryAnalytics = async (req, res) => {
       priority: { high, medium, low }
     });
   } catch (error) {
-    console.error("❌ Failed to load inquiry analytics:", error);
+    console.error(" Failed to load inquiry analytics:", error);
     res.status(500).json({ message: "Error loading inquiry analytics", error: error.message });
   }
 };
@@ -286,7 +285,7 @@ export const respondToInquiry = async (req, res) => {
 
     const html = `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2>📩 MediTrack Support Response</h2>
+        <h2> MediTrack Support Response</h2>
         <p>Hi ${inquiry.name},</p>
         <p>We have reviewed your inquiry regarding <strong>"${inquiry.subject}"</strong>.</p>
         <p><strong>Response:</strong></p>
@@ -301,13 +300,13 @@ export const respondToInquiry = async (req, res) => {
     await transporter.sendMail({
       from: `"MediTrack Support" <${process.env.EMAIL_USER}>`,
       to: inquiry.email,
-      subject: `📩 Response to your inquiry: ${inquiry.subject}`,
+      subject: `Response to your inquiry: ${inquiry.subject}`,
       html,
     });
 
-    res.status(200).json({ message: '✅ Response email sent successfully', inquiry });
+    res.status(200).json({ message: 'Response email sent successfully', inquiry });
   } catch (error) {
-    console.error("❌ Failed to send response:", error);
+    console.error(" Failed to send response:", error);
     res.status(500).json({ message: 'Failed to respond to inquiry', error: error.message });
   }
 };

@@ -17,21 +17,21 @@ const checkInquirySLA = async () => {
     });
 
     if (overdueInquiries.length === 0) {
-      console.log(`✅ SLA Checker: No overdue high-priority inquiries`);
+      console.log(`SLA Checker: No overdue high-priority inquiries`);
       return;
     }
 
     for (let inquiry of overdueInquiries) {
       await sendEmail({
         // to: "awanthaimesh65@gmail.com",
-        subject: `⚠️ SLA Alert: High-Priority Inquiry`,
+        subject: ` SLA Alert: High-Priority Inquiry`,
         text: `This high-priority inquiry has not been addressed in ${SLA_HOURS} hours:\n\nSubject: ${inquiry.subject}\nID: ${inquiry._id}`,
       });
 
-      console.log(`📢 SLA Alert sent for inquiry ID: ${inquiry._id}`);
+      console.log(` SLA Alert sent for inquiry ID: ${inquiry._id}`);
     }
   } catch (err) {
-    console.error("❌ SLA Checker failed:", err.message);
+    console.error(" SLA Checker failed:", err.message);
   }
 };
 

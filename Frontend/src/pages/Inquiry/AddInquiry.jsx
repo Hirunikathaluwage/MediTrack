@@ -1,37 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { addInquiry } from "../../api/inquiryAPI";
 
 const AddInquiry = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    description: '',
-    category: 'General',
-    priority: 'Medium',
-    location: '',
-    attachment: null
+    name: "",
+    email: "",
+    subject: "",
+    description: "",
+    category: "General",
+    priority: "Medium",
+    location: "",
+    attachment: null,
   });
 
-  const [otherDescription, setOtherDescription] = useState('');
+  const [otherDescription, setOtherDescription] = useState("");
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value
+      [name]: files ? files[0] : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const finalDescription = formData.category === "Other"
-      ? otherDescription
-      : formData.description;
+    const finalDescription =
+      formData.category === "Other" ? otherDescription : formData.description;
 
     if (finalDescription.length < 20) {
-      return alert('❌ Description must be at least 20 characters.');
+      return alert("Description must be at least 20 characters.");
     }
 
     const form = new FormData();
@@ -44,11 +43,11 @@ const AddInquiry = () => {
 
     try {
       await addInquiry(form);
-      alert('✅ Inquiry submitted successfully!');
+      alert(" Inquiry submitted successfully!");
     } catch (err) {
       console.error(err);
-      const msg = err.response?.data?.message || 'Submission failed';
-      alert('❌ Error: ' + msg);
+      const msg = err.response?.data?.message || "Submission failed";
+      alert(" Error: " + msg);
     }
   };
 
@@ -58,7 +57,9 @@ const AddInquiry = () => {
       encType="multipart/form-data"
       className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-xl space-y-4"
     >
-      <h2 className="text-2xl font-semibold text-gray-800">Submit an Inquiry</h2>
+      <h2 className="text-2xl font-semibold text-gray-800">
+        Submit an Inquiry
+      </h2>
 
       <input
         type="text"
@@ -87,8 +88,7 @@ const AddInquiry = () => {
         className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      {/* ✅ Show textarea only if not Other */}
-      {formData.category !== 'Other' && (
+      {formData.category !== "Other" && (
         <textarea
           name="description"
           placeholder="Describe your issue (min 20 characters)"
@@ -99,8 +99,7 @@ const AddInquiry = () => {
         ></textarea>
       )}
 
-      {/* ✅ Show special textarea only if category is Other */}
-      {formData.category === 'Other' && (
+      {formData.category === "Other" && (
         <textarea
           name="otherDescription"
           placeholder="Ask your custom question (e.g. What are your opening hours?)"
@@ -126,8 +125,7 @@ const AddInquiry = () => {
         <option>Other</option>
       </select>
 
-      {/* ✅ Branch selector for Product Issue */}
-      {formData.category === 'Product Issue' && (
+      {formData.category === "Product Issue" && (
         <select
           name="location"
           value={formData.location}

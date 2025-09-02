@@ -1,31 +1,36 @@
-import React from 'react';
-import { StarIcon } from 'lucide-react';
+import React from "react";
+import { StarIcon } from "lucide-react";
 
 export function TestimonialsSection() {
   const testimonials = [
     {
-      content: 'MediTrack has completely transformed how I manage my medications. The reminders are a lifesaver!',
-      author: 'Sarah M.',
-      role: 'Patient',
+      content:
+        "The centralized pharmacy saved me so much time—I no longer have to visit multiple stores to find my prescribed medicine.",
+      author: "Anjali P.",
+      role: "Patient",
     },
     {
-      content: 'The delivery tracking feature gives me peace of mind knowing exactly when my medications will arrive.',
-      author: 'James R.',
-      role: 'Regular User',
+      content:
+        "As a pharmacist, this system helps me manage stock better and serve patients more efficiently.",
+      author: "Dr. Nuwan K.",
+      role: "Pharmacist",
     },
     {
-      content: 'Easy to use and incredibly helpful. The customer support team is always there when I need them.',
-      author: 'Emily L.',
-      role: 'Patient',
+      content:
+        "Prescription uploads with OCR are a game-changer. We can instantly validate and provide patients with the nearest pharmacy options.",
+      author: "Samantha D.",
+      role: "Hospital Staff",
     },
   ];
 
   return (
     <section className="py-20 bg-gray-50 text-gray-800">
       <div className="max-w-6xl mx-auto px-4 text-center">
-        <h2 className="text-4xl font-bold mb-6">What Our Users Say</h2>
+        <h2 className="text-4xl font-bold mb-6">What People Say</h2>
         <p className="text-lg text-gray-600 mb-12">
-          Join thousands of satisfied users who have simplified their healthcare management with MediTrack.
+          Patients, pharmacists, and hospitals are experiencing faster, smarter,
+          and more reliable healthcare through our Centralized Pharmacy
+          Platform.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
@@ -35,7 +40,9 @@ export function TestimonialsSection() {
                   <StarIcon key={i} size={20} />
                 ))}
               </div>
-              <p className="text-gray-700 italic mb-4">"{testimonial.content}"</p>
+              <p className="text-gray-700 italic mb-4">
+                "{testimonial.content}"
+              </p>
               <div className="font-semibold">{testimonial.author}</div>
               <div className="text-sm text-gray-500">{testimonial.role}</div>
             </div>

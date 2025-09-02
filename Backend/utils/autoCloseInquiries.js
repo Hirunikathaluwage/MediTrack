@@ -18,10 +18,10 @@ const autoCloseOldInquiries = async () => {
       for (const inquiry of inquiriesToClose) {
         inquiry.status = "Closed";
         await inquiry.save();
-        console.log(`✅ Inquiry ID ${inquiry._id} auto-closed.`);
+        console.log(`Inquiry ID ${inquiry._id} auto-closed.`);
       }
     } else {
-      console.log("✅ No pending inquiries to auto-close.");
+      console.log(" No pending inquiries to auto-close.");
     }
   } catch (error) {
     console.error(" Auto-close task failed:", error.message);
@@ -31,5 +31,5 @@ const autoCloseOldInquiries = async () => {
 export const scheduleAutoCloseInquiries = () => {
   // Run once every day at 2 AM server time
   cron.schedule('0 2 * * *', autoCloseOldInquiries);
-  console.log('🕒 Auto-close inquiry job scheduled (Daily at 2AM)');
+  console.log('Auto-close inquiry job scheduled (Daily at 2AM)');
 };
