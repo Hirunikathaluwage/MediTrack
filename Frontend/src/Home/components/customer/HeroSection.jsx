@@ -41,7 +41,6 @@ export function HeroSection() {
       <div className="absolute inset-0">
         <img
           src={images[currentImageIndex]}
-          alt="Centralized Pharmacy Background"
           className="w-full h-full object-cover transition-all duration-1000 opacity-20"
         />
         <div className="absolute inset-0 bg-black opacity-50"></div>

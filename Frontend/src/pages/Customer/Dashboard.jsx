@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { getCustomerProfile } from '../../api/customerAPI';
+import React, { useEffect, useState } from "react";
+import { getCustomerProfile } from "../../api/customerAPI";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -10,7 +10,7 @@ const Dashboard = () => {
         const data = await getCustomerProfile();
         setUser(data);
       } catch (err) {
-        console.error('❌ Failed to fetch profile');
+        console.error(" Failed to fetch profile");
       }
     };
     fetchProfile();
@@ -21,8 +21,12 @@ const Dashboard = () => {
       <h2>Dashboard</h2>
       {user ? (
         <div>
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
+          <p>
+            <strong>Name:</strong> {user.name}
+          </p>
+          <p>
+            <strong>Email:</strong> {user.email}
+          </p>
         </div>
       ) : (
         <p>Loading profile...</p>
