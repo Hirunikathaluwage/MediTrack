@@ -5,7 +5,7 @@ export function CTASection() {
   return (
     <footer className="bg-gradient-to-r from-blue-700 to-green-600 text-white py-12">
       <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-10">
-        {/* MediTrack Brand */}
+
         <div>
           <h2 className="text-3xl font-bold mb-4">MediTrack</h2>
           <p className="text-base leading-relaxed opacity-90">
@@ -19,26 +19,39 @@ export function CTASection() {
           <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
           <ul className="space-y-3 text-base">
             <li>
-              <a href="/" className="hover:underline">
+              <a
+                href="/"
+                className="!text-white/90 hover:underline"
+              >
                 Home
               </a>
             </li>
             <li>
-              <a href="/about" className="hover:underline">
+              <a
+                href="/about"
+                className="!text-white/90 hover:underline"
+              >
                 About Us
               </a>
             </li>
             <li>
-              <a href="/services" className="hover:underline">
+              <a
+                href="/services"
+                className="!text-white/90 hover:underline"
+              >
                 Services
               </a>
             </li>
             <li>
-              <a href="/contact" className="hover:underline">
+              <a
+                href="/contact"
+                className="!text-white/90 hover:underline"
+              >
                 Contact
               </a>
             </li>
           </ul>
+
         </div>
 
         {/* Support */}
@@ -46,22 +59,22 @@ export function CTASection() {
           <h3 className="text-xl font-semibold mb-4">Support</h3>
           <ul className="space-y-3 text-base">
             <li>
-              <a href="/help" className="hover:underline">
+              <a href="/help" className="!text-white/90 hover:underline">
                 Help Center
               </a>
             </li>
             <li>
-              <a href="/faq" className="hover:underline">
+              <a href="/faq" className="!text-white/90 hover:underline">
                 FAQs
               </a>
             </li>
             <li>
-              <a href="/privacy" className="hover:underline">
+              <a href="/privacy" className="!text-white/90 hover:underline">
                 Privacy Policy
               </a>
             </li>
             <li>
-              <a href="/terms" className="hover:underline">
+              <a href="/terms" className="!text-white/90 hover:underline">
                 Terms of Service
               </a>
             </li>
