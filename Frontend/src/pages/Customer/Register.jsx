@@ -52,28 +52,27 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-teal-50 to-blue-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500"></div>
-          <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-200 rounded-full opacity-20"></div>
-          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-200 rounded-full opacity-20"></div>
+
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-teal-500 to-blue-600"></div>
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-200 rounded-full opacity-20"></div>
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-teal-200 rounded-full opacity-20"></div>
 
           <div className="relative p-8">
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">MediTrack</h2>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">MediTrack</h2>
               <p className="text-gray-500 mt-2">Create your account in a few simple steps</p>
             </div>
 
-            {/* Progress indicator */}
             <div className="flex justify-between items-center mb-8 px-2">
               {[1, 2, 3].map((step) => (
                 <div key={step} className="flex flex-col items-center">
                   <div
                     className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${currentStep >= step
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                        : 'bg-gray-200 text-gray-400'
+                      ? 'bg-gradient-to-r from-blue-500 to-teal-500 text-white'
+                      : 'bg-gray-200 text-gray-400'
                       }`}
                   >
                     {step}
@@ -85,7 +84,7 @@ const Register = () => {
               ))}
               <div className="absolute top-24 left-10 right-10 h-0.5 bg-gray-200 -z-10"></div>
               <div
-                className="absolute top-24 left-10 h-0.5 bg-gradient-to-r from-purple-600 to-blue-600 transition-all -z-10"
+                className="absolute top-24 left-10 h-0.5 bg-gradient-to-r from-blue-500 to-teal-500 transition-all -z-10"
                 style={{ width: `${(currentStep - 1) * 50}%` }}
               ></div>
             </div>
@@ -104,7 +103,7 @@ const Register = () => {
                         onChange={handleChange}
                         placeholder="John Doe"
                         required
-                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500 transition-all"
+                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
                       />
                       <span className="absolute left-3 top-3.5 text-gray-400">👤</span>
                     </div>
@@ -121,7 +120,7 @@ const Register = () => {
                         onChange={handleChange}
                         placeholder="your@email.com"
                         required
-                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500 transition-all"
+                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
                       />
                       <span className="absolute left-3 top-3.5 text-gray-400">✉️</span>
                     </div>
@@ -138,7 +137,7 @@ const Register = () => {
                         onChange={handleChange}
                         placeholder="••••••••"
                         required
-                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500 transition-all"
+                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
                       />
                       <span className="absolute left-3 top-3.5 text-gray-400">🔒</span>
                     </div>
@@ -148,7 +147,7 @@ const Register = () => {
                     <button
                       type="button"
                       onClick={nextStep}
-                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
                     >
                       Continue
                     </button>
@@ -168,7 +167,7 @@ const Register = () => {
                         value={formData.address}
                         onChange={handleChange}
                         placeholder="123 Main St, City, Country"
-                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500 transition-all"
+                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
                       />
                       <span className="absolute left-3 top-3.5 text-gray-400">🏠</span>
                     </div>
@@ -183,7 +182,7 @@ const Register = () => {
                         value={formData.phoneNumber}
                         onChange={handleChange}
                         placeholder="+1 (123) 456-7890"
-                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500 transition-all"
+                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
                       />
                       <span className="absolute left-3 top-3.5 text-gray-400">📱</span>
                     </div>
@@ -200,7 +199,7 @@ const Register = () => {
                         onChange={handleChange}
                         placeholder="25"
                         min="1"
-                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500 transition-all"
+                        className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
                       />
                       <span className="absolute left-3 top-3.5 text-gray-400">📅</span>
                     </div>
@@ -217,7 +216,7 @@ const Register = () => {
                     <button
                       type="button"
                       onClick={nextStep}
-                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
                     >
                       Continue
                     </button>
@@ -259,7 +258,7 @@ const Register = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center"
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center"
                     >
                       {isSubmitting ? (
                         <>
@@ -280,8 +279,8 @@ const Register = () => {
 
             {message && (
               <div className={`mt-6 p-4 rounded-lg text-center animate-fadeIn ${message.includes('success')
-                  ? 'bg-green-50 text-green-800 border-l-4 border-green-500'
-                  : 'bg-red-50 text-red-800 border-l-4 border-red-500'
+                ? 'bg-green-50 text-green-800 border-l-4 border-green-500'
+                : 'bg-red-50 text-red-800 border-l-4 border-red-500'
                 }`}>
                 {message}
               </div>
@@ -290,7 +289,7 @@ const Register = () => {
         </div>
 
         <div className="text-center mt-6 text-gray-500 text-sm">
-          Already have an account? <a href="#" className="text-blue-600 hover:underline">Sign in</a>
+          Already have an account? <a href="/login" className="text-blue-500/90 hover:text-blue-600 hover:underline transition-colors">Sign in</a>
         </div>
       </div>
     </div>

@@ -13,7 +13,6 @@ dotenv.config();
 
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import { scheduleSLAAlert } from './utils/slaChecker.js';
 
 import customerRoutes from './routes/customerRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
@@ -25,7 +24,7 @@ import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import prescriptionRoutes from './routes/PrescriptionRoute.js';
-import reservationRoutes from "./routes/reservationRoutes.js"
+import reservationRoutes from "./routes/reservationRoutes.js";
 import medicineroute from './routes/MedicineRoute.js';
 import branchstockroute from './routes/BranchStockRoute.js';
 import deliveryRoutes from './routes/deliveryRoutes.js';
@@ -46,13 +45,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
+
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
+
 app.use('/uploads', express.static(uploadsDir));
 
 app.use('/api/cart', cartRoutes);
@@ -73,10 +73,8 @@ app.use('/api/drivers', driverRoutes);
 app.use('/adminprescription', adminPrescriptionRoutes);
 app.use('/api/reports', reportRoutes);
 
-
 app.use(notFound);
 app.use(errorHandler);
-
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -88,7 +86,6 @@ mongoose.connect(process.env.MONGO_URI, {
   });
 }).catch((err) => console.log(err));
 
-
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.ORIGIN || 'http://localhost:5173',
@@ -97,13 +94,11 @@ const io = new Server(httpServer, {
 });
 
 io.on('connection', (socket) => {
-  console.log(' New Client Connected:', socket.id);
+  console.log('New Client Connected:', socket.id);
 
   socket.on('disconnect', () => {
     console.log('Client Disconnected:', socket.id);
   });
 });
-scheduleSLAAlert();
 
 export { io };
-
