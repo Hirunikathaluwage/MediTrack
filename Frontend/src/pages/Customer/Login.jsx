@@ -9,7 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userType, setUserType] = useState("customer"); // 'customer' or 'admin'
+  const [userType, setUserType] = useState("customer");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,17 +75,17 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-teal-50 to-blue-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500"></div>
-          <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-200 rounded-full opacity-20"></div>
-          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-200 rounded-full opacity-20"></div>
+
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-teal-500 to-blue-600"></div>
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-200 rounded-full opacity-20"></div>
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-teal-200 rounded-full opacity-20"></div>
 
           <div className="relative p-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
                 MediTrack
               </h2>
               <p className="text-gray-500 mt-2">Sign in to your account</p>
@@ -97,7 +97,7 @@ const Login = () => {
                 <button
                   type="button"
                   className={`flex-1 py-3 px-4 text-center transition-all ${userType === "customer"
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium"
+                    ? "bg-gradient-to-r from-blue-500 to-teal-500 text-white font-medium"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                     }`}
                   onClick={() => setUserType("customer")}
@@ -107,7 +107,7 @@ const Login = () => {
                 <button
                   type="button"
                   className={`flex-1 py-3 px-4 text-center transition-all ${userType === "admin"
-                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium"
+                    ? "bg-gradient-to-r from-blue-500 to-teal-500 text-white font-medium"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                     }`}
                   onClick={() => setUserType("admin")}
@@ -137,7 +137,7 @@ const Login = () => {
                         : "your@email.com"
                     }
                     required
-                    className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500 transition-all"
+                    className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
                   />
                   <span className="absolute left-3 top-3.5 text-gray-400">
                     ✉️
@@ -160,7 +160,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500 transition-all"
+                    className="w-full pl-10 pr-4 py-3 border-0 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
                   />
                   <span className="absolute left-3 top-3.5 text-gray-400">
                     🔒
@@ -171,7 +171,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex justify-center items-center"
+                className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex justify-center items-center"
               >
                 {isSubmitting ? (
                   <>
@@ -206,7 +206,7 @@ const Login = () => {
 
             {message && (
               <div
-                className={`mt-6 p-4 rounded-lg text-center animate-fadeIn ${message.includes()
+                className={`mt-6 p-4 rounded-lg text-center animate-fadeIn ${message.includes("success")
                   ? "bg-green-50 text-green-800 border-l-4 border-green-500"
                   : "bg-red-50 text-red-800 border-l-4 border-red-500"
                   }`}
@@ -233,7 +233,7 @@ const Login = () => {
           {userType === "customer" && (
             <>
               Don't have an account?{" "}
-              <a href="/register" className="text-blue-600 hover:underline">
+              <a href="/register" className="text-blue-500/90 hover:text-blue-600 hover:underline transition-colors">
                 Register now
               </a>
             </>
@@ -241,7 +241,7 @@ const Login = () => {
           {userType === "admin" && (
             <>
               Need administrator access?{" "}
-              <a href="/contact" className="text-blue-600 hover:underline">
+              <a href="/contact" className="text-blue-500/90 hover:text-blue-600 hover:underline transition-colors">
                 Contact support
               </a>
             </>
