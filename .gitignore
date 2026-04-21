@@ -8,3 +8,4 @@ Backend/.env
 Frontend/.env
 uploads/
 ../.vscode/
+config.bat
